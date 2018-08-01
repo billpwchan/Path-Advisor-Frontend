@@ -1,5 +1,11 @@
 {
+  "env": {
+    "browser": true
+  },
   "parser": "babel-eslint",
   "extends": ["airbnb", "prettier/react"],
-  "plugins": ["react", "jsx-a11y", "import", "prettier"]
+  "plugins": ["react", "jsx-a11y", "import", "prettier"],
+  "rules": {
+    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }]
+  }
 }
