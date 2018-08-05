@@ -6,6 +6,8 @@
   "extends": ["airbnb", "prettier/react"],
   "plugins": ["react", "jsx-a11y", "import", "prettier"],
   "rules": {
-    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }]
+    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
+    "react/require-default-props": [0],
+    "arrow-parens": ["error", "as-needed"]
   }
 }
