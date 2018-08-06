@@ -1,8 +1,7 @@
-import React from 'react';
+import React, { Component } from 'react';
 
-const Plugin = <h1> Test Example </h1>;
-const Example = ({ primaryPanel }) => {
-  primaryPanel.add(Plugin);
-};
+const pluginId = 'Example';
+const PrimaryPanelPlugin = ({ mapPositionChanged }) => <h1> Test {mapPositionChanged} </h1>;
+const MapCanvasPlugin = null;
 
-export default Example;
+export { pluginId, PrimaryPanelPlugin, MapCanvasPlugin };

@@ -12,17 +12,16 @@ class Main extends Component {
 
   state = {};
 
-  componentDidMount() {
-    console.log('componentDidMount');
-    plugins.forEach(plugin => {
-      plugin({ primaryPanel: this.primaryPanelRef.current });
-    });
+  componentWillMount() {
+    this.primaryPanelPlugins = plugins.map(({ pluginId, PrimaryPanelPlugin }) => (
+      <PrimaryPanelPlugin key={pluginId} primaryPanelRef={this.primaryPanelRef} />
+    ));
   }
 
   render() {
     return (
       <div>
-        <PrimaryPanel ref={this.primaryPanelRef} />
+        <PrimaryPanel ref={this.primaryPanelRef}>{this.primaryPanelPlugins}</PrimaryPanel>
       </div>
     );
   }
