@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import Main from '../Main/Main';
 import NotFoundPage from '../NotFoundPage/NotFoundPage';
 
-const position = ':floor(floor/[^/]+)?/:coordinates(at/[^/]+)?';
+const position = ':floorPath(floor/[^/]+)?/:coordinatePath(at/[^/]+)?';
 
 const RouterManager = () => (
   <Router>
