@@ -1,4 +1,5 @@
 import React, { Component, createRef } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import PrimaryPanel from '../PrimaryPanel/PrimaryPanel';
 import plugins from '../../plugins';
@@ -33,4 +34,6 @@ Main.propTypes = {
   }),
 };
 
-export default Main;
+export default connect(state => ({
+  mappedTest: state.mapItems.test,
+}))(Main);

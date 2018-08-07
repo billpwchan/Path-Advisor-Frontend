@@ -5,14 +5,17 @@ import { createStore } from 'redux';
 import rootReducer from './reducers';
 import RouterManager from './components/RouterManager/RouterManager';
 
-const store = createStore(rootReducer);
+/* eslint-disable no-underscore-dangle */
+const store = createStore(
+  rootReducer,
+  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(),
+);
+/* eslint-enable */
 
-const App = () => {
-  return (
-    <Provider store={store}>
-      <RouterManager />
-    </Provider>
-  );
-};
+const App = () => (
+  <Provider store={store}>
+    <RouterManager />
+  </Provider>
+);
 
 export default App;
