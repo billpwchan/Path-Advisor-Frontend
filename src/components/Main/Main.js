@@ -29,7 +29,14 @@ class Main extends Component {
     const floor = typeof floorPath === 'string' && get(floorPath.split('/'), 1);
     const coordinate = typeof coordinateString === 'string' && coordinateString.split(',');
 
-    return { place, fromPlace, toPlace, mapItemType, coordinate, floor };
+    return {
+      place,
+      fromPlace,
+      toPlace,
+      mapItemType,
+      coordinate,
+      floor,
+    };
   }
 
   render() {
