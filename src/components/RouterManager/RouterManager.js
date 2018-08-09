@@ -13,7 +13,7 @@ const RouterManager = () => (
       <Route path={`/place/:place/${position}`} component={Main} exact />
       <Route path={`/search/from/:fromPlace/to/:toPlace/${position}`} component={Main} exact />
       <Route
-        path={`/search/nearest/:mapItemType/from/:fromPlace/${position}?`}
+        path={`/search/nearest/:mapItemType/from/:fromPlace/${position}`}
         component={Main}
         exact
       />
