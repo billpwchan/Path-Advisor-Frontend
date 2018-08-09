@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "axios": "^0.18.0",
+    "lodash.compact": "^3.0.1",
     "lodash.get": "^4.4.2",
     "prop-types": "^15.6.2",
     "react": "^16.4.1",
