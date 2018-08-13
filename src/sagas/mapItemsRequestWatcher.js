@@ -65,6 +65,7 @@ function* mapItemsRequestWorker({ payload: { floor, coordinates, offsetCoordinat
   } catch (error) {
     console.error(error);
     yield put(getMapItemsFailureAction());
+    return;
   }
 
   yield put(getMapItemsSuccessAction(fetchMapItemsResponseWrapper(response.data)));

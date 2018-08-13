@@ -43,6 +43,7 @@ function* autoCompleteRequestWorker({ payload: { keyword } }) {
   } catch (error) {
     console.error(error);
     yield put(getAutoCompleteFailureAction());
+    return;
   }
 
   yield put(getAutoCompleteSuccessAction(fetchAutoCompleteResponseWrapper(response.data)));
