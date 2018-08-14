@@ -19,14 +19,28 @@
 }
 ```
 
-Requests without solo watchers
+```javascript
+{
+  type: 'SEARCH_SHORTEST_PATH',
+  payload: { from: {keyword: '3542'}, to: {keyword: 'Atrium'} }
+}
+```
+
+```javascript
+{
+  type: 'SEARCH_SHORTEST_PATH',
+  payload: { from: { nodeId: "n614", floor: "3" }, to: { nodeId: "n241", floor: "G" } }
+}
+```
+
+Requests
 
 ```javascript
 fetchIdToNodeIdRequest("3", "p142");
 ```
 
 ```javascript
-fetchNodeIdsToIdsRequest([
+fetchNodeIdsToMapItemsRequest([
   { floor: "3", nodeId: "n614" },
   { floor: "3", nodeId: "n198" },
   { floor: "3", nodeId: "n197" },
@@ -79,4 +93,12 @@ fetchNodeIdsToIdsRequest([
   { floor: "G", nodeId: "n238" },
   { floor: "G", nodeId: "n241" }
 ]);
+```
+
+```javascript
+searchShortestPathRequest({ keyword: "3542" }, { keyword: "Atrium" });
+searchShortestPathRequest(
+  { nodeId: "n614", floor: "3" },
+  { nodeId: "n241", floor: "G" }
+);
 ```

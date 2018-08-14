@@ -16,7 +16,7 @@ p11;Atrium;;r510411671545744;G;n241
 
 */
 
-function fetchNodeIdsToIdsRequestWrapper(data) {
+function fetchNodeIdsToMapItemsRequestWrapper(data) {
   if (typeof data !== 'string') {
     return [];
   }
@@ -36,17 +36,22 @@ function fetchNodeIdsToIdsRequestWrapper(data) {
 }
 
 /**
- * @param {{<floor: string, nodeId: string>}[]} nodes
+ * @typedef {object} node
+ * @property {string} floor
+ * @property {string} nodeId
  */
-export default function fetchNodeIdsToIdsRequest(nodes) {
+/**
+ * @param {node[]} nodes
+ */
+export default function fetchNodeIdsToMapItemsRequest(nodes) {
   const nodeIds = nodes.map(({ floor, nodeId }) => `${floor};${nodeId}`).join(',');
 
   return axios
     .get(`${APIEndpoint()}/phplib/get_map_data_2.php?node_ids=${nodeIds}`)
     .then(response => ({
       ...response,
-      data: fetchNodeIdsToIdsRequestWrapper(response.data),
+      data: fetchNodeIdsToMapItemsRequestWrapper(response.data),
     }));
 }
 
-window.fetchNodeIdsToIdsRequest = fetchNodeIdsToIdsRequest;
+window.fetchNodeIdsToMapItemsRequest = fetchNodeIdsToMapItemsRequest;
