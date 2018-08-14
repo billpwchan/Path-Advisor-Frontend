@@ -3,7 +3,7 @@ import autoCompleteRequestWatcher from './watchers/autoCompleteRequestWatcher';
 import mapItemsRequestWatcher from './watchers/mapItemsRequestWatcher';
 import searchNearestRequestWatcher from './watchers/searchNearestRequestWatcher';
 
-import idToNodeRequest from './requests/idToNodeIdRequest';
+import fetchIdToNodeIdRequest from './requests/fetchIdToNodeIdRequest';
 
 export default function* rootSaga() {
   yield all([
