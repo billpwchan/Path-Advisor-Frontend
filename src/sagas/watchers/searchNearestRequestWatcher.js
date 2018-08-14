@@ -5,8 +5,8 @@ import {
   SEARCH_NEAREST,
   searchNearestSuccessAction,
   searchNearestFailureAction,
-} from '../reducers/searchNearest';
-import { APIEndpoint } from '../config/config';
+} from '../../reducers/searchNearest';
+import { APIEndpoint } from '../../config/config';
 
 function searchNearestRequest(floor, name, nearestType, sameFloor) {
   const sameFloorQS = sameFloor ? 'yes' : 'no';

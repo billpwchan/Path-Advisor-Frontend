@@ -1,12 +1,12 @@
 import { put, takeLatest, call } from 'redux-saga/effects';
 import axios from 'axios';
 import compact from 'lodash.compact';
-import { APIEndpoint } from '../config/config';
+import { APIEndpoint } from '../../config/config';
 import {
   GET_AUTOCOMPLETE,
   getAutoCompleteSuccessAction,
   getAutoCompleteFailureAction,
-} from '../reducers/autoComplete';
+} from '../../reducers/autoComplete';
 
 function fetchAutoCompleteRequest(keyword) {
   return axios.get(

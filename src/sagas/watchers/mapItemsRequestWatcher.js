@@ -1,13 +1,13 @@
 import { put, takeLatest, call } from 'redux-saga/effects';
 import axios from 'axios';
 import compact from 'lodash.compact';
-import { APIEndpoint } from '../config/config';
+import { APIEndpoint } from '../../config/config';
 
 import {
   GET_MAP_ITEMS,
   getMapItemsSuccessAction,
   getMapItemsFailureAction,
-} from '../reducers/mapItems';
+} from '../../reducers/mapItems';
 
 function fetchMapItemsRequest(floor, coordinates, offsetCoordinates) {
   const [startX, startY] = coordinates;
