@@ -6,12 +6,13 @@ import {
   searchNearestSuccessAction,
   searchNearestFailureAction,
 } from '../reducers/searchNearest';
+import { APIEndpoint } from '../config/config';
 
 function searchNearestRequest(floor, name, nearestType, sameFloor) {
   const sameFloorQS = sameFloor ? 'yes' : 'no';
 
   return axios.get(
-    `http://pathadvisor.ust.hk/phplib/search.php?type=${nearestType}&same_floor=${sameFloorQS}&keyword=${name}&floor=${floor}`,
+    `${APIEndpoint()}/phplib/search.php?type=${nearestType}&same_floor=${sameFloorQS}&keyword=${name}&floor=${floor}`,
   );
 }
 

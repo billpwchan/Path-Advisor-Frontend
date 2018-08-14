@@ -1,6 +1,8 @@
 import { put, takeLatest, call } from 'redux-saga/effects';
 import axios from 'axios';
 import compact from 'lodash.compact';
+import { APIEndpoint } from '../config/config';
+
 import {
   GET_MAP_ITEMS,
   getMapItemsSuccessAction,
@@ -12,7 +14,7 @@ function fetchMapItemsRequest(floor, coordinates, offsetCoordinates) {
   const [offsetX, offsetY] = offsetCoordinates;
 
   return axios.get(
-    `http://pathadvisor.ust.hk/phplib/get_map_data_2.php?floor=${encodeURIComponent(
+    `${APIEndpoint()}/phplib/get_map_data_2.php?floor=${encodeURIComponent(
       floor,
     )}&MapCoorX=${startX}&MapCoorY=${startY}&offsetX=${offsetX}&offsetY=${offsetY}`,
   );

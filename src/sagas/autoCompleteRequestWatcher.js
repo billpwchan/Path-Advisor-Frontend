@@ -1,6 +1,7 @@
 import { put, takeLatest, call } from 'redux-saga/effects';
 import axios from 'axios';
 import compact from 'lodash.compact';
+import { APIEndpoint } from '../config/config';
 import {
   GET_AUTOCOMPLETE,
   getAutoCompleteSuccessAction,
@@ -9,7 +10,7 @@ import {
 
 function fetchAutoCompleteRequest(keyword) {
   return axios.get(
-    `http://pathadvisor.ust.hk/phplib/keyword_suggestion.php?keyword=${encodeURIComponent(
+    `${APIEndpoint()}/phplib/keyword_suggestion.php?keyword=${encodeURIComponent(
       keyword,
     )}&floor=Overall`,
   );
