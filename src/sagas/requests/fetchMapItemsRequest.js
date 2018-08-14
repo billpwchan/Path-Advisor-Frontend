@@ -1,5 +1,6 @@
 import axios from 'axios';
 import compact from 'lodash.compact';
+import get from 'lodash.get';
 import { APIEndpoint } from '../../config/config';
 
 // TO-DO: remove wrapper after backend api updated
@@ -11,7 +12,9 @@ function fetchMapItemsResponseWrapper(data) {
   const mapItemStrings = compact(data.split('\n'));
   return mapItemStrings.map(mapItemString => {
     const mapItemValues = mapItemString.split(';');
-    const coordinates = mapItemValues[0].split(',').map(v => parseInt(v, 10));
+    const coordinates = get(mapItemValues, 0, '')
+      .split(',')
+      .map(v => parseInt(v, 10));
     return {
       name: mapItemValues[1],
       floor: null,
