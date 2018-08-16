@@ -5,10 +5,8 @@ import React, { Component } from 'react';
 class MapCanvas extends Component {
   state = {};
 
-  helloWorld = () => {};
-
   render() {
-    const { children } = this.props;
+    const { children, helloWorld } = this.props;
     return (
       <div>
         <div> MapCanvas own things </div>

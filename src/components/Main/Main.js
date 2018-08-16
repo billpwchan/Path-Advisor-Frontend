@@ -15,7 +15,9 @@ class Main extends Component {
     match: { params: {} },
   };
 
-  state = {};
+  state = {
+    tests: [<b key="test1">Have it</b>],
+  };
 
   getUrlParams() {
     const {
@@ -39,19 +41,31 @@ class Main extends Component {
     };
   }
 
+  helloWorld = newItem => {
+    this.setState(prevState => ({
+      tests: [...prevState.tests, newItem],
+    }));
+  };
+
+  helloWorld2 = () => {};
+
   render() {
     console.log('Main.js', this.props.match);
 
     return (
       <div>
         <Link to="/place/room2345">About</Link>
-        <PrimaryPanel {...this.getUrlParams()}>
+        <PrimaryPanel
+          {...this.getUrlParams()}
+          helloWorld={this.helloWorld}
+          tests={this.state.tests}
+        >
           {plugins.map(({ pluginId, PrimaryPanelPlugin }) => ({
             pluginId,
             PrimaryPanelPlugin,
           }))}
         </PrimaryPanel>
-        <MapCanvas {...this.getUrlParams()}>
+        <MapCanvas {...this.getUrlParams()} helloWorld={this.helloWorld2}>
           {plugins.map(({ pluginId, MapCanvasPlugin }) => ({
             pluginId,
             MapCanvasPlugin,

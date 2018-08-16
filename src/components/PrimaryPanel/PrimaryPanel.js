@@ -3,25 +3,16 @@ import React, { Component } from 'react';
 // import { connect, connectAdvanced } from 'react-redux';
 
 class PrimaryPanel extends Component {
-  state = {
-    tests: [<b key="test1">Have it</b>],
-  };
-
-  helloWorld = newItem => {
-    this.setState(prevState => ({
-      tests: [...prevState.tests, newItem],
-    }));
-  };
+  state = {};
 
   render() {
-    const { children, place } = this.props;
-    const { tests } = this.state;
+    const { children, place, helloWorld, tests } = this.props;
     return (
       <div>
         <div> Primary own things {tests}</div>
         <div>
           {children.map(({ pluginId, PrimaryPanelPlugin }) => (
-            <PrimaryPanelPlugin key={pluginId} helloWorld={this.helloWorld} place={place} />
+            <PrimaryPanelPlugin key={pluginId} helloWorld={helloWorld} place={place} />
           ))}
         </div>
       </div>
