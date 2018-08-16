@@ -15,7 +15,7 @@ import { SearchAPIEndpoint } from '../../config/config';
   G;2206,1200;56;242
   G;2448,1200;280;39
  */
-// TO-DO: remove wrapper after backend api updated
+// TO-DO: remove wrapper after backend api revamped
 async function searchShortestPathResponseWrapper(data) {
   if (typeof data !== 'string') {
     return [];
