@@ -101,6 +101,31 @@ class CanvasHandler {
     this.x = x;
     this.y = y;
     this.floor = floor;
+
+    this.setUpDragAndDropListener();
+  }
+
+  setUpDragAndDropListener() {
+    this.canvas.addEventListener('mousedown', e => {
+      const { clientX: downX, clientY: downY } = e;
+      const { x: prevX, y: prevY } = this;
+
+      const mouseMoveListener = e => {
+        const { clientX: currentX, clientY: currentY } = e;
+        this.x = prevX + downX - currentX;
+        this.y = prevY + downY - currentY;
+
+        this.render();
+      };
+
+      const mouseUpListener = () => {
+        this.canvas.removeEventListener('mousemove', mouseMoveListener);
+        this.canvas.removeEventListener('mouseup', mouseUpListener);
+      };
+
+      this.canvas.addEventListener('mousemove', mouseMoveListener);
+      this.canvas.addEventListener('mouseup', mouseUpListener);
+    });
   }
 
   getWidth() {
@@ -111,20 +136,27 @@ class CanvasHandler {
     return this.canvas.height;
   }
 
-  updateLayer({ id, hidden }) {
-    this.layers = {
-      ...this.layers,
-      [id]: { hidden },
-    };
+  updateLayers(layers) {
+    Object.keys(layers).forEach(layerId => {
+      const { id, hidden } = layers[layerId];
+      this.layers[layerId] = { id, hidden };
+    });
 
     this.render();
   }
 
-  updateMapItem({ id, floor, x, y, type, data, others = {}, hidden = false }) {
-    this.mapItems = {
-      ...this.mapItems,
-      [id]: { id, floor, x, y, type, data, others, hidden },
-    };
+  updateMapTiles(mapTiles) {
+    Object.keys(mapTiles).forEach(id => {
+      this.mapTiles[id] = mapTiles[id];
+    });
+
+    this.render();
+  }
+
+  updateMapItems(mapItems) {
+    Object.keys(mapItems).forEach(id => {
+      this.mapItems[id] = mapItems[id];
+    });
 
     this.render();
   }
@@ -224,13 +256,13 @@ class CanvasHandler {
 
         switch (type) {
           case TYPE_IMG:
-            ctx.drawImage(data, x, y);
+            ctx.drawImage(data, x - this.x, y - this.y);
             break;
           case TYPE_TEXT: {
             const { size, color, family, text } = data;
             ctx.fillStyle = color;
             ctx.font = `${size} ${family}`;
-            ctx.fillText(text, x, y);
+            ctx.fillText(text, x - this.x, y - this.y);
             break;
           }
           default:
