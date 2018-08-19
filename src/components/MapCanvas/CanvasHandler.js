@@ -35,11 +35,13 @@ function getMapTileUrl(x, y) {
 }
 
 class CanvasHandler {
-  /**
-   *
-   * @param {HTMLCanvasElement} canvas
-   */
-  layers = [{ key: 'mapTiles', hidden: false }, { key: 'mapItems', hidden: false }];
+  layers = {
+    mapTiles: { id: 'mapTiles', hidden: false },
+    mapItems: { id: 'mapItems', hidden: false },
+  };
+
+  // left to right rendering
+  layerIds = ['mapTiles', 'mapItems'];
 
   /**
    * @typedef FontElement
@@ -50,6 +52,7 @@ class CanvasHandler {
    */
   /**
    * @typedef canvasItem
+   * @property {string} id
    * @property {number} x
    * @property {number} y
    * @property {string} floor
@@ -58,11 +61,14 @@ class CanvasHandler {
    * @property {HTMLImageElement|FontElement} data - data to render in canvas
    * @property {{}} others
    */
-  /** @type {canvasItem[]} */
-  mapTiles = [];
 
-  /** @type {canvasItem[]} */
-  mapItems = [];
+  mapTiles = {};
+
+  mapTileIds = [];
+
+  mapItems = {};
+
+  mapItemIds = [];
 
   /** @type {number} - map coordinate x at top left concer of the canvas element */
   x = 0;
@@ -73,11 +79,20 @@ class CanvasHandler {
   /** @type {string} - current floor displaying */
   floor = 'G';
 
-  canvasItems = {
-    mapTiles: this.mapTiles,
-    mapItems: this.mapItems,
-  };
+  getCanvasItems(key) {
+    switch (key) {
+      case 'mapTiles':
+        return this.mapTileIds.map(id => this.mapTiles[id]);
+      case 'mapItems':
+        return this.mapItemIds.map(id => this.mapItems[id]);
+      default:
+        return [];
+    }
+  }
 
+  /**
+   * @param {HTMLCanvasElement} canvas
+   */
   constructor(canvas, x = 0, y = 0, floor = 'G') {
     if (!(canvas instanceof HTMLCanvasElement)) {
       throw new Error('canvas must be instance of HTMLCanvasElement');
@@ -96,15 +111,37 @@ class CanvasHandler {
     return this.canvas.height;
   }
 
+  updateLayer({ id, hidden }) {
+    this.layers = {
+      ...this.layers,
+      [id]: { hidden },
+    };
+
+    this.render();
+  }
+
+  updateMapItem({ id, floor, x, y, type, data, others = {}, hidden = false }) {
+    this.mapItems = {
+      ...this.mapItems,
+      [id]: { id, floor, x, y, type, data, others, hidden },
+    };
+
+    this.render();
+  }
+
   /**
    * @param {canvasItem[]} mapTiles
    */
   async addMapTiles(mapTiles) {
     const asyncMapTiles = [];
 
-    mapTiles.forEach(({ floor, x, y, hidden = false }) => {
+    mapTiles.forEach(({ id, floor, x, y, hidden = false }) => {
+      if (!id) {
+        throw new Error('id is required for canvas item');
+      }
       const data = createImage(getMapTileUrl(x, y));
-      this.mapTiles.push({ floor, x, y, type: TYPE_IMG, hidden, data, others: {} });
+      this.mapTiles[id] = { id, floor, x, y, type: TYPE_IMG, hidden, data, others: {} };
+      this.mapTileIds.push(id);
 
       asyncMapTiles.push(
         createImageLoadPromise(data)
@@ -127,7 +164,10 @@ class CanvasHandler {
   async addMapItems(mapItems) {
     const asyncMapItems = [];
 
-    mapItems.forEach(({ floor, x, y, type, data, others = {}, hidden = false }) => {
+    mapItems.forEach(({ id, floor, x, y, type, data, others = {}, hidden = false }) => {
+      if (!id) {
+        throw new Error('id is required for canvas item');
+      }
       // data is ready to be rendered
       const imgLoaded = data.complete && data.naturalWidth && data.naturalHeight;
 
@@ -144,7 +184,8 @@ class CanvasHandler {
         );
       }
 
-      this.mapItems.push({ floor, x, y, type, data, others, hidden });
+      this.mapItems[id] = { id, floor, x, y, type, data, others, hidden };
+      this.mapItemIds.push(id);
     });
 
     // render all sync map items first
@@ -171,12 +212,12 @@ class CanvasHandler {
     const ctx = this.canvas.getContext('2d');
     ctx.clearRect(0, 0, this.getWidth(), this.getHeight());
 
-    this.layers.forEach(({ key, hidden: layerHidden }) => {
-      if (layerHidden) {
+    this.layerIds.forEach(key => {
+      if (this.layers[key].hidden) {
         return;
       }
       // Render each canvas items in this layer
-      this.canvasItems[key].forEach(({ floor, x, y, type, data, others, hidden }) => {
+      this.getCanvasItems(key).forEach(({ floor, x, y, type, data, hidden }) => {
         if (hidden || floor !== this.floor) {
           return;
         }
@@ -205,6 +246,7 @@ export default CanvasHandler;
 img = new Image();
 canvasHandler.addMapItems([
   {
+    id: 1,
     floor: 'G',
     x: 10,
     y: 20,
@@ -212,6 +254,7 @@ canvasHandler.addMapItems([
     data: { size: '12 px', family: 'Verdana', color: 'red', text: 'Hello world' },
   },
   {
+    id: 2,
     floor: 'G',
     x: 30,
     y: 40,
@@ -221,6 +264,8 @@ canvasHandler.addMapItems([
 ]);
 
 img.src='http://pathadvisor.ust.hk/img/express.png';
+
+canvasHandler.addMapTiles([{ id: 3, floor:'G', x: 10, y :200}])
 
  */
 /**
