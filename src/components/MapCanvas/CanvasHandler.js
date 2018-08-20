@@ -343,32 +343,3 @@ class CanvasHandler {
 }
 
 export default CanvasHandler;
-/**
- *
-img = new Image();
-canvasHandler.addMapItems([
-  {
-    id: 1,
-    floor: 'G',
-    x: 10,
-    y: 20,
-    textElement: { size: '12 px', family: 'Verdana', color: 'red', text: 'Hello world' },
-  },
-  {
-    id: 2,
-    floor: 'G',
-    x: 30,
-    y: 40,
-    image: img
-  }
-]);
-
-img.src='http://pathadvisor.ust.hk/img/express.png';
-
-canvasHandler.addMapTiles([{ id: 3, floor:'G', x: 10, y :200}])
-
- */
-/**
- * var text_width = ctx.measureText("some text").width;
- * I used line height for text_height.
- */
