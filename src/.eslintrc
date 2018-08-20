@@ -27,6 +27,7 @@
         "printWidth": 100,
         "trailingComma": "all"
       }
-    ]
+    ],
+    "prefer-destructuring": ["warn", {"object": true, "array": true}]
   }
 }

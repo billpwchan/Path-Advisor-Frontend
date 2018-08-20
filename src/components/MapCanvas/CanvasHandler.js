@@ -1,4 +1,24 @@
-import compact from 'lodash.compact';
+import calculateTextDimension from './calculateTextDimension';
+/**
+ * @typedef FontElement
+ * @property {string} size
+ * @property {string} family
+ * @property {string} color
+ * @property {string} text
+ */
+/**
+ * @typedef canvasItem
+ * @property {string} id
+ * @property {number} x
+ * @property {number} y
+ * @property {?number} width
+ * @property {?number} height
+ * @property {string} floor
+ * @property {boolean} hidden
+ * @property {string} type - oneOf ['text', 'image']
+ * @property {HTMLImageElement|FontElement} data - data to render in canvas
+ * @property {{}} others
+ */
 
 const TYPE_IMG = 'image';
 const TYPE_TEXT = 'text';
@@ -43,29 +63,12 @@ class CanvasHandler {
   // left to right rendering
   layerIds = ['mapTiles', 'mapItems'];
 
-  /**
-   * @typedef FontElement
-   * @property {string} size
-   * @property {string} family
-   * @property {string} color
-   * @property {string} text
-   */
-  /**
-   * @typedef canvasItem
-   * @property {string} id
-   * @property {number} x
-   * @property {number} y
-   * @property {string} floor
-   * @property {boolean} hidden
-   * @property {string} type - oneOf ['text', 'image']
-   * @property {HTMLImageElement|FontElement} data - data to render in canvas
-   * @property {{}} others
-   */
-
+  /** @type {Object.<string, canvasItem>} - map tiles dict */
   mapTiles = {};
 
   mapTileIds = [];
 
+  /** @type {Object.<string, canvasItem>} - map items dict */
   mapItems = {};
 
   mapItemIds = [];
@@ -167,18 +170,31 @@ class CanvasHandler {
   async addMapTiles(mapTiles) {
     const asyncMapTiles = [];
 
-    mapTiles.forEach(({ id, floor, x, y, hidden = false }) => {
+    mapTiles.forEach(({ id, floor, x, y, width = null, height = null, hidden = false }) => {
       if (!id) {
         throw new Error('id is required for canvas item');
       }
       const data = createImage(getMapTileUrl(x, y));
-      this.mapTiles[id] = { id, floor, x, y, type: TYPE_IMG, hidden, data, others: {} };
+      this.mapTiles[id] = {
+        id,
+        floor,
+        x,
+        y,
+        width,
+        height,
+        type: TYPE_IMG,
+        hidden,
+        data,
+        others: {},
+      };
       this.mapTileIds.push(id);
 
       asyncMapTiles.push(
         createImageLoadPromise(data)
           .then(() => {
             this.render();
+            this.mapTiles[id].width = data.width;
+            this.mapTiles[id].height = data.height;
           })
           .catch(err => {
             console.log(err);
@@ -196,29 +212,53 @@ class CanvasHandler {
   async addMapItems(mapItems) {
     const asyncMapItems = [];
 
-    mapItems.forEach(({ id, floor, x, y, type, data, others = {}, hidden = false }) => {
-      if (!id) {
-        throw new Error('id is required for canvas item');
-      }
-      // data is ready to be rendered
-      const imgLoaded = data.complete && data.naturalWidth && data.naturalHeight;
+    mapItems.forEach(
+      ({
+        id,
+        floor,
+        x,
+        y,
+        width = null,
+        height = null,
+        type,
+        data,
+        others = {},
+        hidden = false,
+      }) => {
+        if (!id) {
+          throw new Error('id is required for canvas item');
+        }
 
-      if (data instanceof HTMLImageElement && !imgLoaded) {
-        // wait for img data to load completely before rendering
-        asyncMapItems.push(
-          createImageLoadPromise(data)
-            .then(() => {
-              this.render();
-            })
-            .catch(err => {
-              console.log(err);
-            }),
-        );
-      }
+        this.mapItems[id] = { id, floor, x, y, width, height, type, data, others, hidden };
+        this.mapItemIds.push(id);
 
-      this.mapItems[id] = { id, floor, x, y, type, data, others, hidden };
-      this.mapItemIds.push(id);
-    });
+        // async work after adding items
+        const imageNotReady =
+          data instanceof HTMLImageElement &&
+          !(data.complete && data.naturalWidth && data.naturalHeight);
+
+        if (imageNotReady) {
+          // wait for img data to load completely before rendering
+          asyncMapItems.push(
+            createImageLoadPromise(data)
+              .then(() => {
+                this.render();
+                this.mapItems[id].width = data.width;
+                this.mapItems[id].height = data.height;
+              })
+              .catch(err => {
+                console.log(err);
+              }),
+          );
+        }
+
+        if (type === TYPE_TEXT) {
+          const dimension = calculateTextDimension(data);
+          this.mapItems[id].width = dimension.width;
+          this.mapItems[id].height = dimension.height;
+        }
+      },
+    );
 
     // render all sync map items first
     this.render();
@@ -302,7 +342,5 @@ canvasHandler.addMapTiles([{ id: 3, floor:'G', x: 10, y :200}])
  */
 /**
  * var text_width = ctx.measureText("some text").width;
-I used line height for text_height.
-
-
+ * I used line height for text_height.
  */
