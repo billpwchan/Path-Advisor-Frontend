@@ -331,6 +331,7 @@ class CanvasHandler {
             const { size, color, family, text } = textElement;
             ctx.fillStyle = color;
             ctx.font = `${size} ${family}`;
+            ctx.textBaseline = 'top';
             ctx.fillText(text, x - this.x, y - this.y);
             break;
           }
