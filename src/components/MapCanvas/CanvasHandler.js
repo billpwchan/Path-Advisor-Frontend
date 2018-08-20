@@ -7,7 +7,7 @@ import calculateTextDimension from './calculateTextDimension';
  * @property {string} text
  */
 /**
- * @typedef canvasItem
+ * @typedef CanvasItem
  * @property {string} id
  * @property {number} x
  * @property {number} y
@@ -51,6 +51,22 @@ function getMapTileUrl(x, y) {
   return 'http://pathadvisor.ust.hk/map_pixel.php?x=2000&y=1000&floor=G&level=2&lineString=';
 }
 
+/**
+ * Test a point inside a rect or not
+ * @param {number} x - point coordinate x
+ * @param {number} y - point coordinate y
+ * @param {CanvasItem} canvasItem
+ * @return {boolean}
+ */
+function hitTest(x, y, canvasItem) {
+  const { width, height, x: itemX, y: itemY } = canvasItem;
+
+  const xInRange = x >= itemX && x <= itemX + width;
+  const yInRange = y >= itemY && y <= itemY + height;
+
+  return xInRange && yInRange;
+}
+
 class CanvasHandler {
   layers = {
     mapTiles: { id: 'mapTiles', hidden: false },
@@ -60,12 +76,12 @@ class CanvasHandler {
   // left to right rendering
   layerIds = ['mapTiles', 'mapItems'];
 
-  /** @type {Object.<string, canvasItem>} - map tiles dict */
+  /** @type {Object.<string, CanvasItem>} - map tiles dict */
   mapTiles = {};
 
   mapTileIds = [];
 
-  /** @type {Object.<string, canvasItem>} - map items dict */
+  /** @type {Object.<string, CanvasItem>} - map items dict */
   mapItems = {};
 
   mapItemIds = [];
@@ -103,6 +119,7 @@ class CanvasHandler {
     this.floor = floor;
 
     this.setUpDragAndDropListener();
+    this.setUpClickListener();
   }
 
   setUpDragAndDropListener() {
@@ -125,6 +142,21 @@ class CanvasHandler {
 
       this.canvas.addEventListener('mousemove', mouseMoveListener);
       this.canvas.addEventListener('mouseup', mouseUpListener);
+    });
+  }
+
+  setUpClickListener() {
+    this.canvas.addEventListener('click', e => {
+      const { clientX, clientY } = e;
+      const canvasCoordinate = this.canvas.getBoundingClientRect();
+      const x = clientX - canvasCoordinate.left + this.x;
+      const y = clientY - canvasCoordinate.top + this.y;
+
+      this.mapItemIds.forEach(id => {
+        if (hitTest(x, y, this.mapItems[id])) {
+          console.log('Hit', id, this.mapItems[id]);
+        }
+      });
     });
   }
 
@@ -162,7 +194,7 @@ class CanvasHandler {
   }
 
   /**
-   * @param {canvasItem[]} mapTiles
+   * @param {CanvasItem[]} mapTiles
    */
   async addMapTiles(mapTiles) {
     const asyncMapTiles = [];
@@ -203,7 +235,7 @@ class CanvasHandler {
   }
 
   /**
-   * @param {canvasItem[]} mapItems
+   * @param {CanvasItem[]} mapItems
    */
   async addMapItems(mapItems) {
     const asyncMapItems = [];
