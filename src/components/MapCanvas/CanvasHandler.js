@@ -1,6 +1,6 @@
 import calculateTextDimension from './calculateTextDimension';
 /**
- * @typedef FontElement
+ * @typedef TextElement
  * @property {string} size
  * @property {string} family
  * @property {string} color
@@ -15,13 +15,10 @@ import calculateTextDimension from './calculateTextDimension';
  * @property {?number} height
  * @property {string} floor
  * @property {boolean} hidden
- * @property {string} type - oneOf ['text', 'image']
- * @property {HTMLImageElement|FontElement} data - data to render in canvas
- * @property {{}} others
+ * @property {HTMLImageElement} [image]
+ * @property {TextElement} [textElement]
+ * @property {Object} others - additional data for plugins to attach
  */
-
-const TYPE_IMG = 'image';
-const TYPE_TEXT = 'text';
 
 /**
  * Create a promise and resolve when image is loaded
@@ -174,7 +171,7 @@ class CanvasHandler {
       if (!id) {
         throw new Error('id is required for canvas item');
       }
-      const data = createImage(getMapTileUrl(x, y));
+      const image = createImage(getMapTileUrl(x, y));
       this.mapTiles[id] = {
         id,
         floor,
@@ -182,19 +179,18 @@ class CanvasHandler {
         y,
         width,
         height,
-        type: TYPE_IMG,
         hidden,
-        data,
+        image,
         others: {},
       };
       this.mapTileIds.push(id);
 
       asyncMapTiles.push(
-        createImageLoadPromise(data)
+        createImageLoadPromise(image)
           .then(() => {
             this.render();
-            this.mapTiles[id].width = data.width;
-            this.mapTiles[id].height = data.height;
+            this.mapTiles[id].width = image.width;
+            this.mapTiles[id].height = image.height;
           })
           .catch(err => {
             console.log(err);
@@ -220,8 +216,8 @@ class CanvasHandler {
         y,
         width = null,
         height = null,
-        type,
-        data,
+        image = null,
+        textElement = null,
         others = {},
         hidden = false,
       }) => {
@@ -229,22 +225,23 @@ class CanvasHandler {
           throw new Error('id is required for canvas item');
         }
 
-        this.mapItems[id] = { id, floor, x, y, width, height, type, data, others, hidden };
+        this.mapItems[id] = { id, floor, x, y, width, height, image, textElement, others, hidden };
         this.mapItemIds.push(id);
 
         // async work after adding items
-        const imageNotReady =
-          data instanceof HTMLImageElement &&
-          !(data.complete && data.naturalWidth && data.naturalHeight);
 
-        if (imageNotReady) {
+        // function instead of expression to avoid access of property of a null obj, image can be null
+        const imageLoaded = () => image.complete && image.naturalWidth && image.naturalHeight;
+
+        // item is an image and image is load yet loaded
+        if (image && !imageLoaded()) {
           // wait for img data to load completely before rendering
           asyncMapItems.push(
-            createImageLoadPromise(data)
+            createImageLoadPromise(image)
               .then(() => {
                 this.render();
-                this.mapItems[id].width = data.width;
-                this.mapItems[id].height = data.height;
+                this.mapItems[id].width = image.width;
+                this.mapItems[id].height = image.height;
               })
               .catch(err => {
                 console.log(err);
@@ -252,8 +249,8 @@ class CanvasHandler {
           );
         }
 
-        if (type === TYPE_TEXT) {
-          const dimension = calculateTextDimension(data);
+        if (textElement) {
+          const dimension = calculateTextDimension(textElement);
           this.mapItems[id].width = dimension.width;
           this.mapItems[id].height = dimension.height;
         }
@@ -289,17 +286,17 @@ class CanvasHandler {
         return;
       }
       // Render each canvas items in this layer
-      this.getCanvasItems(key).forEach(({ floor, x, y, type, data, hidden }) => {
+      this.getCanvasItems(key).forEach(({ floor, x, y, image, textElement, hidden }) => {
         if (hidden || floor !== this.floor) {
           return;
         }
 
-        switch (type) {
-          case TYPE_IMG:
-            ctx.drawImage(data, x - this.x, y - this.y);
+        switch (true) {
+          case Boolean(image):
+            ctx.drawImage(image, x - this.x, y - this.y);
             break;
-          case TYPE_TEXT: {
-            const { size, color, family, text } = data;
+          case Boolean(textElement): {
+            const { size, color, family, text } = textElement;
             ctx.fillStyle = color;
             ctx.font = `${size} ${family}`;
             ctx.fillText(text, x - this.x, y - this.y);
@@ -322,16 +319,14 @@ canvasHandler.addMapItems([
     floor: 'G',
     x: 10,
     y: 20,
-    type: 'text',
-    data: { size: '12 px', family: 'Verdana', color: 'red', text: 'Hello world' },
+    textElement: { size: '12 px', family: 'Verdana', color: 'red', text: 'Hello world' },
   },
   {
     id: 2,
     floor: 'G',
     x: 30,
     y: 40,
-    type: 'image',
-    data: img
+    image: img
   }
 ]);
 
