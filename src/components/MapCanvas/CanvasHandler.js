@@ -11,13 +11,13 @@ import calculateTextDimension from './calculateTextDimension';
  * @property {string} id
  * @property {number} x
  * @property {number} y
- * @property {?number} width
- * @property {?number} height
+ * @property {?number} [width]
+ * @property {?number} [height]
  * @property {string} floor
- * @property {boolean} hidden
+ * @property {boolean} [hidden]
  * @property {HTMLImageElement} [image]
  * @property {TextElement} [textElement]
- * @property {Object} others - additional data for plugins to attach
+ * @property {Object} [others] - additional data for plugins to attach
  */
 
 /**
@@ -38,20 +38,6 @@ async function createImageLoadPromise(img) {
 }
 
 /**
- * @param {string} src
- * @return {HTMLImageElement} Loaded image element
- */
-function createImage(src) {
-  const img = new Image();
-  img.src = src;
-  return img;
-}
-
-function getMapTileUrl(x, y) {
-  return 'http://pathadvisor.ust.hk/map_pixel.php?x=2000&y=1000&floor=G&level=2&lineString=';
-}
-
-/**
  * Test a point inside a rect or not
  * @param {number} x - point coordinate x
  * @param {number} y - point coordinate y
@@ -67,6 +53,12 @@ function hitTest(x, y, canvasItem) {
   return xInRange && yInRange;
 }
 
+function imageNotLoaded(image) {
+  return (
+    image instanceof HTMLImageElement &&
+    !(image.complete && image.naturalWidth && image.naturalHeight)
+  );
+}
 class CanvasHandler {
   layers = {
     mapTiles: { id: 'mapTiles', hidden: false },
@@ -95,6 +87,15 @@ class CanvasHandler {
   /** @type {string} - current floor displaying */
   floor = 'G';
 
+  /** @type {number} - current scale  */
+  scale = 1;
+
+  /** @type {function[]} - Custom mouse move listeners */
+  mouseMoveListeners = [];
+
+  /** @type {function[]} - Custom mouse up listeners */
+  mouseUpListeners = [];
+
   getCanvasItems(key) {
     switch (key) {
       case 'mapTiles':
@@ -106,20 +107,84 @@ class CanvasHandler {
     }
   }
 
-  /**
-   * @param {HTMLCanvasElement} canvas
-   */
-  constructor(canvas, x = 0, y = 0, floor = 'G') {
-    if (!(canvas instanceof HTMLCanvasElement)) {
-      throw new Error('canvas must be instance of HTMLCanvasElement');
+  constructor(x = 1000, y = 1000, width = 1024, height = 768, floor = 'G', scale = 2) {
+    this.canvas = document.createElement('canvas');
+    this.updateDimenision(width, height);
+    this.updatePosition(x, y, floor, scale);
+    this.setUpDragAndDropListener();
+    this.setUpClickListener();
+  }
+
+  updateDimenision(width, height) {
+    this.canvas.width = width;
+    this.canvas.height = height;
+    this.render();
+  }
+
+  updatePosition(x, y, floor, scale = this.scale) {
+    if (this.x === x && this.y === y && this.floor === floor && this.scale === scale) {
+      return;
     }
-    this.canvas = canvas;
+
     this.x = x;
     this.y = y;
     this.floor = floor;
+    this.scale = scale;
+    this.render();
+  }
 
-    this.setUpDragAndDropListener();
-    this.setUpClickListener();
+  /**
+   * add user defined mousemove listeners
+   * @param {function} listener
+   */
+  addMouseMoveListener(listener) {
+    this.mouseMoveListeners.push(listener);
+  }
+
+  /**
+   * remove a user defined mousemove listeners
+   * @param {function} listener
+   * @return {boolean} True is removed otherwise false
+   */
+  removeMouseMoveListener(listener) {
+    const listenerIndex = this.mouseMoveListeners.indexOf(listener);
+    if (listenerIndex !== -1) {
+      this.mouseMoveListeners.splice(listenerIndex, 1);
+    }
+
+    return listenerIndex !== -1;
+  }
+
+  /**
+   * add user defined mouseup listeners
+   * @param {function} listener
+   */
+  addMouseUpListener(listener) {
+    this.mouseUpListeners.push(listener);
+  }
+
+  /**
+   * remove a user defined mouseup listeners
+   * @param {function} listener
+   * @return {boolean} True is removed otherwise false
+   */
+  removeMouseUpListener(listener) {
+    const listenerIndex = this.mouseUpListeners.indexOf(listener);
+    if (listenerIndex !== -1) {
+      this.mouseUpListeners.splice(listenerIndex, 1);
+    }
+
+    return listenerIndex !== -1;
+  }
+
+  getListenerParamObject() {
+    return {
+      x: this.x,
+      y: this.y,
+      width: this.canvas.width,
+      height: this.canvas.height,
+      floor: this.floor,
+    };
   }
 
   setUpDragAndDropListener() {
@@ -131,13 +196,18 @@ class CanvasHandler {
         const { clientX: currentX, clientY: currentY } = e;
         this.x = prevX + downX - currentX;
         this.y = prevY + downY - currentY;
-
+        this.mouseMoveListeners.forEach(listener => {
+          listener(this.getListenerParamObject());
+        });
         this.render();
       };
 
       const mouseUpListener = () => {
         this.canvas.removeEventListener('mousemove', mouseMoveListener);
         this.canvas.removeEventListener('mouseup', mouseUpListener);
+        this.mouseUpListeners.forEach(listener => {
+          listener(this.getListenerParamObject());
+        });
       };
 
       this.canvas.addEventListener('mousemove', mouseMoveListener);
@@ -199,11 +269,13 @@ class CanvasHandler {
   async addMapTiles(mapTiles) {
     const asyncMapTiles = [];
 
-    mapTiles.forEach(({ id, floor, x, y, width = null, height = null, hidden = false }) => {
+    mapTiles.forEach(({ id, floor, x, y, image, width = null, height = null, hidden = false }) => {
       if (!id) {
         throw new Error('id is required for canvas item');
+      } else if (this.mapTiles[id]) {
+        return;
       }
-      const image = createImage(getMapTileUrl(x, y));
+
       this.mapTiles[id] = {
         id,
         floor,
@@ -217,17 +289,19 @@ class CanvasHandler {
       };
       this.mapTileIds.push(id);
 
-      asyncMapTiles.push(
-        createImageLoadPromise(image)
-          .then(() => {
-            this.render();
-            this.mapTiles[id].width = image.width;
-            this.mapTiles[id].height = image.height;
-          })
-          .catch(err => {
-            console.log(err);
-          }),
-      );
+      if (imageNotLoaded(image)) {
+        asyncMapTiles.push(
+          createImageLoadPromise(image)
+            .then(() => {
+              this.render();
+              this.mapTiles[id].width = image.width;
+              this.mapTiles[id].height = image.height;
+            })
+            .catch(err => {
+              console.log(err);
+            }),
+        );
+      }
     });
 
     await Promise.all(asyncMapTiles);
@@ -262,11 +336,7 @@ class CanvasHandler {
 
         // async work after adding items
 
-        // function instead of expression to avoid access of property of a null obj, image can be null
-        const imageLoaded = () => image.complete && image.naturalWidth && image.naturalHeight;
-
-        // item is an image and image is load yet loaded
-        if (image && !imageLoaded()) {
+        if (imageNotLoaded(image)) {
           // wait for img data to load completely before rendering
           asyncMapItems.push(
             createImageLoadPromise(image)
@@ -296,17 +366,6 @@ class CanvasHandler {
     await Promise.all(asyncMapItems);
 
     return mapItems;
-  }
-
-  init() {
-    // this.refresh =
-    //   window.requestAnimationFrame ||
-    //   window.webkitRequestAnimationFrame ||
-    //   window.mozRequestAnimationFrame ||
-    //   (callback => {
-    //     window.setTimeout(callback, 1000 / 60);
-    //   });
-    // this.refresh(this.render);
   }
 
   render = () => {
@@ -340,6 +399,34 @@ class CanvasHandler {
       });
     });
   };
+
+  /**
+   * @return {HTMLCanvasElement}
+   */
+  getCanvas() {
+    return this.canvas;
+  }
+
+  /**
+   * Helper function to export these to pass via props to react component
+   */
+  getProps() {
+    return {
+      addMouseMoveListener: (...args) => this.addMouseMoveListener(...args),
+      removeMouseMoveListener: (...args) => this.removeMouseMoveListener(...args),
+      addMouseUpListener: (...args) => this.addMouseUpListener(...args),
+      removeMouseUpListener: (...args) => this.removeMouseUpListener(...args),
+      width: () => this.getWidth(),
+      height: () => this.getHeight(),
+      addMapTiles: (...args) => this.addMapTiles(...args),
+      addMapItems: (...args) => this.addMapItems(...args),
+      updateMapTiles: (...args) => this.updateMapTiles(...args),
+      updateMapItems: (...args) => this.updateMapItems(...args),
+      updateLayers: (...args) => this.updateLayers(...args),
+      updatePosition: (...args) => this.updatePosition(...args),
+      updateDimenision: (...args) => this.updateDimenision(...args),
+    };
+  }
 }
 
 export default CanvasHandler;

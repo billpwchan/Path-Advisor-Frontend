@@ -47,8 +47,6 @@ class Main extends Component {
     }));
   };
 
-  helloWorld2 = () => {};
-
   render() {
     console.log('Main.js', this.props.match);
 
@@ -65,7 +63,7 @@ class Main extends Component {
             PrimaryPanelPlugin,
           }))}
         </PrimaryPanel>
-        <MapCanvas {...this.getUrlParams()} helloWorld={this.helloWorld2}>
+        <MapCanvas {...this.getUrlParams()}>
           {plugins.map(({ pluginId, MapCanvasPlugin }) => ({
             pluginId,
             MapCanvasPlugin,

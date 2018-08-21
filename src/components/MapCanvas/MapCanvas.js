@@ -3,25 +3,26 @@ import React, { Component, createRef } from 'react';
 // import { connect, connectAdvanced } from 'react-redux';
 import CanvasHandler from './CanvasHandler';
 
+const canvasHandler = new CanvasHandler();
+
 class MapCanvas extends Component {
-  canvasRef = createRef();
+  canvasRootRef = createRef();
 
   state = {};
 
   componentDidMount() {
-    console.log('canvasRef', this.canvasRef);
-    window.canvasHandler = new CanvasHandler(this.canvasRef.current);
+    this.canvasRootRef.current.appendChild(canvasHandler.getCanvas());
   }
 
   render() {
-    const { children, helloWorld } = this.props;
+    const { children } = this.props;
     return (
       <div>
         <div> MapCanvas own things </div>
-        <canvas ref={this.canvasRef} width="300" height="300" />
+        <div ref={this.canvasRootRef} />
         <div>
           {children.map(({ pluginId, MapCanvasPlugin }) => (
-            <MapCanvasPlugin key={pluginId} helloWorld={this.helloWorld} />
+            <MapCanvasPlugin key={pluginId} {...canvasHandler.getProps()} />
           ))}
         </div>
       </div>

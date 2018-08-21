@@ -6,6 +6,8 @@
     "axios": "^0.18.0",
     "lodash.compact": "^3.0.1",
     "lodash.get": "^4.4.2",
+    "lodash.throttle": "^4.1.1",
+    "lodash.uniq": "^4.5.0",
     "prop-types": "^15.6.2",
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
