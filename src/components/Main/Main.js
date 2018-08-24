@@ -29,14 +29,16 @@ class Main extends Component {
     const coordinateString =
       typeof coordinatePath === 'string' && get(coordinatePath.split('/'), 1);
     const floor = typeof floorPath === 'string' && get(floorPath.split('/'), 1);
-    const coordinate = typeof coordinateString === 'string' && coordinateString.split(',');
+    const [x, y, scale] = typeof coordinateString === 'string' && coordinateString.split(',');
 
     return {
       place,
       fromPlace,
       toPlace,
       mapItemType,
-      coordinate,
+      x,
+      y,
+      scale,
       floor,
     };
   }
