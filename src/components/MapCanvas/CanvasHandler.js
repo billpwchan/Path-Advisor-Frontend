@@ -134,8 +134,23 @@ class CanvasHandler {
   }
 
   /**
+   * @typedef CanvasEvent
+   * @property {number} x
+   * @property {number} y
+   * @property {number} scale
+   * @property {number} width
+   * @property {number} height
+   * @property {number} floor
+   */
+
+  /**
+   * @callback canvasListener
+   * @param {CanvasEvent} event
+   */
+
+  /**
    * add user defined mousemove listeners
-   * @param {function} listener
+   * @param {canvasListener} listener
    */
   addMouseMoveListener(listener) {
     this.mouseMoveListeners.push(listener);
@@ -157,7 +172,7 @@ class CanvasHandler {
 
   /**
    * add user defined mouseup listeners
-   * @param {function} listener
+   * @param {canvasListener} listener
    */
   addMouseUpListener(listener) {
     this.mouseUpListeners.push(listener);
