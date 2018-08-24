@@ -2,6 +2,7 @@ import React, { Component, createRef } from 'react';
 // import { withRouter } from 'react-router-dom';
 // import { connect, connectAdvanced } from 'react-redux';
 import CanvasHandler from './CanvasHandler';
+import { APIEndpoint } from '../../config/config';
 
 const canvasHandler = new CanvasHandler();
 
@@ -22,7 +23,11 @@ class MapCanvas extends Component {
         <div ref={this.canvasRootRef} />
         <div>
           {children.map(({ pluginId, MapCanvasPlugin }) => (
-            <MapCanvasPlugin key={pluginId} {...canvasHandler.getProps()} />
+            <MapCanvasPlugin
+              key={pluginId}
+              {...canvasHandler.getProps()}
+              APIEndpoint={APIEndpoint}
+            />
           ))}
         </div>
       </div>

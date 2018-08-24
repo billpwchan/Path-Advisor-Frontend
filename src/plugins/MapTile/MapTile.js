@@ -37,11 +37,19 @@ function createImage(src) {
   return img;
 }
 
-function getMapTileUrl(x, y, floor) {
-  return `http://pathadvisor.ust.hk/map_pixel.php?x=${x}&y=${y}&floor=${floor}&level=2`;
+function getMapTileUrl(APIEndpoint, x, y, floor, scale) {
+  return `${APIEndpoint()}/map_pixel.php?x=${x}&y=${y}&floor=${floor}&level=${scale}`;
 }
 
-function generateMapTiles({ x: canvasOffsetX, y: canvasOffsetY, width, height, floor }) {
+function generateMapTiles({
+  APIEndpoint,
+  x: canvasOffsetX,
+  y: canvasOffsetY,
+  width,
+  height,
+  floor,
+  scale,
+}) {
   console.log('appendMapTiles');
   const mapTiles = [];
   const { x, y } = getMapTileNumber(canvasOffsetX, canvasOffsetY);
@@ -54,7 +62,7 @@ function generateMapTiles({ x: canvasOffsetX, y: canvasOffsetY, width, height, f
       floor,
       x: nextTileX,
       y,
-      image: createImage(getMapTileUrl(nextTileX, y, floor)),
+      image: createImage(getMapTileUrl(APIEndpoint, nextTileX, y, floor, scale)),
     });
 
     let nextTileY = y;
@@ -66,7 +74,7 @@ function generateMapTiles({ x: canvasOffsetX, y: canvasOffsetY, width, height, f
         floor,
         x: nextTileX,
         y: nextTileY,
-        image: createImage(getMapTileUrl(nextTileX, nextTileY, floor)),
+        image: createImage(getMapTileUrl(APIEndpoint, nextTileX, nextTileY, floor, scale)),
       });
     } while (nextTileY - y < height);
 
@@ -79,17 +87,22 @@ function generateMapTiles({ x: canvasOffsetX, y: canvasOffsetY, width, height, f
 const pluginId = 'maptile';
 const PrimaryPanelPlugin = () => null;
 
-const MapCanvasPlugin = ({ addMouseMoveListener, addMouseUpListener, addMapTiles }) => {
+const MapCanvasPlugin = ({
+  APIEndpoint,
+  addMouseMoveListener,
+  addMouseUpListener,
+  addMapTiles,
+}) => {
   // Add map tiles while mouse moving to provide a better UX, but need to throttle the number of times triggering this listener
   addMouseMoveListener(
     throttle(canvasMoveEvent => {
-      addMapTiles(generateMapTiles(canvasMoveEvent));
+      addMapTiles(generateMapTiles({ ...canvasMoveEvent, APIEndpoint }));
     }, 1000),
   );
 
   // Add map tiles right after a mouse up event, no throttling
   addMouseUpListener(canvasMoveEvent => {
-    addMapTiles(generateMapTiles(canvasMoveEvent));
+    addMapTiles(generateMapTiles({ ...canvasMoveEvent, APIEndpoint }));
   });
 
   return null;

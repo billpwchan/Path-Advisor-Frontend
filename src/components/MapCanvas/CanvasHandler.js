@@ -181,8 +181,9 @@ class CanvasHandler {
     return {
       x: this.x,
       y: this.y,
-      width: this.canvas.width,
-      height: this.canvas.height,
+      scale: this.scale,
+      width: this.getWidth(),
+      height: this.getHeight(),
       floor: this.floor,
     };
   }
@@ -418,6 +419,7 @@ class CanvasHandler {
       removeMouseUpListener: (...args) => this.removeMouseUpListener(...args),
       width: () => this.getWidth(),
       height: () => this.getHeight(),
+      scale: () => this.scale,
       addMapTiles: (...args) => this.addMapTiles(...args),
       addMapItems: (...args) => this.addMapItems(...args),
       updateMapTiles: (...args) => this.updateMapTiles(...args),
