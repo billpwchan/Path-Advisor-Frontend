@@ -1,9 +1,10 @@
 import PropTypes from 'prop-types';
 import React, { Component, createRef } from 'react';
-// import { withRouter } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 // import { connect, connectAdvanced } from 'react-redux';
 import CanvasHandler from './CanvasHandler';
 import { APIEndpoint } from '../../config/config';
+import getUrl from '../RouterManager/GetUrl';
 
 class MapCanvas extends Component {
   canvasRootRef = createRef();
@@ -15,29 +16,44 @@ class MapCanvas extends Component {
     x: PropTypes.number,
     y: PropTypes.number,
     floor: PropTypes.string,
-    scale: PropTypes.string,
+    scale: PropTypes.number,
+    history: PropTypes.shape({ push: PropTypes.func.isRequired }).isRequired,
+  };
+
+  static defaultProps = {
+    x: 2,
+    y: 2,
+    floor: 'G',
+    scale: 1,
   };
 
   state = {};
 
   componentDidMount() {
-    const { x, y, floor, scale } = this.props;
-
+    console.log('componentDidMount');
+    const { history } = this.props;
+    window.reactHistory = history;
     this.canvasHandler.addMouseUpListener(({ x, y, floor, scale }) => {
       // Update url
+      history.push(getUrl({ floor, x, y, scale }));
     });
 
+    const { x, y, floor, scale } = this.props;
+    console.log('default props', { x, y, floor, scale });
     this.canvasRootRef.current.appendChild(this.canvasHandler.getCanvas());
-    this.canvasHandler.updatePosition(x, y, floor, scale);
+    this.canvasHandler.updateDimenision(1024, 768);
+    history.push(getUrl({ floor, x, y, scale }));
   }
 
   componentDidUpdate() {
+    console.log('componentDidUpdate');
     const { x, y, floor, scale } = this.props;
     this.canvasHandler.updatePosition(x, y, floor, scale);
   }
 
   render() {
     const { children } = this.props;
+    console.log('my props', this.props);
     return (
       <div>
         <div> MapCanvas own things </div>
@@ -56,7 +72,7 @@ class MapCanvas extends Component {
   }
 }
 
-export default MapCanvas;
+export default withRouter(MapCanvas);
 
 // export default withRouter(
 //   connect(
