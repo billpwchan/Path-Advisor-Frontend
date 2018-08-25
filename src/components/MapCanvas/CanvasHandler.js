@@ -85,7 +85,7 @@ class CanvasHandler {
   y = 0;
 
   /** @type {string} - current floor displaying */
-  floor = 'G';
+  floor = null;
 
   /** @type {number} - current scale  */
   scale = 1;
@@ -95,6 +95,9 @@ class CanvasHandler {
 
   /** @type {function[]} - Custom mouse up listeners */
   mouseUpListeners = [];
+
+  /** @type {functionp[]} - map position chnaged listeners */
+  positionChangeListeners = [];
 
   getCanvasItems(key) {
     switch (key) {
@@ -107,7 +110,7 @@ class CanvasHandler {
     }
   }
 
-  constructor(x = 1000, y = 1000, width = 1024, height = 768, floor = 'G', scale = 2) {
+  constructor(x, y, width, height, floor, scale) {
     this.canvas = document.createElement('canvas');
     this.updateDimenision(width, height);
     this.updatePosition(x, y, floor, scale);
@@ -121,8 +124,10 @@ class CanvasHandler {
     this.render();
   }
 
-  updatePosition(x, y, floor, scale = this.scale) {
+  updatePosition(x, y, floor = this.floor, scale = this.scale) {
+    console.log('Update position called');
     if (this.x === x && this.y === y && this.floor === floor && this.scale === scale) {
+      console.log('no op');
       return;
     }
 
@@ -130,7 +135,12 @@ class CanvasHandler {
     this.y = y;
     this.floor = floor;
     this.scale = scale;
+
     this.render();
+
+    this.positionChangeListeners.forEach(listener => {
+      listener(this.getListenerParamObject());
+    });
   }
 
   /**
@@ -192,6 +202,28 @@ class CanvasHandler {
     return listenerIndex !== -1;
   }
 
+  /**
+   * add user defined position change listeners
+   * @param {canvasListener} listener
+   */
+  addPositionChangeListener(listener) {
+    this.positionChangeListeners.push(listener);
+  }
+
+  /**
+   * remove a user defined position change listener
+   * @param {function} listener
+   * @return {boolean} True is removed otherwise false
+   */
+  removePositionChangeListener(listener) {
+    const listenerIndex = this.positionChangeListeners.indexOf(listener);
+    if (listenerIndex !== -1) {
+      this.positionChangeListeners.splice(listenerIndex, 1);
+    }
+
+    return listenerIndex !== -1;
+  }
+
   getListenerParamObject() {
     return {
       x: this.x,
@@ -210,12 +242,13 @@ class CanvasHandler {
 
       const mouseMoveListener = e => {
         const { clientX: currentX, clientY: currentY } = e;
-        this.x = prevX + downX - currentX;
-        this.y = prevY + downY - currentY;
+        const newX = prevX + downX - currentX;
+        const newY = prevY + downY - currentY;
+        this.updatePosition(newX, newY);
+
         this.mouseMoveListeners.forEach(listener => {
           listener(this.getListenerParamObject());
         });
-        this.render();
       };
 
       const mouseUpListener = () => {
@@ -432,6 +465,8 @@ class CanvasHandler {
       removeMouseMoveListener: (...args) => this.removeMouseMoveListener(...args),
       addMouseUpListener: (...args) => this.addMouseUpListener(...args),
       removeMouseUpListener: (...args) => this.removeMouseUpListener(...args),
+      addPositionChangeListener: (...args) => this.addPositionChangeListener(...args),
+      removePositionChangeListener: (...args) => this.removePositionChangeListener(...args),
       width: () => this.getWidth(),
       height: () => this.getHeight(),
       scale: () => this.scale,
