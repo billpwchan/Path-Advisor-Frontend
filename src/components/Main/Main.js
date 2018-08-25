@@ -27,9 +27,11 @@ class Main extends Component {
     } = this.props;
 
     const coordinateString =
-      typeof coordinatePath === 'string' && get(coordinatePath.split('/'), 1);
-    const floor = typeof floorPath === 'string' && get(floorPath.split('/'), 1);
-    const [x, y, scale] = typeof coordinateString === 'string' && coordinateString.split(',');
+      (typeof coordinatePath === 'string' && get(coordinatePath.split('/'), 1)) || null;
+    const floor = (typeof floorPath === 'string' && get(floorPath.split('/'), 1)) || undefined;
+    const [x, y, scale] = coordinateString
+      ? coordinateString.split(',').map(v => parseInt(v, 10))
+      : [];
 
     return {
       place,
