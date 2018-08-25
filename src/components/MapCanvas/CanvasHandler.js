@@ -236,8 +236,13 @@ class CanvasHandler {
   }
 
   setUpDragAndDropListener() {
-    this.canvas.addEventListener('mousedown', e => {
-      const { clientX: downX, clientY: downY } = e;
+    document.addEventListener('mousedown', e => {
+      const { clientX: downX, clientY: downY, target } = e;
+
+      if (target !== this.getCanvas()) {
+        return;
+      }
+
       const { x: prevX, y: prevY } = this;
 
       const mouseMoveListener = e => {
@@ -252,20 +257,20 @@ class CanvasHandler {
       };
 
       const mouseUpListener = () => {
-        this.canvas.removeEventListener('mousemove', mouseMoveListener);
-        this.canvas.removeEventListener('mouseup', mouseUpListener);
+        document.removeEventListener('mousemove', mouseMoveListener);
+        document.removeEventListener('mouseup', mouseUpListener);
         this.mouseUpListeners.forEach(listener => {
           listener(this.getListenerParamObject());
         });
       };
 
-      this.canvas.addEventListener('mousemove', mouseMoveListener);
-      this.canvas.addEventListener('mouseup', mouseUpListener);
+      document.addEventListener('mousemove', mouseMoveListener);
+      document.addEventListener('mouseup', mouseUpListener);
     });
   }
 
   setUpClickListener() {
-    this.canvas.addEventListener('click', e => {
+    this.getCanvas().addEventListener('click', e => {
       const { clientX, clientY } = e;
       const canvasCoordinate = this.canvas.getBoundingClientRect();
       const x = clientX - canvasCoordinate.left + this.x;
