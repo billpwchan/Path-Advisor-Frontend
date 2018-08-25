@@ -89,12 +89,12 @@ const PrimaryPanelPlugin = () => null;
 
 const MapCanvasPlugin = ({
   APIEndpoint,
-  addMouseMoveListener,
+  addPositionChangeListener,
   addMouseUpListener,
   addMapTiles,
 }) => {
   // Add map tiles while mouse moving to provide a better UX, but need to throttle the number of times triggering this listener
-  addMouseMoveListener(
+  addPositionChangeListener(
     throttle(canvasMoveEvent => {
       addMapTiles(generateMapTiles({ ...canvasMoveEvent, APIEndpoint }));
     }, 1000),
