@@ -1,3 +1,4 @@
+import get from 'lodash.get';
 import calculateTextDimension from './calculateTextDimension';
 /**
  * @typedef TextElement
@@ -96,8 +97,11 @@ class CanvasHandler {
   /** @type {function[]} - Custom mouse up listeners */
   mouseUpListeners = [];
 
-  /** @type {functionp[]} - map position chnaged listeners */
+  /** @type {function[]} - map position changed listeners */
   positionChangeListeners = [];
+
+  /** @type {Object.<string, function[]>} - map items click listeners grouped by id */
+  mapItemsClickListeners = {};
 
   getCanvasItems(key) {
     switch (key) {
@@ -156,6 +160,11 @@ class CanvasHandler {
   /**
    * @callback canvasListener
    * @param {CanvasEvent} event
+   */
+
+  /**
+   * @callback mapItemListener
+   * @param {CanvasItem} event
    */
 
   /**
@@ -224,6 +233,35 @@ class CanvasHandler {
     return listenerIndex !== -1;
   }
 
+  /**
+   * add map item click listener
+   * @param {string} mapItemId
+   * @param {mapItemListener} listener
+   */
+  addMapItemClickListener(mapItemId, listener) {
+    if (!this.mapItemsClickListeners[mapItemId]) {
+      this.mapItemsClickListeners[mapItemId] = [];
+    }
+
+    this.mapItemsClickListeners[mapItemId].push(listener);
+  }
+
+  /**
+   * remove map item click listener
+   * @param {string} mapItemId
+   * @param {function} listener
+   * @return {boolean} True is removed otherwise false
+   */
+  removeMapItemClickListener(mapItemId, listener) {
+    const mapItemsClickListener = get(this.mapItemsClickListeners, mapItemId, []);
+    const listenerIndex = mapItemsClickListener.indexOf(listener);
+    if (listenerIndex !== -1) {
+      mapItemsClickListener.splice(listenerIndex, 1);
+    }
+
+    return listenerIndex !== -1;
+  }
+
   getListenerParamObject() {
     return {
       x: this.x,
@@ -279,6 +317,10 @@ class CanvasHandler {
       this.mapItemIds.forEach(id => {
         if (hitTest(x, y, this.mapItems[id])) {
           console.log('Hit', id, this.mapItems[id]);
+
+          get(this.mapItemsClickListeners, id, []).forEach(listener => {
+            listener({ ...this.mapItems[id] });
+          });
         }
       });
     });
@@ -380,6 +422,7 @@ class CanvasHandler {
         textElement = null,
         others = {},
         hidden = false,
+        onClick = null,
       }) => {
         if (!id) {
           throw new Error('id is required for canvas item');
@@ -388,6 +431,9 @@ class CanvasHandler {
         this.mapItems[id] = { id, floor, x, y, width, height, image, textElement, others, hidden };
         this.mapItemIds.push(id);
 
+        if (onClick) {
+          this.addMapItemClickListener(id, onClick);
+        }
         // async work after adding items
 
         if (imageNotLoaded(image)) {
@@ -482,6 +528,8 @@ class CanvasHandler {
       updateLayers: (...args) => this.updateLayers(...args),
       updatePosition: (...args) => this.updatePosition(...args),
       updateDimenision: (...args) => this.updateDimenision(...args),
+      addMapItemClickListener: (...args) => this.addMapItemClickListener(...args),
+      removeMapItemClickListener: (...args) => this.removeMapItemClickListener(...args),
     };
   }
 }
