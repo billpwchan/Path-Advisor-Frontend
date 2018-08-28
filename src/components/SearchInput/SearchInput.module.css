@@ -1,0 +1,45 @@
+.input {
+  border: 1px solid #999999;
+  border-radius: 3px 3px 3px 3px;
+  font-family: Arial;
+  font-size: 14px;
+  height: 23px;
+  padding-left: 3px;
+  line-height: 23px;
+}
+
+.autoCompleteList {
+  font-size: 14px;
+  border: 1px solid #cccccc;
+  background-color: white;
+
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+
+  position: absolute;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.autoCompleteListItem {
+  background-color: white;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.autoCompleteListItem:hover {
+  background-color: #cccccc;
+}
+
+.autoCompleteListItemName {
+  font-weight: bold;
+}
+
+.autoCompleteListItemLocation {
+  color: #666666;
+}
