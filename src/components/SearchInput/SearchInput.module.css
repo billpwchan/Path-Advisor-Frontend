@@ -12,11 +12,6 @@
   font-size: 14px;
   border: 1px solid #cccccc;
   background-color: white;
-
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-
   position: absolute;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -28,8 +23,6 @@
 
 .autoCompleteListItem {
   background-color: white;
-  padding: 10px;
-  cursor: pointer;
 }
 
 .autoCompleteListItem:hover {
@@ -42,4 +35,10 @@
 
 .autoCompleteListItemLocation {
   color: #666666;
+}
+
+.autoCompleteListItemButton {
+  padding: 10px;
+  width: 100%;
+  text-align: left;
 }
