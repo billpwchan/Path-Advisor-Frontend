@@ -1,0 +1,57 @@
+.input {
+  border: 1px solid #999999;
+  border-radius: 3px 3px 3px 3px;
+  font-family: Arial;
+  font-size: 14px;
+  height: 23px;
+  padding-left: 3px;
+  line-height: 23px;
+}
+
+.dropDownButton {
+  background-color: whitesmoke;
+  border: 1px solid #999999;
+  border-radius: 3px;
+  text-align: center;
+  width: 20px;
+  vertical-align: middle;
+  height: 27px;
+  margin-left: -20px;
+  margin-top: -1px;
+}
+
+.arrowDown {
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid #333;
+  display: inline-block;
+  height: 0;
+  width: 0;
+  vertical-align: middle;
+}
+
+.dropDownList {
+  border-radius: 3px;
+  background-color: whitesmoke;
+  position: absolute;
+  border: 1px solid #666666;
+  min-width: 150px;
+}
+
+.dropDownListItem {
+  font-size: 13px;
+}
+
+.dropDownListItem input {
+  margin: 2px 10px;
+}
+
+.dropDownListItem:hover {
+  background-color: #cccccc;
+}
+
+.dropDownListItemButton {
+  padding: 10px 8px;
+  width: 100%;
+  text-align: left;
+}
