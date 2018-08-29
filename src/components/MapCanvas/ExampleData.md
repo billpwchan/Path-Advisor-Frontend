@@ -11,7 +11,8 @@ canvasHandler.addMapItems([
       family: "Verdana",
       color: "red",
       text: "abcdefghijklmnopqrstuvwxyz"
-    }
+    },
+    onClick: () => console.log("I am clicked")
   },
   {
     id: 2,
