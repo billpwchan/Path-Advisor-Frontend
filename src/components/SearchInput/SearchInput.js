@@ -15,45 +15,60 @@ class SearchInput extends Component {
     ).isRequired,
     onKeywordChange: PropTypes.func.isRequired,
     onAutoCompleteItemClick: PropTypes.func.isRequired,
-    value: PropTypes.string.isRequired,
+    onClickHook: PropTypes.func,
+    value: PropTypes.string,
+    placeholder: PropTypes.string,
   };
 
   state = {
     hideAutoComplete: true,
   };
 
-  componentWillReceiveProps(nextProps) {
-    const { loading } = this.props;
-    // auto complete loading done, show the auto complete suggestions
-    if (!nextProps.loading && loading) {
-      this.setState({
-        hideAutoComplete: false,
-      });
-    }
-  }
+  onInputChange = e => {
+    const { onKeywordChange } = this.props;
+    const keyword = e.target.value;
+
+    onKeywordChange(keyword);
+
+    this.setState({
+      hideAutoComplete: false,
+    });
+  };
 
   onClick = autoCompleteItem => {
-    const { onAutoCompleteItemClick } = this.props;
+    const { onAutoCompleteItemClick, onClickHook } = this.props;
     this.setState({
       hideAutoComplete: true,
     });
 
     onAutoCompleteItemClick(autoCompleteItem);
+
+    if (onClickHook) {
+      onClickHook();
+    }
   };
 
   render() {
     const { hideAutoComplete } = this.state;
-    const { suggestions, onKeywordChange, value } = this.props;
+    const { loading, suggestions, value, placeholder = '' } = this.props;
 
     return (
       <div>
-        <input type="text" className={style.input} onChange={onKeywordChange} value={value} />
+        <input
+          type="text"
+          className={style.input}
+          onChange={this.onInputChange}
+          value={value}
+          placeholder={placeholder}
+        />
         <ul className={style.autoCompleteList}>
           {!hideAutoComplete &&
+            !loading &&
             suggestions.map(({ name, floor, coordinates, id }) => (
               <li key={id} className={style.autoCompleteListItem}>
                 <button
                   type="button"
+                  className={style.autoCompleteListItemButton}
                   onClick={() => this.onClick({ name, floor, coordinates, id })}
                 >
                   <span className={style.autoCompleteListItemName}>{name}</span>
