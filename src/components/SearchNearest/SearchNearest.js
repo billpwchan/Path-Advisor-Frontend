@@ -34,28 +34,28 @@ const rootNearestOptions = direction => [
   {
     name: 'Nearest toilet',
     children: [
-      { name: 'Nearest male toilet', data: { type: 'keyword', value: 'male toilet' } },
-      { name: 'Nearest female toilet', data: { type: 'keyword', value: 'female toilet' } },
+      { name: 'Nearest male toilet', data: { type: 'nearest', value: 'male toilet' } },
+      { name: 'Nearest female toilet', data: { type: 'nearest', value: 'female toilet' } },
     ],
   },
   {
     name: 'Others',
     children: [
-      { name: 'Nearest express station', data: { type: 'keyword', value: 'express station' } },
+      { name: 'Nearest express station', data: { type: 'nearest', value: 'express station' } },
       {
         name: 'Nearest drinking fountain',
-        data: { type: 'keyword', value: 'drinking fountain' },
+        data: { type: 'nearest', value: 'drinking fountain' },
       },
-      { name: 'Nearest ATM', data: { type: 'keyword', value: 'ATM' } },
-      { name: 'Nearest mailbox', data: { type: 'keyword', value: 'mailbox' } },
-      { name: 'Nearest restaurant', data: { type: 'keyword', value: 'restaurant' } },
+      { name: 'Nearest ATM', data: { type: 'nearest', value: 'ATM' } },
+      { name: 'Nearest mailbox', data: { type: 'nearest', value: 'mailbox' } },
+      { name: 'Nearest restaurant', data: { type: 'nearest', value: 'restaurant' } },
       {
         name: 'Nearest virtual barn workstation',
-        data: { type: 'keyword', value: 'virtual barn station' },
+        data: { type: 'nearest', value: 'virtual barn station' },
       },
       {
         name: 'Nearest satellite printer',
-        data: { type: 'keyword', value: 'satellite printer' },
+        data: { type: 'nearest', value: 'satellite printer' },
       },
     ],
   },
