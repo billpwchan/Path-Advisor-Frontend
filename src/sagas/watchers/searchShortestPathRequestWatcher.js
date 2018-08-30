@@ -8,15 +8,15 @@ import {
 
 function* searchShortestPathRequestWorker({
   payload: {
-    from: { keyword: fromKeyword, nodeId: fromNodeId, floor: fromFloor },
-    to: { keyword: toKeyword, nodeId: toNodeId, floor: toFloor },
+    from: { keyword: fromKeyword, nodeId: fromNodeId, floor: fromFloor, id: fromId },
+    to: { keyword: toKeyword, nodeId: toNodeId, floor: toFloor, id: toId },
   },
 }) {
   try {
     const { data } = yield call(
       searchShortestPathRequest,
-      { keyword: fromKeyword, nodeId: fromNodeId, floor: fromFloor },
-      { keyword: toKeyword, nodeId: toNodeId, floor: toFloor },
+      { keyword: fromKeyword, nodeId: fromNodeId, floor: fromFloor, id: fromId },
+      { keyword: toKeyword, nodeId: toNodeId, floor: toFloor, id: toId },
     );
     yield put(searchShortestPathSuccessAction(data));
   } catch (error) {

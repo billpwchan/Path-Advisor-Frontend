@@ -29,6 +29,14 @@
 ```javascript
 {
   type: 'SEARCH_SHORTEST_PATH',
+  payload: { from: {id: 'p142', floor: "3"}, to: {id: 'p11', floor: "G"} }
+}
+```
+
+
+```javascript
+{
+  type: 'SEARCH_SHORTEST_PATH',
   payload: { from: { nodeId: "n614", floor: "3" }, to: { nodeId: "n241", floor: "G" } }
 }
 ```

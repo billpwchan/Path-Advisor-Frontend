@@ -2,7 +2,7 @@ import axios from 'axios';
 import get from 'lodash.get';
 import compact from 'lodash.compact';
 import fetchAutoCompleteRequest from './fetchAutoCompleteRequest';
-import fetchIdToNodedRequest from './fetchIdToNodeIdRequest';
+import fetchIdToNodeIdRequest from './fetchIdToNodeIdRequest';
 import fetchNodeIdsToMapItemsRequest from './fetchNodeIdsToMapItemsRequest';
 import { SearchAPIEndpoint } from '../../config/config';
 
@@ -70,7 +70,17 @@ async function getNodeIdFloorfromKeyword(keyword) {
   const { id, floor } = get(data, 0, {});
   const {
     data: { nodeId },
-  } = await fetchIdToNodedRequest(floor, id);
+  } = await fetchIdToNodeIdRequest(floor, id);
+  return { nodeId, floor };
+}
+
+/**
+ * Helper to get node id without 'n' prefix from id
+ */
+async function getNodeIdFromId(floor, id) {
+  const {
+    data: { nodeId },
+  } = await fetchIdToNodeIdRequest(floor, id);
   return { nodeId: nodeId.substr(1), floor };
 }
 
@@ -78,6 +88,7 @@ async function getNodeIdFloorfromKeyword(keyword) {
  * @typedef searchSearchInput
  * @property {string} keyword
  * @property {string} nodeId
+ * @property {string} id
  * @property {string} floor
  */
 /**
@@ -89,10 +100,18 @@ async function searchShortestPathRequest(inputFrom = {}, inputTo = {}) {
   const inputs = [inputFrom, inputTo];
 
   const [from, to] = await Promise.all(
-    inputs.map(({ nodeId, keyword, floor }) => {
+    inputs.map(async ({ nodeId, keyword, id, floor }) => {
       if (nodeId && floor) {
-        return { nodeId: nodeId.substr(1), floor };
+        return { nodeId, floor };
       }
+
+      if (id && floor) {
+        const {
+          data: { nodeId },
+        } = await fetchIdToNodeIdRequest(floor, id);
+        return { nodeId, floor };
+      }
+
       return getNodeIdFloorfromKeyword(keyword);
     }),
   );
@@ -102,6 +121,9 @@ async function searchShortestPathRequest(inputFrom = {}, inputTo = {}) {
   if (!from.floor || !from.nodeId || !to.floor || !to.nodeId) {
     throw new Error('Invalid start or end point input');
   }
+
+  from.nodeId = from.nodeId.substr(1);
+  to.nodeId = to.nodeId.substr(1);
 
   const response = await axios.get(
     `${SearchAPIEndpoint()}/cgi-bin/find_path_new.cgi?mins_per_pixel=0.000546&get_distance_array=NO&start_id=${
