@@ -9,6 +9,8 @@ import getUrl from '../RouterManager/GetUrl';
 class SearchArea extends Component {
   static propTypes = {
     getAutoCompleteAction: PropTypes.func.isRequired,
+    searchShortestPathAction: PropTypes.func.isRequired,
+    searchNearestAction: PropTypes.func.isRequired,
     autoCompleteStore: PropTypes.shape({}),
     history: PropTypes.shape({}),
   };
@@ -22,13 +24,13 @@ class SearchArea extends Component {
 
   onKeywordChange = fieldName => keyword => {
     const { getAutoCompleteAction } = this.props;
-    this.setState({ [fieldName]: { name: keyword } });
+    this.setState({ [fieldName]: { name: keyword, data: { type: 'keyword', value: keyword } } });
     getAutoCompleteAction(keyword);
   };
 
-  onAutoCompleteItemClick = fieldName => ({ name, coordinates: [x, y], floor }) => {
+  onAutoCompleteItemClick = fieldName => ({ name, coordinates: [x, y], floor, id }) => {
     const { history } = this.props;
-    this.setState({ [fieldName]: { name } });
+    this.setState({ [fieldName]: { name, data: { id, floor, value: name, type: 'id' } } });
     history.push(getUrl({ floor, x, y, scale: 1 }));
   };
 
@@ -55,6 +57,32 @@ class SearchArea extends Component {
       from: to,
       to: from,
     });
+  };
+
+  search = () => {
+    const { searchShortestPathAction, searchNearestAction } = this.props;
+    const {
+      from: {
+        data: { type: fromType, id: fromId, floor: fromFloor, value: fromValue },
+      },
+      to: {
+        data: { type: toType, id: toId, floor: toFloor, value: toValue },
+      },
+      searchOptions: { sameFloor },
+    } = this.state;
+
+    if (fromType === 'nearest') {
+      searchNearestAction(toFloor, toValue, fromValue, sameFloor);
+    } else if (toType === 'nearest') {
+      searchNearestAction(fromFloor, fromValue, toValue, sameFloor);
+    } else {
+      // point to point search
+      const searchFrom =
+        fromType === 'keyword' ? { keyword: fromValue } : { id: fromId, floor: fromFloor };
+      const searchTo = toType === 'keyword' ? { keyword: toValue } : { id: toId, floor: toFloor };
+
+      searchShortestPathAction(searchFrom, searchTo);
+    }
   };
 
   render() {
@@ -123,7 +151,7 @@ class SearchArea extends Component {
             <div>On the same floor</div>
           </div>
 
-          <input type="button" className={style.searchButton} value="GO" />
+          <input type="button" className={style.searchButton} value="GO" onClick={this.search} />
         </div>
       </div>
     );
