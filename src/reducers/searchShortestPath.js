@@ -6,18 +6,17 @@ export const SEARCH_SHORTEST_PATH_FAILURE = 'SEARCH_SHORTEST_PATH_FAILURE';
  * @typedef {object} requestNode
  * @property {string} nodeId
  * @property {string} floor
+ * @property {string} keyword
+ * @property {string} id
  */
 /**
- *
- * @param {string} [fromKeyword]
- * @param {string} [toKeyword]
  * @param {requestNode} [from]
  * @param {requestNode} [to]
  */
-export function searchShortestPathAction(fromKeyword, toKeyword, from, to) {
+export function searchShortestPathAction(from, to) {
   return {
     type: SEARCH_SHORTEST_PATH,
-    payload: { fromKeyword, toKeyword, from, to },
+    payload: { from, to },
   };
 }
 
