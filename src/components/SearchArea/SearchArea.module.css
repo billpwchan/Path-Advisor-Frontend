@@ -1,0 +1,71 @@
+.head {
+  font-weight: bold;
+  font-size: 13px;
+  font-family: Arial;
+  border-bottom: 1px solid #cccccc;
+  padding: 5px 0;
+}
+
+.input {
+  border: 1px solid #999999;
+  border-radius: 3px 3px 3px 3px;
+  font-family: Arial;
+  font-size: 14px;
+  height: 23px;
+  padding-left: 3px;
+  line-height: 23px;
+}
+
+.searchButton {
+  background-color: #4d90fe;
+  border: 1px solid #3079ed;
+  border-radius: 3px 3px 3px 3px;
+  color: white;
+  cursor: pointer;
+  font-family: Arial;
+  font-weight: bold;
+  padding: 0px 15px;
+  text-shadow: 0 1px rgba(0, 0, 0, 0.4);
+  height: 27px;
+}
+
+.searchButton:hover {
+  background-color: #357ae8;
+  border: 1px solid #2f5bb7;
+}
+
+.autoCompleteList {
+  font-size: 14px;
+  border: 1px solid #cccccc;
+  background-color: white;
+
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+
+  position: absolute;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.autoCompleteListItem {
+  background-color: white;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.autoCompleteListItem:hover {
+  background-color: #cccccc;
+}
+
+.autoCompleteListItemName {
+  font-weight: bold;
+}
+
+.autoCompleteListItemLocation {
+  color: #666666;
+}
