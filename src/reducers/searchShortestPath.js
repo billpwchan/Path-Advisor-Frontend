@@ -4,10 +4,10 @@ export const SEARCH_SHORTEST_PATH_FAILURE = 'SEARCH_SHORTEST_PATH_FAILURE';
 
 /**
  * @typedef {object} requestNode
- * @property {string} nodeId
- * @property {string} floor
- * @property {string} keyword
- * @property {string} id
+ * @property {string} [nodeId]
+ * @property {string} [floor]
+ * @property {string} [keyword]
+ * @property {string} [id]
  */
 /**
  * @param {requestNode} [from]
