@@ -9,6 +9,10 @@ const PrimaryPanelPlugin = ({ place, helloWorld }) => (
     </button>
   </div>
 );
-const MapCanvasPlugin = () => null;
 
-export { pluginId, PrimaryPanelPlugin, MapCanvasPlugin };
+const OverlayHeaderPlugin = ({ name }) => <h1>{name}</h1>;
+const OverlayContentPlugin = ({ id, name, photo }) => (
+  <div>{photo && <img src={photo} alt="{name}" />}</div>
+);
+
+export { pluginId, PrimaryPanelPlugin, OverlayHeaderPlugin, OverlayContentPlugin };
