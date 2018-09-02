@@ -33,6 +33,7 @@ class MapCanvas extends Component {
     console.log('componentDidMount');
     const { history } = this.props;
     window.reactHistory = history;
+    window.canvasHandler = this.canvasHandler;
     this.canvasHandler.addMouseUpListener(({ x, y, floor, scale }) => {
       // Update url
       history.push(getUrl({ floor, x, y, scale }));
@@ -59,13 +60,16 @@ class MapCanvas extends Component {
         <div> MapCanvas own things </div>
         <div ref={this.canvasRootRef} />
         <div>
-          {children.map(({ pluginId, MapCanvasPlugin }) => (
-            <MapCanvasPlugin
-              key={pluginId}
-              {...this.canvasHandler.getProps()}
-              APIEndpoint={APIEndpoint}
-            />
-          ))}
+          {children.map(
+            ({ pluginId, MapCanvasPlugin }) =>
+              MapCanvasPlugin && (
+                <MapCanvasPlugin
+                  key={pluginId}
+                  {...this.canvasHandler.getProps()}
+                  APIEndpoint={APIEndpoint}
+                />
+              ),
+          )}
         </div>
       </div>
     );

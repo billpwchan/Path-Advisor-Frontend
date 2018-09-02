@@ -85,7 +85,6 @@ function generateMapTiles({
 }
 
 const pluginId = 'maptile';
-const PrimaryPanelPlugin = () => null;
 
 const MapCanvasPlugin = ({
   APIEndpoint,
@@ -108,4 +107,4 @@ const MapCanvasPlugin = ({
   return null;
 };
 
-export { pluginId, PrimaryPanelPlugin, MapCanvasPlugin };
+export { pluginId, MapCanvasPlugin };
