@@ -17,6 +17,7 @@ class Main extends Component {
 
   state = {
     tests: [<b key="test1">Have it</b>],
+    displayOverlay: true,
   };
 
   getUrlParams() {
@@ -45,6 +46,12 @@ class Main extends Component {
     };
   }
 
+  closeOverlayHandler = () => {
+    this.setState({
+      displayOverlay: false,
+    });
+  };
+
   helloWorld = newItem => {
     this.setState(prevState => ({
       tests: [...prevState.tests, newItem],
@@ -61,11 +68,17 @@ class Main extends Component {
           {...this.getUrlParams()}
           helloWorld={this.helloWorld}
           tests={this.state.tests}
+          displayOverlay={this.state.displayOverlay}
+          closeOverlayHandler={this.closeOverlayHandler}
         >
-          {plugins.map(({ pluginId, PrimaryPanelPlugin }) => ({
-            pluginId,
-            PrimaryPanelPlugin,
-          }))}
+          {plugins.map(
+            ({ pluginId, PrimaryPanelPlugin, OverlayHeaderPlugin, OverlayContentPlugin }) => ({
+              pluginId,
+              PrimaryPanelPlugin,
+              OverlayHeaderPlugin,
+              OverlayContentPlugin,
+            }),
+          )}
         </PrimaryPanel>
         <MapCanvas {...this.getUrlParams()}>
           {plugins.map(({ pluginId, MapCanvasPlugin }) => ({
