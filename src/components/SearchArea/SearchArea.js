@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import get from 'lodash.get';
 import PropTypes from 'prop-types';
 import style from './SearchArea.module.css';
+import switchImage from './switch.png';
 import SearchInput from '../SearchInput/SearchInput';
 import SearchNearest from '../SearchNearest/SearchNearest';
 import getUrl from '../RouterManager/GetUrl';
@@ -138,8 +139,8 @@ class SearchArea extends Component {
               </div>
             </div>
             <div>
-              <button type="button" onClick={this.switchInputOrder}>
-                switch
+              <button className={style.switch} type="button" onClick={this.switchInputOrder}>
+                <img src={switchImage} alt="switch" />
               </button>
             </div>
           </div>

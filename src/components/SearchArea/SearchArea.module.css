@@ -69,3 +69,15 @@
 .autoCompleteListItemLocation {
   color: #666666;
 }
+
+.switch {
+  background-color: whitesmoke;
+  border: 1px solid #CCCCCC;
+  border-radius: 3px 3px 3px 3px;
+  cursor: pointer;
+  padding: 8px 0;
+}
+
+.switch * {
+  vertical-align: bottom;
+}
