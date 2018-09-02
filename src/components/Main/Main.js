@@ -1,4 +1,4 @@
-import React, { Component, createRef } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
@@ -7,16 +7,22 @@ import get from 'lodash.get';
 import PrimaryPanel from '../PrimaryPanel/PrimaryPanel';
 import plugins from '../../plugins';
 import MapCanvas from '../MapCanvas/MapCanvas';
+import { getMapItemsAction } from '../../reducers/mapItems';
 
 class Main extends Component {
-  primaryPanelRef = createRef();
+  static propTypes = {
+    match: PropTypes.shape({
+      params: PropTypes.object,
+    }),
+    mapItemStore: PropTypes.shape({}).isRequired,
+    getMapItemsHandler: PropTypes.func.isRequired,
+  };
 
   static defaultProps = {
     match: { params: {} },
   };
 
   state = {
-    tests: [<b key="test1">Have it</b>],
     displayOverlay: true,
   };
 
@@ -30,7 +36,7 @@ class Main extends Component {
     const coordinateString =
       (typeof coordinatePath === 'string' && get(coordinatePath.split('/'), 1)) || null;
     const floor = (typeof floorPath === 'string' && get(floorPath.split('/'), 1)) || undefined;
-    const [x, y, scale] = coordinateString
+    const [x = undefined, y = undefined, scale = undefined] = coordinateString
       ? coordinateString.split(',').map(v => parseInt(v, 10))
       : [];
 
@@ -52,23 +58,16 @@ class Main extends Component {
     });
   };
 
-  helloWorld = newItem => {
-    this.setState(prevState => ({
-      tests: [...prevState.tests, newItem],
-    }));
-  };
-
   render() {
-    console.log('Main.js', this.props.match);
+    const { displayOverlay } = this.state;
+    const { getMapItemsHandler, mapItemStore } = this.props;
 
     return (
       <div>
         <Link to="/place/room2345">About</Link>
         <PrimaryPanel
           {...this.getUrlParams()}
-          helloWorld={this.helloWorld}
-          tests={this.state.tests}
-          displayOverlay={this.state.displayOverlay}
+          displayOverlay={displayOverlay}
           closeOverlayHandler={this.closeOverlayHandler}
         >
           {plugins.map(
@@ -80,7 +79,11 @@ class Main extends Component {
             }),
           )}
         </PrimaryPanel>
-        <MapCanvas {...this.getUrlParams()}>
+        <MapCanvas
+          {...this.getUrlParams()}
+          getMapItemsHandler={getMapItemsHandler}
+          mapItemStore={mapItemStore}
+        >
           {plugins.map(({ pluginId, MapCanvasPlugin }) => ({
             pluginId,
             MapCanvasPlugin,
@@ -91,12 +94,13 @@ class Main extends Component {
   }
 }
 
-Main.propTypes = {
-  match: PropTypes.shape({
-    params: PropTypes.object,
+export default connect(
+  state => ({
+    mapItemStore: state.mapItems,
   }),
-};
-
-export default connect(state => ({
-  mappedTest: state.mapItems.test,
-}))(Main);
+  dispatch => ({
+    getMapItemsHandler: (floor, [x, y], [offsetX, offsetY]) => {
+      dispatch(getMapItemsAction(floor, [x, y], [offsetX, offsetY]));
+    },
+  }),
+)(Main);

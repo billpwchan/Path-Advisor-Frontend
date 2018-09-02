@@ -14,8 +14,6 @@ class PrimaryPanel extends Component {
     const {
       children,
       place,
-      helloWorld,
-      tests,
       getAutoCompleteAction,
       searchShortestPathAction,
       searchNearestAction,
@@ -59,9 +57,7 @@ class PrimaryPanel extends Component {
             <div>
               {children.map(
                 ({ pluginId, PrimaryPanelPlugin }) =>
-                  PrimaryPanelPlugin && (
-                    <PrimaryPanelPlugin key={pluginId} helloWorld={helloWorld} place={place} />
-                  ),
+                  PrimaryPanelPlugin && <PrimaryPanelPlugin key={pluginId} place={place} />,
               )}
             </div>
           </div>
