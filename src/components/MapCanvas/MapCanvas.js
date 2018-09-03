@@ -18,6 +18,8 @@ class MapCanvas extends Component {
     floor: PropTypes.string,
     scale: PropTypes.number,
     history: PropTypes.shape({ push: PropTypes.func.isRequired }).isRequired,
+    getMapItemsHandler: PropTypes.func.isRequired,
+    mapItemStore: PropTypes.shape({}).isRequired,
   };
 
   static defaultProps = {

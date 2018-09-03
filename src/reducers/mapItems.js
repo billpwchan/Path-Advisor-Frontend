@@ -5,6 +5,7 @@ export const GET_MAP_ITEMS_FAILURE = 'GET_MAP_ITEMS_FAILURE';
 /**
  * @param {string} floor
  * @param {number[]} coordinates
+ * @param {number[]} offsetCoordinates
  * @return {object}
  */
 export function getMapItemsAction(floor, coordinates, offsetCoordinates) {
