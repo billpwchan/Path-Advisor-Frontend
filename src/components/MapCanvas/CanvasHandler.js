@@ -129,7 +129,7 @@ class CanvasHandler {
   }
 
   updatePosition(x, y, floor = this.floor, scale = this.scale) {
-    console.log('Update position called');
+    console.log('Update position called', x, y);
     if (this.x === x && this.y === y && this.floor === floor && this.scale === scale) {
       console.log('no op');
       return;
@@ -151,6 +151,8 @@ class CanvasHandler {
    * @typedef CanvasEvent
    * @property {number} x
    * @property {number} y
+   * @property {number} endX
+   * @property {number} endY
    * @property {number} scale
    * @property {number} width
    * @property {number} height
@@ -270,6 +272,8 @@ class CanvasHandler {
       width: this.getWidth(),
       height: this.getHeight(),
       floor: this.floor,
+      endX: this.x + this.getWidth(),
+      endY: this.y + this.getHeight(),
     };
   }
 

@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React, { Component, createRef } from 'react';
 import { withRouter } from 'react-router-dom';
 // import { connect, connectAdvanced } from 'react-redux';
+import throttle from 'lodash.throttle';
 import CanvasHandler from './CanvasHandler';
 import { APIEndpoint } from '../../config/config';
 import getUrl from '../RouterManager/GetUrl';
@@ -29,34 +30,58 @@ class MapCanvas extends Component {
     scale: 1,
   };
 
-  state = {};
+  state = {
+    width: 1024,
+    height: 768,
+  };
 
   componentDidMount() {
-    console.log('componentDidMount');
-    const { history } = this.props;
-    window.reactHistory = history;
+    const { history, getMapItemsHandler } = this.props;
+
     window.canvasHandler = this.canvasHandler;
+
     this.canvasHandler.addMouseUpListener(({ x, y, floor, scale }) => {
-      // Update url
+      // update position param if changed due to mouse event
       history.push(getUrl({ floor, x, y, scale }));
     });
 
     const { x, y, floor, scale } = this.props;
-    console.log('default props', { x, y, floor, scale });
-    this.canvasRootRef.current.appendChild(this.canvasHandler.getCanvas());
-    this.canvasHandler.updateDimenision(1024, 768);
-    history.push(getUrl({ floor, x, y, scale }));
-  }
+    const { width, height } = this.state;
 
-  componentDidUpdate() {
-    console.log('componentDidUpdate');
-    const { x, y, floor, scale } = this.props;
+    this.canvasRootRef.current.appendChild(this.canvasHandler.getCanvas());
+    this.canvasHandler.updateDimenision(width, height);
+
+    this.canvasHandler.addPositionChangeListener(
+      throttle(
+        ({ floor: _floor, x: startX, y: startY, endX, endY }) => {
+          getMapItemsHandler(_floor, [startX, startY], [endX, endY]);
+        },
+        1000,
+        { leading: false },
+      ),
+    );
+
+    // init position param
+    history.push(getUrl({ floor, x, y, scale }));
     this.canvasHandler.updatePosition(x, y, floor, scale);
   }
 
+  componentDidUpdate(prevProps) {
+    // sync react position to canvas if it is changed
+    const { x, y, floor, scale } = this.props;
+    if (
+      x !== prevProps.x ||
+      y !== prevProps.y ||
+      floor !== prevProps.floor ||
+      scale !== prevProps.scale
+    ) {
+      this.canvasHandler.updatePosition(x, y, floor, scale);
+    }
+  }
+
   render() {
-    const { children } = this.props;
-    console.log('my props', this.props);
+    const { children, mapItemStore } = this.props;
+
     return (
       <div>
         <div> MapCanvas own things </div>
@@ -69,6 +94,7 @@ class MapCanvas extends Component {
                   key={pluginId}
                   {...this.canvasHandler.getProps()}
                   APIEndpoint={APIEndpoint}
+                  mapItems={mapItemStore.mapItems}
                 />
               ),
           )}
