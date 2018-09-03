@@ -27,15 +27,15 @@ function fetchMapItemsResponseWrapper(data) {
   });
 }
 
-export default function fetchMapItemsRequest(floor, coordinates, offsetCoordinates) {
+export default function fetchMapItemsRequest(floor, coordinates, diagonalCoordinates) {
   const [startX, startY] = coordinates;
-  const [offsetX, offsetY] = offsetCoordinates;
+  const [endX, endY] = diagonalCoordinates;
 
   return axios
     .get(
       `${APIEndpoint()}/phplib/get_map_data_2.php?floor=${encodeURIComponent(
         floor,
-      )}&MapCoorX=${startX}&MapCoorY=${startY}&offsetX=${offsetX}&offsetY=${offsetY}`,
+      )}&MapCoorX=${startX}&MapCoorY=${startY}&offsetX=${endX}&offsetY=${endY}`,
     )
     .then(response => ({
       ...response,

@@ -7,9 +7,9 @@ import {
   getMapItemsFailureAction,
 } from '../../reducers/mapItems';
 
-function* mapItemsRequestWorker({ payload: { floor, coordinates, offsetCoordinates } }) {
+function* mapItemsRequestWorker({ payload: { floor, coordinates, diagonalCoordinates } }) {
   try {
-    const { data } = yield call(fetchMapItemsRequest, floor, coordinates, offsetCoordinates);
+    const { data } = yield call(fetchMapItemsRequest, floor, coordinates, diagonalCoordinates);
     yield put(getMapItemsSuccessAction(data));
   } catch (error) {
     console.error(error);
