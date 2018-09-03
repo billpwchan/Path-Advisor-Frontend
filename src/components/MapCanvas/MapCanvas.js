@@ -53,8 +53,8 @@ class MapCanvas extends Component {
 
     this.canvasHandler.addPositionChangeListener(
       throttle(
-        ({ floor: _floor, x: startX, y: startY, endX, endY }) => {
-          getMapItemsHandler(_floor, [startX, startY], [endX, endY]);
+        ({ floor: _floor, x: startX, y: startY, width: _width, height: _height }) => {
+          getMapItemsHandler(_floor, [startX, startY], _width, _height);
         },
         1000,
         { leading: false },

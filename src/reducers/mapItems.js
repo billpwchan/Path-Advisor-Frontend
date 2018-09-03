@@ -5,13 +5,14 @@ export const GET_MAP_ITEMS_FAILURE = 'GET_MAP_ITEMS_FAILURE';
 /**
  * @param {string} floor
  * @param {number[]} coordinates
- * @param {number[]} diagonalCoordinates
+ * @param {number} width
+ * @param {number} height
  * @return {object}
  */
-export function getMapItemsAction(floor, coordinates, diagonalCoordinates) {
+export function getMapItemsAction(floor, coordinates, width, height) {
   return {
     type: GET_MAP_ITEMS,
-    payload: { floor, coordinates, diagonalCoordinates },
+    payload: { floor, coordinates, width, height },
   };
 }
 

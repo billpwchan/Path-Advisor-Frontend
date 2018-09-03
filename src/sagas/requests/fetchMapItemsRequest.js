@@ -4,7 +4,7 @@ import get from 'lodash.get';
 import { APIEndpoint } from '../../config/config';
 
 // TO-DO: remove wrapper after backend api updated
-function fetchMapItemsResponseWrapper(data) {
+function fetchMapItemsResponseWrapper(data, floor) {
   if (typeof data !== 'string') {
     return [];
   }
@@ -17,7 +17,7 @@ function fetchMapItemsResponseWrapper(data) {
       .map(v => parseInt(v, 10));
     return {
       name: mapItemValues[1],
-      floor: null,
+      floor,
       coordinates,
       id: mapItemValues[5],
       type: mapItemValues[2],
@@ -27,19 +27,18 @@ function fetchMapItemsResponseWrapper(data) {
   });
 }
 
-export default function fetchMapItemsRequest(floor, coordinates, diagonalCoordinates) {
+export default function fetchMapItemsRequest(floor, coordinates, width, height) {
   const [startX, startY] = coordinates;
-  const [endX, endY] = diagonalCoordinates;
 
   return axios
     .get(
       `${APIEndpoint()}/phplib/get_map_data_2.php?floor=${encodeURIComponent(
         floor,
-      )}&MapCoorX=${startX}&MapCoorY=${startY}&offsetX=${endX}&offsetY=${endY}`,
+      )}&MapCoorX=${startX}&MapCoorY=${startY}&offsetX=${width}&offsetY=${height}`,
     )
     .then(response => ({
       ...response,
-      data: fetchMapItemsResponseWrapper(response.data),
+      data: fetchMapItemsResponseWrapper(response.data, floor),
     }));
 }
 

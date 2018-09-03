@@ -99,8 +99,8 @@ export default connect(
     mapItemStore: state.mapItems,
   }),
   dispatch => ({
-    getMapItemsHandler: (floor, [startX, startY], [endX, endY]) => {
-      dispatch(getMapItemsAction(floor, [startX, startY], [endX, endY]));
+    getMapItemsHandler: (floor, [startX, startY], width, height) => {
+      dispatch(getMapItemsAction(floor, [startX, startY], width, height));
     },
   }),
 )(Main);
