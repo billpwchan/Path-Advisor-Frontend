@@ -18,6 +18,7 @@ import calculateTextDimension from './calculateTextDimension';
  * @property {boolean} [hidden]
  * @property {HTMLImageElement} [image]
  * @property {TextElement} [textElement]
+ * @property {mapItemListener} [onClick]
  * @property {Object} [others] - additional data for plugins to attach
  */
 
@@ -430,6 +431,8 @@ class CanvasHandler {
       }) => {
         if (!id) {
           throw new Error('id is required for canvas item');
+        } else if (this.mapItems[id]) {
+          return;
         }
 
         this.mapItems[id] = { id, floor, x, y, width, height, image, textElement, others, hidden };
@@ -481,26 +484,28 @@ class CanvasHandler {
         return;
       }
       // Render each canvas items in this layer
-      this.getCanvasItems(key).forEach(({ floor, x, y, image, textElement, hidden }) => {
-        if (hidden || floor !== this.floor) {
-          return;
-        }
-
-        switch (true) {
-          case Boolean(image):
-            ctx.drawImage(image, x - this.x, y - this.y);
-            break;
-          case Boolean(textElement): {
-            const { size, color, family, text } = textElement;
-            ctx.fillStyle = color;
-            ctx.font = `${size} ${family}`;
-            ctx.textBaseline = 'top';
-            ctx.fillText(text, x - this.x, y - this.y);
-            break;
+      this.getCanvasItems(key).forEach(
+        ({ floor, x, y, image, textElement, hidden, width, height }) => {
+          if (hidden || floor !== this.floor) {
+            return;
           }
-          default:
-        }
-      });
+
+          switch (true) {
+            case Boolean(image):
+              ctx.drawImage(image, x - this.x, y - this.y);
+              break;
+            case Boolean(textElement): {
+              const { size, color, family, text } = textElement;
+              ctx.fillStyle = color;
+              ctx.font = `${size} ${family}`;
+              ctx.textBaseline = 'top';
+              ctx.fillText(text, x - width / 2 - this.x, y - height / 2 - this.y);
+              break;
+            }
+            default:
+          }
+        },
+      );
     });
   };
 
