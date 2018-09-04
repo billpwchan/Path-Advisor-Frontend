@@ -75,16 +75,6 @@ async function getNodeIdFloorfromKeyword(keyword) {
 }
 
 /**
- * Helper to get node id without 'n' prefix from id
- */
-async function getNodeIdFromId(floor, id) {
-  const {
-    data: { nodeId },
-  } = await fetchIdToNodeIdRequest(floor, id);
-  return { nodeId: nodeId.substr(1), floor };
-}
-
-/**
  * @typedef searchSearchInput
  * @property {string} keyword
  * @property {string} nodeId
