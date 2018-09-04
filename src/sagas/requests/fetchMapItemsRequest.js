@@ -3,6 +3,16 @@ import compact from 'lodash.compact';
 import get from 'lodash.get';
 import { APIEndpoint } from '../../config/config';
 
+// TO-DO: remove after backend api updated
+function toCamelCase(term) {
+  return term
+    .split(' ')
+    .map(
+      (word, i) =>
+        i === 0 ? word.toLowerCase() : word[0].toUpperCase() + word.substr(1).toLowerCase(),
+    )
+    .join('');
+}
 // TO-DO: remove wrapper after backend api updated
 function fetchMapItemsResponseWrapper(data, floor) {
   if (typeof data !== 'string') {
@@ -20,7 +30,7 @@ function fetchMapItemsResponseWrapper(data, floor) {
       floor,
       coordinates,
       id: mapItemValues[5],
-      type: mapItemValues[2],
+      type: toCamelCase(mapItemValues[2]),
       plugin_photo: mapItemValues[3],
       plugin_url: mapItemValues[4],
     };
