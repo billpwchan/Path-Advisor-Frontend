@@ -551,27 +551,18 @@ class CanvasHandler {
   /**
    * Helper function to export these to pass via props to react component
    */
+  helperProps = {
+    addMapTiles: (...args) => this.addMapTiles(...args),
+    addMapItems: (...args) => this.addMapItems(...args),
+    updateMapTiles: (...args) => this.updateMapTiles(...args),
+    updateMapItems: (...args) => this.updateMapItems(...args),
+    updateLayers: (...args) => this.updateLayers(...args),
+    updatePosition: (...args) => this.updatePosition(...args),
+    updateDimenision: (...args) => this.updateDimenision(...args),
+  };
+
   getProps() {
-    return {
-      addMouseMoveListener: (...args) => this.addMouseMoveListener(...args),
-      removeMouseMoveListener: (...args) => this.removeMouseMoveListener(...args),
-      addMouseUpListener: (...args) => this.addMouseUpListener(...args),
-      removeMouseUpListener: (...args) => this.removeMouseUpListener(...args),
-      addPositionChangeListener: (...args) => this.addPositionChangeListener(...args),
-      removePositionChangeListener: (...args) => this.removePositionChangeListener(...args),
-      width: () => this.getWidth(),
-      height: () => this.getHeight(),
-      scale: () => this.scale,
-      addMapTiles: (...args) => this.addMapTiles(...args),
-      addMapItems: (...args) => this.addMapItems(...args),
-      updateMapTiles: (...args) => this.updateMapTiles(...args),
-      updateMapItems: (...args) => this.updateMapItems(...args),
-      updateLayers: (...args) => this.updateLayers(...args),
-      updatePosition: (...args) => this.updatePosition(...args),
-      updateDimenision: (...args) => this.updateDimenision(...args),
-      addMapItemClickListener: (...args) => this.addMapItemClickListener(...args),
-      removeMapItemClickListener: (...args) => this.removeMapItemClickListener(...args),
-    };
+    return this.helperProps;
   }
 }
 

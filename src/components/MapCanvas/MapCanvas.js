@@ -61,6 +61,10 @@ class MapCanvas extends Component {
       ),
     );
 
+    this.canvasHandler.addPositionChangeListener(({ x, y }) => {
+      this.setState({ movingX: x, movingY: y });
+    });
+
     // init position param
     history.push(getUrl({ floor, x, y, scale }));
     this.canvasHandler.updatePosition(x, y, floor, scale);
@@ -80,7 +84,8 @@ class MapCanvas extends Component {
   }
 
   render() {
-    const { children, mapItemStore } = this.props;
+    const { children, mapItemStore, x, y, floor, scale } = this.props;
+    const { movingX = x, movingY = y, width, height } = this.state;
 
     return (
       <div>
@@ -92,9 +97,17 @@ class MapCanvas extends Component {
               MapCanvasPlugin && (
                 <MapCanvasPlugin
                   key={pluginId}
-                  {...this.canvasHandler.getProps()}
+                  x={x}
+                  y={y}
+                  movingX={movingX}
+                  movingY={movingY}
+                  floor={floor}
+                  scale={scale}
                   APIEndpoint={APIEndpoint}
                   mapItems={mapItemStore.mapItems}
+                  width={width}
+                  height={height}
+                  {...this.canvasHandler.getProps()}
                 />
               ),
           )}

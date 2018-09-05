@@ -41,16 +41,7 @@ function getMapTileUrl(APIEndpoint, x, y, floor, scale) {
   return `${APIEndpoint()}/map_pixel.php?x=${x}&y=${y}&floor=${floor}&level=${scale}`;
 }
 
-function generateMapTiles({
-  APIEndpoint,
-  x: canvasOffsetX,
-  y: canvasOffsetY,
-  width,
-  height,
-  floor,
-  scale,
-}) {
-  console.log('appendMapTiles');
+function generateMapTiles(APIEndpoint, canvasOffsetX, canvasOffsetY, width, height, floor, scale) {
   const mapTiles = [];
   const { x, y } = getMapTileNumber(canvasOffsetX, canvasOffsetY);
 
@@ -85,24 +76,25 @@ function generateMapTiles({
 }
 
 const pluginId = 'maptile';
+let throttledAddMapTiles;
 
 const MapCanvasPlugin = ({
   APIEndpoint,
-  addPositionChangeListener,
-  addMouseUpListener,
   addMapTiles,
+  width,
+  height,
+  floor,
+  scale,
+  movingX,
+  movingY,
 }) => {
+  if (!throttledAddMapTiles) {
+    throttledAddMapTiles = throttle((...args) => {
+      addMapTiles(generateMapTiles(...args));
+    }, 100);
+  }
   // Add map tiles while mouse moving to provide a better UX, but need to throttle the number of times triggering this listener
-  addPositionChangeListener(
-    throttle(canvasMoveEvent => {
-      addMapTiles(generateMapTiles({ ...canvasMoveEvent, APIEndpoint }));
-    }, 1000),
-  );
-
-  // Add map tiles right after a mouse up event, no throttling
-  addMouseUpListener(canvasMoveEvent => {
-    addMapTiles(generateMapTiles({ ...canvasMoveEvent, APIEndpoint }));
-  });
+  throttledAddMapTiles(APIEndpoint, movingX, movingY, width, height, floor, scale);
 
   return null;
 };
