@@ -495,6 +495,19 @@ class CanvasHandler {
     return mapItems;
   }
 
+  inViewport(startX, startY, width, height) {
+    const endX = startX + width;
+    const endY = startY + height;
+
+    return [[startX, startY], [startX, endY], [endX, startY], [endX, endY]].some(
+      ([x, y]) =>
+        this.x <= x &&
+        x <= this.x + this.getWidth() &&
+        this.y <= y &&
+        y <= this.y + this.getHeight(),
+    );
+  }
+
   render = () => {
     const ctx = this.canvas.getContext('2d');
     ctx.clearRect(0, 0, this.getWidth(), this.getHeight());
@@ -506,7 +519,7 @@ class CanvasHandler {
       // Render each canvas items in this layer
       this.getCanvasItems(key).forEach(
         ({ floor, x, y, image, textElement, hidden, width, height, circle }) => {
-          if (hidden || floor !== this.floor) {
+          if (hidden || floor !== this.floor || !this.inViewport(x, y, width, height)) {
             return;
           }
 
