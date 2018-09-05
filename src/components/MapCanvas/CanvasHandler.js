@@ -8,6 +8,12 @@ import calculateTextDimension from './calculateTextDimension';
  * @property {string} text
  */
 /**
+ * @typedef CircleElement
+ * @property {number} radius
+ * @property {string} color
+ * @property {string} borderColor
+ */
+/**
  * @typedef CanvasItem
  * @property {string} id
  * @property {number} x
@@ -19,6 +25,7 @@ import calculateTextDimension from './calculateTextDimension';
  * @property {HTMLImageElement} [image]
  * @property {TextElement} [textElement]
  * @property {mapItemListener} [onClick]
+ * @property {CircleElement} [circle]
  * @property {Object} [others] - additional data for plugins to attach
  */
 
@@ -425,6 +432,7 @@ class CanvasHandler {
         height = null,
         image = null,
         textElement = null,
+        circle = null,
         others = {},
         hidden = false,
         onClick = null,
@@ -435,7 +443,19 @@ class CanvasHandler {
           return;
         }
 
-        this.mapItems[id] = { id, floor, x, y, width, height, image, textElement, others, hidden };
+        this.mapItems[id] = {
+          id,
+          floor,
+          x,
+          y,
+          width,
+          height,
+          image,
+          textElement,
+          circle,
+          others,
+          hidden,
+        };
         this.mapItemIds.push(id);
 
         if (onClick) {
@@ -485,24 +505,36 @@ class CanvasHandler {
       }
       // Render each canvas items in this layer
       this.getCanvasItems(key).forEach(
-        ({ floor, x, y, image, textElement, hidden, width, height }) => {
+        ({ floor, x, y, image, textElement, hidden, width, height, circle }) => {
           if (hidden || floor !== this.floor) {
             return;
           }
 
-          switch (true) {
-            case Boolean(image):
-              ctx.drawImage(image, x - this.x, y - this.y);
-              break;
-            case Boolean(textElement): {
-              const { size, color, family, text } = textElement;
+          if (circle) {
+            const { radius, color, borderColor } = circle;
+            ctx.beginPath();
+            ctx.arc(x - this.x, y - this.y, radius, 0, Math.PI * 2);
+            if (color) {
               ctx.fillStyle = color;
-              ctx.font = `${size} ${family}`;
-              ctx.textBaseline = 'top';
-              ctx.fillText(text, x - width / 2 - this.x, y - height / 2 - this.y);
-              break;
+              ctx.fill();
             }
-            default:
+
+            if (borderColor) {
+              ctx.strokeStyle = borderColor;
+              ctx.stroke();
+            }
+          }
+
+          if (image) {
+            ctx.drawImage(image, x - this.x, y - this.y);
+          }
+
+          if (textElement) {
+            const { size, color, family, text } = textElement;
+            ctx.fillStyle = color;
+            ctx.font = `${size} ${family}`;
+            ctx.textBaseline = 'top';
+            ctx.fillText(text, x - width / 2 - this.x, y - height / 2 - this.y);
           }
         },
       );
