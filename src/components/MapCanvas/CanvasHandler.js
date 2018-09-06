@@ -6,6 +6,7 @@ import calculateTextDimension from './calculateTextDimension';
  * @property {string} family
  * @property {string} color
  * @property {string} text
+ * @property {boolean} center
  */
 /**
  * @typedef CircleElement
@@ -400,11 +401,7 @@ class CanvasHandler {
   }
 
   updateMapItems(mapItems) {
-    Object.keys(mapItems).forEach(id => {
-      this.mapItems[id] = mapItems[id];
-    });
-
-    this.render();
+    this.addMapItems(mapItems, 'update');
   }
 
   /**
@@ -454,30 +451,34 @@ class CanvasHandler {
 
   /**
    * @param {CanvasItem[]} mapItems
+   * @param {string} mode - add or update map item
    */
-  async addMapItems(mapItems) {
+  async addMapItems(mapItems, mode = 'add') {
     const asyncMapItems = [];
+
+    // handy to use this set default value from exisiting map item, and therefore we can reuse addMapItems for updating a map item with partial information
+    const getDefault = (id, prop, defaultValue) => get(this.mapItems[id], prop, defaultValue);
 
     mapItems.forEach(
       ({
         id,
-        floor,
-        x,
-        y,
-        width = null,
-        height = null,
-        image = null,
-        textElement = null,
-        circle = null,
-        others = {},
-        hidden = false,
-        onClick = null,
-        onMouseOver = null,
-        onMouseOut = null,
+        floor = getDefault(id, 'floor', null),
+        x = getDefault(id, 'x', null),
+        y = getDefault(id, 'y', null),
+        width = getDefault(id, 'width', null),
+        height = getDefault(id, 'height', null),
+        image = getDefault(id, 'image', null),
+        textElement = getDefault(id, 'textElement', null),
+        circle = getDefault(id, 'circle', null),
+        others = getDefault(id, 'others', {}),
+        hidden = getDefault(id, 'hidden', false),
+        onClick = getDefault(id, 'onClick', null),
+        onMouseOver = getDefault(id, 'onMouseOver', null),
+        onMouseOut = getDefault(id, 'onMouseOut', null),
       }) => {
         if (!id) {
           throw new Error('id is required for canvas item');
-        } else if (this.mapItems[id]) {
+        } else if (this.mapItems[id] && mode === 'add') {
           return;
         }
 
@@ -494,7 +495,10 @@ class CanvasHandler {
           others,
           hidden,
         };
-        this.mapItemIds.push(id);
+
+        if (mode === 'add') {
+          this.mapItemIds.push(id);
+        }
 
         if (onClick) {
           this.addMapItemListener('click', id, onClick);
@@ -528,6 +532,11 @@ class CanvasHandler {
           const dimension = calculateTextDimension(textElement);
           this.mapItems[id].width = dimension.width;
           this.mapItems[id].height = dimension.height;
+
+          if (textElement.center) {
+            this.mapItems[id].x = x - dimension.width / 2;
+            this.mapItems[id].y = y - dimension.height / 2;
+          }
         }
       },
     );
@@ -569,31 +578,35 @@ class CanvasHandler {
             return;
           }
 
-          if (circle) {
-            const { radius, color, borderColor } = circle;
-            ctx.beginPath();
-            ctx.arc(x - this.x, y - this.y, radius, 0, Math.PI * 2);
-            if (color) {
+          switch (true) {
+            case Boolean(circle): {
+              const { radius, color, borderColor } = circle;
+              ctx.beginPath();
+              ctx.arc(x - this.x, y - this.y, radius, 0, Math.PI * 2);
+              if (color) {
+                ctx.fillStyle = color;
+                ctx.fill();
+              }
+
+              if (borderColor) {
+                ctx.strokeStyle = borderColor;
+                ctx.stroke();
+              }
+              break;
+            }
+            case Boolean(image):
+              ctx.drawImage(image, x - this.x, y - this.y);
+              break;
+            case Boolean(textElement): {
+              const { size, color, family, text } = textElement;
               ctx.fillStyle = color;
-              ctx.fill();
+              ctx.font = `${size} ${family}`;
+              ctx.textBaseline = 'top';
+              ctx.fillText(text, x - this.x, y - this.y);
+              break;
             }
 
-            if (borderColor) {
-              ctx.strokeStyle = borderColor;
-              ctx.stroke();
-            }
-          }
-
-          if (image) {
-            ctx.drawImage(image, x - this.x, y - this.y);
-          }
-
-          if (textElement) {
-            const { size, color, family, text } = textElement;
-            ctx.fillStyle = color;
-            ctx.font = `${size} ${family}`;
-            ctx.textBaseline = 'top';
-            ctx.fillText(text, x - width / 2 - this.x, y - height / 2 - this.y);
+            default:
           }
         },
       );
