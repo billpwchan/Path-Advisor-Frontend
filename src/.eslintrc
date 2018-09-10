@@ -28,6 +28,7 @@
         "trailingComma": "all"
       }
     ],
-    "prefer-destructuring": ["warn", {"object": true, "array": true}]
+    "prefer-destructuring": ["warn", { "object": true, "array": true }],
+    "no-fallthrough": ["error", { "commentPattern": "break[\\s\\w]*omitted" }]
   }
 }
