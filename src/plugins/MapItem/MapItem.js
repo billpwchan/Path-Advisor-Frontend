@@ -86,13 +86,17 @@ class MapCanvasPlugin extends Component {
               },
             );
             break;
-          default:
-            accumulator.push({
+          default: {
+            const defaultMapItem = {
               ...baseMapItem,
               textElement: {
                 ...DEFAULT_TEXT_STYLE,
                 text: convertName(name),
               },
+            };
+
+            accumulator.push({
+              ...defaultMapItem,
 
               onClick: () => {
                 if (photo) openOverlayHandler(name, photo, url);
@@ -102,10 +106,9 @@ class MapCanvasPlugin extends Component {
                 document.body.style.cursor = 'pointer';
                 updateMapItems([
                   {
-                    ...baseMapItem,
+                    ...defaultMapItem,
                     textElement: {
-                      ...DEFAULT_TEXT_STYLE,
-                      text: convertName(name),
+                      ...defaultMapItem.textElement,
                       color: 'lightblue',
                     },
                   },
@@ -116,15 +119,12 @@ class MapCanvasPlugin extends Component {
                 document.body.style.cursor = 'auto';
                 updateMapItems([
                   {
-                    ...baseMapItem,
-                    textElement: {
-                      ...DEFAULT_TEXT_STYLE,
-                      text: convertName(name),
-                    },
+                    ...defaultMapItem,
                   },
                 ]);
               },
             });
+          }
         }
 
         if (photo) {

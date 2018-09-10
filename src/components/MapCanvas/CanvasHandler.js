@@ -19,6 +19,8 @@ import calculateTextDimension from './calculateTextDimension';
  * @property {string} id
  * @property {number} x
  * @property {number} y
+ * @property {number} renderedX
+ * @property {number} renderedY
  * @property {?number} [width]
  * @property {?number} [height]
  * @property {string} floor
@@ -57,7 +59,7 @@ async function createImageLoadPromise(img) {
  * @return {boolean}
  */
 function hitTest(x, y, canvasItem) {
-  const { width, height, x: itemX, y: itemY } = canvasItem;
+  const { width, height, renderedX: itemX, renderedY: itemY } = canvasItem;
 
   const xInRange = x >= itemX && x <= itemX + width;
   const yInRange = y >= itemY && y <= itemY + height;
@@ -422,6 +424,8 @@ class CanvasHandler {
         floor,
         x,
         y,
+        renderedX: x,
+        renderedY: y,
         width,
         height,
         hidden,
@@ -487,6 +491,8 @@ class CanvasHandler {
           floor,
           x,
           y,
+          renderedX: x,
+          renderedY: y,
           width,
           height,
           image,
@@ -534,8 +540,8 @@ class CanvasHandler {
           this.mapItems[id].height = dimension.height;
 
           if (textElement.center) {
-            this.mapItems[id].x = x - dimension.width / 2;
-            this.mapItems[id].y = y - dimension.height / 2;
+            this.mapItems[id].renderedX = x - dimension.width / 2;
+            this.mapItems[id].renderedY = y - dimension.height / 2;
           }
         }
       },
@@ -573,8 +579,12 @@ class CanvasHandler {
       }
       // Render each canvas items in this layer
       this.getCanvasItems(key).forEach(
-        ({ floor, x, y, image, textElement, hidden, width, height, circle }) => {
-          if (hidden || floor !== this.floor || !this.inViewport(x, y, width, height)) {
+        ({ floor, renderedX, renderedY, image, textElement, hidden, width, height, circle }) => {
+          if (
+            hidden ||
+            floor !== this.floor ||
+            !this.inViewport(renderedX, renderedY, width, height)
+          ) {
             return;
           }
 
@@ -582,7 +592,7 @@ class CanvasHandler {
             case Boolean(circle): {
               const { radius, color, borderColor } = circle;
               ctx.beginPath();
-              ctx.arc(x - this.x, y - this.y, radius, 0, Math.PI * 2);
+              ctx.arc(renderedX - this.x, renderedY - this.y, radius, 0, Math.PI * 2);
               if (color) {
                 ctx.fillStyle = color;
                 ctx.fill();
@@ -595,14 +605,14 @@ class CanvasHandler {
               break;
             }
             case Boolean(image):
-              ctx.drawImage(image, x - this.x, y - this.y);
+              ctx.drawImage(image, renderedX - this.x, renderedY - this.y);
               break;
             case Boolean(textElement): {
               const { size, color, family, text } = textElement;
               ctx.fillStyle = color;
               ctx.font = `${size} ${family}`;
               ctx.textBaseline = 'top';
-              ctx.fillText(text, x - this.x, y - this.y);
+              ctx.fillText(text, renderedX - this.x, renderedY - this.y);
               break;
             }
 
