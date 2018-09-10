@@ -28,7 +28,10 @@ function fetchNodeIdsToMapItemsRequestWrapper(data) {
       id: mapItemValues[0],
       name: mapItemValues[1],
       type: mapItemValues[2],
-      plugin_photo: mapItemValues[3],
+      photo:
+        mapItemValues[3] === 'null'
+          ? null
+          : `${APIEndpoint()}/map_image/${mapItemValues[4]}/${mapItemValues[3]}.jpg`,
       floor: mapItemValues[4],
       nodeId: mapItemValues[5],
     };

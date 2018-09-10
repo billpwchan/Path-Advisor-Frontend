@@ -31,8 +31,11 @@ function fetchMapItemsResponseWrapper(data, floor) {
       coordinates,
       id: mapItemValues[5],
       type: toCamelCase(mapItemValues[2]),
-      plugin_photo: mapItemValues[3],
-      plugin_url: mapItemValues[4],
+      photo:
+        mapItemValues[3] === 'null'
+          ? null
+          : `${APIEndpoint()}/map_image/${floor}/${mapItemValues[3]}.jpg`,
+      url: mapItemValues[4] === 'null' ? null : mapItemValues[4],
     };
   });
 }
