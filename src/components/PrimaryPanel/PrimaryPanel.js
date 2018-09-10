@@ -18,32 +18,44 @@ class PrimaryPanel extends Component {
       searchShortestPathAction,
       searchNearestAction,
       autoCompleteStore,
+      overlayStore,
       history,
-      displayOverlay,
       closeOverlayHandler,
     } = this.props;
 
     return (
       <div>
-        {displayOverlay ? (
+        {overlayStore.open ? (
           <PanelOverlay
             closeOverlayHandler={closeOverlayHandler}
-            headerElements={children.map(
-              ({ pluginId, OverlayHeaderPlugin }) =>
+            headerElements={children.map(({ pluginId, OverlayHeaderPlugin }) => {
+              const { photo, name, url, others } = overlayStore;
+              return (
                 OverlayHeaderPlugin && (
-                  <OverlayHeaderPlugin key={`header_${pluginId}`} name="Test Map Item" />
-                ),
-            )}
-            contentElements={children.map(
-              ({ pluginId, OverlayContentPlugin }) =>
+                  <OverlayHeaderPlugin
+                    key={`header_${pluginId}`}
+                    name={name}
+                    photo={photo}
+                    url={url}
+                    others={others}
+                  />
+                )
+              );
+            })}
+            contentElements={children.map(({ pluginId, OverlayContentPlugin }) => {
+              const { photo, name, url, others } = overlayStore;
+              return (
                 OverlayContentPlugin && (
                   <OverlayContentPlugin
                     key={`content_${pluginId}`}
-                    name="Test Map Item"
-                    photo="https://avatars2.githubusercontent.com/u/6147805"
+                    name={name}
+                    photo={photo}
+                    url={url}
+                    others={others}
                   />
-                ),
-            )}
+                )
+              );
+            })}
           />
         ) : (
           <div>

@@ -8,6 +8,7 @@ import PrimaryPanel from '../PrimaryPanel/PrimaryPanel';
 import plugins from '../../plugins';
 import MapCanvas from '../MapCanvas/MapCanvas';
 import { getMapItemsAction } from '../../reducers/mapItems';
+import { openOverlayAction, closeOverlayAction } from '../../reducers/overlay';
 
 class Main extends Component {
   static propTypes = {
@@ -15,15 +16,15 @@ class Main extends Component {
       params: PropTypes.object,
     }),
     mapItemStore: PropTypes.shape({}).isRequired,
+    legendStore: PropTypes.shape({}).isRequired,
+    overlayStore: PropTypes.shape({}).isRequired,
+    openOverlayHandler: PropTypes.func.isRequired,
+    closeOverlayHandler: PropTypes.func.isRequired,
     getMapItemsHandler: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
     match: { params: {} },
-  };
-
-  state = {
-    displayOverlay: true,
   };
 
   getUrlParams() {
@@ -52,23 +53,23 @@ class Main extends Component {
     };
   }
 
-  closeOverlayHandler = () => {
-    this.setState({
-      displayOverlay: false,
-    });
-  };
-
   render() {
-    const { displayOverlay } = this.state;
-    const { getMapItemsHandler, mapItemStore } = this.props;
+    const {
+      getMapItemsHandler,
+      mapItemStore,
+      legendStore,
+      overlayStore,
+      closeOverlayHandler,
+      openOverlayHandler,
+    } = this.props;
 
     return (
       <div>
         <Link to="/place/room2345">About</Link>
         <PrimaryPanel
           {...this.getUrlParams()}
-          displayOverlay={displayOverlay}
-          closeOverlayHandler={this.closeOverlayHandler}
+          overlayStore={overlayStore}
+          closeOverlayHandler={closeOverlayHandler}
         >
           {plugins.map(
             ({ pluginId, PrimaryPanelPlugin, OverlayHeaderPlugin, OverlayContentPlugin }) => ({
@@ -83,6 +84,8 @@ class Main extends Component {
           {...this.getUrlParams()}
           getMapItemsHandler={getMapItemsHandler}
           mapItemStore={mapItemStore}
+          legendStore={legendStore}
+          openOverlayHandler={openOverlayHandler}
         >
           {plugins.map(({ pluginId, MapCanvasPlugin }) => ({
             pluginId,
@@ -97,10 +100,18 @@ class Main extends Component {
 export default connect(
   state => ({
     mapItemStore: state.mapItems,
+    legendStore: state.legends,
+    overlayStore: state.overlay,
   }),
   dispatch => ({
     getMapItemsHandler: (floor, [startX, startY], width, height) => {
       dispatch(getMapItemsAction(floor, [startX, startY], width, height));
+    },
+    openOverlayHandler: (photo, url, name, others) => {
+      dispatch(openOverlayAction(photo, url, name, others));
+    },
+    closeOverlayHandler: () => {
+      dispatch(closeOverlayAction());
     },
   }),
 )(Main);

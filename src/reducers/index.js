@@ -5,6 +5,7 @@ import searchNearest from './searchNearest';
 import searchShortestPath from './searchShortestPath';
 import legends from './legends';
 import floors from './floors';
+import overlay from './overlay';
 
 export default combineReducers({
   autoComplete,
@@ -13,4 +14,5 @@ export default combineReducers({
   searchShortestPath,
   legends,
   floors,
+  overlay,
 });

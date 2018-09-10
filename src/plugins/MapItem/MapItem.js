@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import React, { Component } from 'react';
 
 const pluginId = 'mapitem';
 const imgCached = {};
@@ -35,10 +35,10 @@ class MapCanvasPlugin extends Component {
   }
 
   render() {
-    const { mapItems, addMapItems, legends, updateMapItems } = this.props;
+    const { mapItems, addMapItems, legends, updateMapItems, openOverlayHandler } = this.props;
 
     addMapItems(
-      mapItems.reduce((accumulator, { id, coordinates: [x, y], floor, name, type, photo }) => {
+      mapItems.reduce((accumulator, { id, coordinates: [x, y], floor, name, type, photo, url }) => {
         const baseMapItem = {
           id: `${floor}_${id}`,
           floor,
@@ -94,6 +94,10 @@ class MapCanvasPlugin extends Component {
                 text: convertName(name),
               },
 
+              onClick: () => {
+                if (photo) openOverlayHandler(name, photo, url);
+              },
+
               onMouseOver: () => {
                 document.body.style.cursor = 'pointer';
                 updateMapItems([
@@ -129,6 +133,15 @@ class MapCanvasPlugin extends Component {
             id: `${floor}_${id}_photo`,
             x: x - 40,
             image: createImage(legends.photo.image),
+            onClick: () => {
+              openOverlayHandler(name, photo, url);
+            },
+            onMouseOver: () => {
+              document.body.style.cursor = 'pointer';
+            },
+            onMouseOut: () => {
+              document.body.style.cursor = 'auto';
+            },
           });
         }
 
@@ -140,4 +153,16 @@ class MapCanvasPlugin extends Component {
   }
 }
 
-export { pluginId, MapCanvasPlugin };
+const OverlayHeaderPlugin = ({ name }) => <h1>{name}</h1>;
+const OverlayContentPlugin = ({ name, photo, url }) => (
+  <div>
+    {url && (
+      <div>
+        Link: <a href={url}>url</a>
+      </div>
+    )}
+    <div>{photo && <img src={photo} alt={name} />}</div>
+  </div>
+);
+
+export { pluginId, MapCanvasPlugin, OverlayHeaderPlugin, OverlayContentPlugin };

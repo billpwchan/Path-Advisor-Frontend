@@ -21,6 +21,8 @@ class MapCanvas extends Component {
     history: PropTypes.shape({ push: PropTypes.func.isRequired }).isRequired,
     getMapItemsHandler: PropTypes.func.isRequired,
     mapItemStore: PropTypes.shape({}).isRequired,
+    legendStore: PropTypes.shape({}).isRequired,
+    openOverlayHandler: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
@@ -84,7 +86,16 @@ class MapCanvas extends Component {
   }
 
   render() {
-    const { children, mapItemStore, x, y, floor, scale } = this.props;
+    const {
+      children,
+      mapItemStore,
+      x,
+      y,
+      floor,
+      scale,
+      legendStore,
+      openOverlayHandler,
+    } = this.props;
     const { movingX = x, movingY = y, width, height } = this.state;
 
     return (
@@ -107,6 +118,8 @@ class MapCanvas extends Component {
                   mapItems={mapItemStore.mapItems}
                   width={width}
                   height={height}
+                  legends={legendStore.legends}
+                  openOverlayHandler={openOverlayHandler}
                   {...this.canvasHandler.getProps()}
                 />
               ),
