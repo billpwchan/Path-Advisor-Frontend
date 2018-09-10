@@ -7,9 +7,4 @@ const PrimaryPanelPlugin = ({ place }) => (
   </div>
 );
 
-const OverlayHeaderPlugin = ({ name }) => <h1>{name}</h1>;
-const OverlayContentPlugin = ({ id, name, photo }) => (
-  <div>{photo && <img src={photo} alt="{name}" />}</div>
-);
-
-export { pluginId, PrimaryPanelPlugin, OverlayHeaderPlugin, OverlayContentPlugin };
+export { pluginId, PrimaryPanelPlugin };
