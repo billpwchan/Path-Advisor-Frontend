@@ -6,7 +6,6 @@ import calculateTextDimension from './calculateTextDimension';
  * @property {string} family
  * @property {string} color
  * @property {string} text
- * @property {boolean} center
  * @property {number} maxLineWidth
  * @property {number} lineHeight
  * @property {array} lines
@@ -27,6 +26,7 @@ import calculateTextDimension from './calculateTextDimension';
  * @property {?number} [width]
  * @property {?number} [height]
  * @property {string} floor
+ * @property {boolean} [center]
  * @property {boolean} [hidden]
  * @property {HTMLImageElement} [image]
  * @property {TextElement} [textElement]
@@ -437,6 +437,9 @@ class CanvasHandler {
       };
       this.mapTileIds.push(id);
 
+      this.mapTiles[id].width = image.width;
+      this.mapTiles[id].height = image.height;
+
       if (imageNotLoaded(image)) {
         asyncMapTiles.push(
           createImageLoadPromise(image)
@@ -478,6 +481,7 @@ class CanvasHandler {
         textElement = getDefault(id, 'textElement', null),
         circle = getDefault(id, 'circle', null),
         others = getDefault(id, 'others', {}),
+        center = getDefault(id, 'center', false),
         hidden = getDefault(id, 'hidden', false),
         onClick = getDefault(id, 'onClick', null),
         onMouseOver = getDefault(id, 'onMouseOver', null),
@@ -502,6 +506,7 @@ class CanvasHandler {
           textElement,
           circle,
           others,
+          center,
           hidden,
         };
 
@@ -521,20 +526,9 @@ class CanvasHandler {
           this.addMapItemListener('mouseout', id, onMouseOut);
         }
 
-        // async work after adding items
-        if (imageNotLoaded(image)) {
-          // wait for img data to load completely before rendering
-          asyncMapItems.push(
-            createImageLoadPromise(image)
-              .then(() => {
-                this.render();
-                this.mapItems[id].width = image.width;
-                this.mapItems[id].height = image.height;
-              })
-              .catch(err => {
-                console.log(err);
-              }),
-          );
+        if (image) {
+          this.mapItems[id].width = image.width;
+          this.mapItems[id].height = image.height;
         }
 
         if (textElement) {
@@ -573,11 +567,33 @@ class CanvasHandler {
             this.mapItems[id].height = lines.length * dimension.height;
             this.mapItems[id].textElement.lines = lines;
           }
+        }
 
-          if (textElement.center) {
-            this.mapItems[id].renderedX = x - this.mapItems[id].width / 2;
-            this.mapItems[id].renderedY = y - this.mapItems[id].height / 2;
-          }
+        if (center) {
+          this.mapItems[id].renderedX = x - this.mapItems[id].width / 2;
+          this.mapItems[id].renderedY = y - this.mapItems[id].height / 2;
+        }
+
+        // async work after adding items
+        if (imageNotLoaded(image)) {
+          // wait for img data to load completely before rendering
+          asyncMapItems.push(
+            createImageLoadPromise(image)
+              .then(() => {
+                this.mapItems[id].width = image.width;
+                this.mapItems[id].height = image.height;
+
+                if (center) {
+                  this.mapItems[id].renderedX = x - this.mapItems[id].width / 2;
+                  this.mapItems[id].renderedY = y - this.mapItems[id].height / 2;
+                }
+
+                this.render();
+              })
+              .catch(err => {
+                console.log(err);
+              }),
+          );
         }
       },
     );

@@ -7,7 +7,6 @@ const DEFAULT_TEXT_STYLE = {
   size: '12 px',
   family: 'Verdana',
   color: 'black',
-  center: true,
   maxLineWidth: 35,
 };
 
@@ -45,6 +44,7 @@ class MapCanvasPlugin extends Component {
           floor,
           x,
           y,
+          center: true,
         };
 
         switch (type) {
