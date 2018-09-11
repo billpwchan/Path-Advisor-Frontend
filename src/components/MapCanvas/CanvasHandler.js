@@ -7,6 +7,9 @@ import calculateTextDimension from './calculateTextDimension';
  * @property {string} color
  * @property {string} text
  * @property {boolean} center
+ * @property {number} maxLineWidth
+ * @property {number} lineHeight
+ * @property {array} lines
  */
 /**
  * @typedef CircleElement
@@ -535,13 +538,45 @@ class CanvasHandler {
         }
 
         if (textElement) {
-          const dimension = calculateTextDimension(textElement);
+          const { family, size, text, maxLineWidth } = textElement;
+          const dimension = calculateTextDimension(family, size, text);
           this.mapItems[id].width = dimension.width;
           this.mapItems[id].height = dimension.height;
+          this.mapItems[id].textElement.lineHeight = dimension.height;
+
+          if (maxLineWidth && dimension.width > maxLineWidth) {
+            const lines = [];
+
+            let currentLine;
+            let computedMaxLineWidth = 0;
+
+            textElement.text.split(' ').forEach(word => {
+              if (
+                currentLine &&
+                calculateTextDimension(family, size, currentLine.join(' ')).width +
+                  calculateTextDimension(family, size, `${word} `).width <
+                  maxLineWidth
+              ) {
+                currentLine.push(word);
+              } else {
+                currentLine = [word];
+                lines.push(currentLine);
+              }
+
+              computedMaxLineWidth = Math.max(
+                computedMaxLineWidth,
+                calculateTextDimension(family, size, currentLine.join(' ')).width,
+              );
+            });
+
+            this.mapItems[id].width = computedMaxLineWidth;
+            this.mapItems[id].height = lines.length * dimension.height;
+            this.mapItems[id].textElement.lines = lines;
+          }
 
           if (textElement.center) {
-            this.mapItems[id].renderedX = x - dimension.width / 2;
-            this.mapItems[id].renderedY = y - dimension.height / 2;
+            this.mapItems[id].renderedX = x - this.mapItems[id].width / 2;
+            this.mapItems[id].renderedY = y - this.mapItems[id].height / 2;
           }
         }
       },
@@ -608,11 +643,22 @@ class CanvasHandler {
               ctx.drawImage(image, renderedX - this.x, renderedY - this.y);
               break;
             case Boolean(textElement): {
-              const { size, color, family, text } = textElement;
+              const { size, color, family, text, lines, lineHeight } = textElement;
               ctx.fillStyle = color;
               ctx.font = `${size} ${family}`;
               ctx.textBaseline = 'top';
-              ctx.fillText(text, renderedX - this.x, renderedY - this.y);
+              if (lines) {
+                lines.forEach((line, i) => {
+                  ctx.fillText(
+                    line.join(' '),
+                    renderedX - this.x,
+                    renderedY + lineHeight * i - this.y,
+                  );
+                });
+              } else {
+                ctx.fillText(text, renderedX - this.x, renderedY - this.y);
+              }
+
               break;
             }
 

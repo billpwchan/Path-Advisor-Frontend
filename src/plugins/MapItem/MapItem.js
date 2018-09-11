@@ -8,6 +8,7 @@ const DEFAULT_TEXT_STYLE = {
   family: 'Verdana',
   color: 'black',
   center: true,
+  maxLineWidth: 35,
 };
 
 function convertName(name) {
