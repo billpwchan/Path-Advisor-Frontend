@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import fetchAccessibleFoorsRequest from '../../sagas/requests/fetchAccessibleFloorsRequest';
 
 const pluginId = 'mapitem';
 const imgCached = {};
@@ -46,7 +47,13 @@ class MapCanvasPlugin extends Component {
           y,
           center: true,
         };
-
+        const defaultMapItem = {
+          ...baseMapItem,
+          textElement: {
+            ...DEFAULT_TEXT_STYLE,
+            text: convertName(name),
+          },
+        };
         switch (type) {
           case 'crossBuildingConnector':
           case 'escalator':
@@ -78,24 +85,26 @@ class MapCanvasPlugin extends Component {
                 },
               },
               {
-                ...baseMapItem,
+                ...defaultMapItem,
                 id: `${floor}_${id}_text`,
-                textElement: {
-                  ...DEFAULT_TEXT_STYLE,
-                  text: name,
+
+                onMouseOver: () => {
+                  document.body.style.cursor = 'pointer';
+                },
+
+                onMouseOut: () => {
+                  document.body.style.cursor = 'auto';
+                },
+
+                onClick: () => {
+                  fetchAccessibleFoorsRequest(floor, name).then(({ data: accessibleFloors }) => {
+                    openOverlayHandler(name, photo, url, { accessibleFloors });
+                  });
                 },
               },
             );
             break;
           default: {
-            const defaultMapItem = {
-              ...baseMapItem,
-              textElement: {
-                ...DEFAULT_TEXT_STYLE,
-                text: convertName(name),
-              },
-            };
-
             accumulator.push({
               ...defaultMapItem,
 
@@ -155,7 +164,7 @@ class MapCanvasPlugin extends Component {
 }
 
 const OverlayHeaderPlugin = ({ name }) => <h1>{name}</h1>;
-const OverlayContentPlugin = ({ name, photo, url }) => (
+const OverlayContentPlugin = ({ name, photo, url, others: { accessibleFloors } }) => (
   <div>
     {url && (
       <div>
@@ -163,6 +172,16 @@ const OverlayContentPlugin = ({ name, photo, url }) => (
       </div>
     )}
     <div>{photo && <img src={photo} alt={name} />}</div>
+    {accessibleFloors && (
+      <div>
+        Accessible floors:
+        <ul>
+          {accessibleFloors.map(floor => (
+            <li>{floor}</li>
+          ))}
+        </ul>
+      </div>
+    )}
   </div>
 );
 
