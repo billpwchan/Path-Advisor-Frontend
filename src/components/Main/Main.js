@@ -18,6 +18,7 @@ class Main extends Component {
     mapItemStore: PropTypes.shape({}).isRequired,
     legendStore: PropTypes.shape({}).isRequired,
     overlayStore: PropTypes.shape({}).isRequired,
+    floorStore: PropTypes.shape({}).isRequired,
     openOverlayHandler: PropTypes.func.isRequired,
     closeOverlayHandler: PropTypes.func.isRequired,
     getMapItemsHandler: PropTypes.func.isRequired,
@@ -59,6 +60,7 @@ class Main extends Component {
       mapItemStore,
       legendStore,
       overlayStore,
+      floorStore,
       closeOverlayHandler,
       openOverlayHandler,
     } = this.props;
@@ -69,6 +71,7 @@ class Main extends Component {
         <PrimaryPanel
           {...this.getUrlParams()}
           overlayStore={overlayStore}
+          floorStore={floorStore}
           closeOverlayHandler={closeOverlayHandler}
         >
           {plugins.map(
@@ -102,6 +105,7 @@ export default connect(
     mapItemStore: state.mapItems,
     legendStore: state.legends,
     overlayStore: state.overlay,
+    floorStore: state.floors,
   }),
   dispatch => ({
     getMapItemsHandler: (floor, [startX, startY], width, height) => {

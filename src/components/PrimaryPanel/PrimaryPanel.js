@@ -6,9 +6,16 @@ import { getAutoCompleteAction } from '../../reducers/autoComplete';
 import { searchShortestPathAction } from '../../reducers/searchShortestPath';
 import { searchNearestAction } from '../../reducers/searchNearest';
 import PanelOverlay from '../PanelOverlay/PanelOverlay';
+import Floor from '../Floor/Floor';
 
 class PrimaryPanel extends Component {
-  state = {};
+  state = {
+    selectedBuilding: 'academicBuilding',
+  };
+
+  selectBuildingAction = selectedBuilding => {
+    this.setState({ selectedBuilding });
+  };
 
   render() {
     const {
@@ -19,9 +26,16 @@ class PrimaryPanel extends Component {
       searchNearestAction,
       autoCompleteStore,
       overlayStore,
+      floorStore,
       history,
       closeOverlayHandler,
+      x,
+      y,
+      scale,
+      floor,
     } = this.props;
+
+    const { selectedBuilding } = this.state;
 
     return (
       <div>
@@ -59,6 +73,18 @@ class PrimaryPanel extends Component {
           />
         ) : (
           <div>
+            <Floor
+              selectedBuilding={selectedBuilding}
+              selectBuildingAction={this.selectBuildingAction}
+              buildingIds={floorStore.buildingIds}
+              buildings={floorStore.buildings}
+              floors={floorStore.floors}
+              linkTo={history.push}
+              x={x}
+              y={y}
+              currentFloor={floor}
+              scale={scale}
+            />
             <SearchArea
               getAutoCompleteAction={getAutoCompleteAction}
               autoCompleteStore={autoCompleteStore}
