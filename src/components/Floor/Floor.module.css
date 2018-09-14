@@ -1,0 +1,39 @@
+.selected {
+  background-color: #ececec;
+}
+
+.buildingList li {
+  display: inline-block;
+}
+
+.floorList li {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.floorButton {
+  text-decoration: underline;
+  font-family: Verdana;
+  font-size: 10pt;
+  color: blue;
+}
+
+.floorButton:hover {
+  color: red
+}
+
+.floorList li::after {
+  content: ','
+}
+
+.floorList li:last-child::after {
+  content: ''
+}
+
+.buildingButton {
+  font-weight: bold;
+  font-family: Arial;
+  font-size: 10pt;
+  padding: 4px;
+  outline: none;
+}
