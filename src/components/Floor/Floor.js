@@ -33,11 +33,7 @@ class Floor extends Component {
       }),
     ),
     linkTo: PropTypes.func.isRequired,
-  };
-
-  state = {
-    // init selected building once only, not expecting to react to incoming prop change on this one
-    selectedBuilding: this.props.selectedBuilding,
+    selectBuildingAction: PropTypes.func.isRequired,
   };
 
   get currentBuilding() {
@@ -79,7 +75,7 @@ class Floor extends Component {
   };
 
   selectBuilding = buildingId => () => {
-    const { buildings, linkTo, floors } = this.props;
+    const { buildings, linkTo, floors, selectBuildingAction } = this.props;
     if (buildings[buildingId].floorIds.length === 1) {
       const [floor] = buildings[buildingId].floorIds;
 
@@ -94,14 +90,11 @@ class Floor extends Component {
       return;
     }
 
-    this.setState({
-      selectedBuilding: buildingId,
-    });
+    selectBuildingAction(buildingId);
   };
 
   render() {
-    const { buildingIds, buildings, floors } = this.props;
-    const { selectedBuilding } = this.state;
+    const { buildingIds, buildings, floors, selectedBuilding } = this.props;
     return (
       <div>
         <ul className={styles.buildingList}>
