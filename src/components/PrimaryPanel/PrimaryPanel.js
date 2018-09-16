@@ -8,6 +8,8 @@ import { searchNearestAction } from '../../reducers/searchNearest';
 import PanelOverlay from '../PanelOverlay/PanelOverlay';
 import Floor from '../Floor/Floor';
 
+import style from './PrimaryPanel.module.css';
+
 class PrimaryPanel extends Component {
   state = {
     selectedBuilding: 'academicBuilding',
@@ -39,7 +41,7 @@ class PrimaryPanel extends Component {
     const { selectedBuilding } = this.state;
 
     return (
-      <div>
+      <div className={style.body}>
         {overlayStore.open ? (
           <PanelOverlay
             closeOverlayHandler={closeOverlayHandler}

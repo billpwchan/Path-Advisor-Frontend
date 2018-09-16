@@ -67,7 +67,6 @@ class Main extends Component {
 
     return (
       <div>
-        <Link to="/place/room2345">About</Link>
         <PrimaryPanel
           {...this.getUrlParams()}
           overlayStore={overlayStore}
