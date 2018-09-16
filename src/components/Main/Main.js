@@ -72,6 +72,7 @@ class Main extends Component {
           {...this.getUrlParams()}
           overlayStore={overlayStore}
           floorStore={floorStore}
+          legendStore={legendStore}
           closeOverlayHandler={closeOverlayHandler}
         >
           {plugins.map(

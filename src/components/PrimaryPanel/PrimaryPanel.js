@@ -27,6 +27,7 @@ class PrimaryPanel extends Component {
       autoCompleteStore,
       overlayStore,
       floorStore,
+      legendStore,
       history,
       closeOverlayHandler,
       x,
@@ -95,7 +96,14 @@ class PrimaryPanel extends Component {
             <div>
               {children.map(
                 ({ pluginId, PrimaryPanelPlugin }) =>
-                  PrimaryPanelPlugin && <PrimaryPanelPlugin key={pluginId} place={place} />,
+                  PrimaryPanelPlugin && (
+                    <PrimaryPanelPlugin
+                      key={pluginId}
+                      place={place}
+                      legends={legendStore.legends}
+                      legendIds={legendStore.legendIds}
+                    />
+                  ),
               )}
             </div>
           </div>
