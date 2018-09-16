@@ -2,6 +2,12 @@
   background-color: #ececec;
 }
 
+.buildingList {
+  border-bottom: 1px solid #cccccc;
+  padding: 5px 0;
+  margin-bottom: 5px;
+}
+
 .buildingList li {
   display: inline-block;
 }
@@ -19,15 +25,15 @@
 }
 
 .floorButton:hover {
-  color: red
+  color: red;
 }
 
 .floorList li::after {
-  content: ','
+  content: ",";
 }
 
 .floorList li:last-child::after {
-  content: ''
+  content: "";
 }
 
 .buildingButton {
