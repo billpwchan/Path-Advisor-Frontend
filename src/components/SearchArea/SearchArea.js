@@ -1,3 +1,4 @@
+import classnames from 'classnames';
 import React, { Component } from 'react';
 import get from 'lodash.get';
 import PropTypes from 'prop-types';
@@ -124,35 +125,48 @@ class SearchArea extends Component {
     };
 
     return (
-      <div>
+      <div className={style.body}>
         <div className={style.head}>Search</div>
-        <div>
-          <div>
-            <div>
-              <div>
-                <div>From</div>
-                <div> {searchInputs[searchInputOrders[0]]('from')} </div>
+        <div className={style.contentContainer}>
+          <div className={style.content}>
+            <div className={style.searchColumn}>
+              <div className={style.searchRow}>
+                <div className={style.inputTitle}>From</div>
+                <div className={style.inputField}>{searchInputs[searchInputOrders[0]]('from')}</div>
               </div>
-              <div>
-                <div>To</div>
-                <div> {searchInputs[searchInputOrders[1]]('to')} </div>
+              <div className={style.searchRow}>
+                <div className={style.inputTitle}>To</div>
+                <div className={style.inputField}> {searchInputs[searchInputOrders[1]]('to')} </div>
               </div>
             </div>
-            <div>
-              <button className={style.switch} type="button" onClick={this.switchInputOrder}>
-                <img src={switchImage} alt="switch" />
-              </button>
+
+            <button
+              className={classnames(style.searchColumn, style.switch)}
+              type="button"
+              onClick={this.switchInputOrder}
+            >
+              <img src={switchImage} alt="switch" />
+            </button>
+
+            <div className={style.checkBoxRow}>
+              <input
+                className={style.checkBoxColumn}
+                type="checkbox"
+                onChange={this.updateSameFloor}
+                checked={sameFloor}
+              />
+              <div className={style.checkBoxColumn}>On the same floor</div>
+            </div>
+
+            <div className={style.searchButtonContainer}>
+              <input
+                type="button"
+                className={style.searchButton}
+                value="GO"
+                onClick={this.search}
+              />
             </div>
           </div>
-
-          <div>
-            <div>
-              <input type="checkbox" onChange={this.updateSameFloor} checked={sameFloor} />
-            </div>
-            <div>On the same floor</div>
-          </div>
-
-          <input type="button" className={style.searchButton} value="GO" onClick={this.search} />
         </div>
       </div>
     );

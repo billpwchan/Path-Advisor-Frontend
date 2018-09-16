@@ -4,6 +4,7 @@
   font-family: Arial;
   border-bottom: 1px solid #cccccc;
   padding: 5px 0;
+  margin-bottom: 5px;
 }
 
 .input {
@@ -72,12 +73,59 @@
 
 .switch {
   background-color: whitesmoke;
-  border: 1px solid #CCCCCC;
+  border: 1px solid #cccccc;
   border-radius: 3px 3px 3px 3px;
   cursor: pointer;
   padding: 8px 0;
+  margin-left: 5px;
 }
 
 .switch * {
   vertical-align: bottom;
+}
+
+.inputTitle {
+  display: inline-block;
+  width: 50px;
+}
+
+.inputField {
+  display: inline-block;
+}
+
+.body {
+  font-family: Verdana;
+  font-size: 13px;
+}
+
+.contentContainer {
+  text-align: center;
+}
+
+.content {
+  display: inline-block;
+  text-align: initial;
+}
+
+.searchRow {
+  margin-bottom: 5px;
+}
+
+.searchColumn {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.checkBoxColumn {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.checkBoxRow {
+  margin-top: 5px;
+}
+
+.searchButtonContainer {
+  margin-top: 5px;
+  text-align: right;
 }
