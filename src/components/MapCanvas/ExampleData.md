@@ -1,29 +1,15 @@
 ```javascript
-img = new Image();
-canvasHandler.addMapItems([
+
+canvasHandler.setMapItems([
   {
-    id: 1,
+    id: 'line',
     floor: "G",
-    x: 0,
-    y: 0,
-    textElement: {
-      size: "12 px",
-      family: "Verdana",
-      color: "red",
-      text: "abcdefghijklmnopqrstuvwxyz"
-    },
-    onClick: () => console.log("I am clicked")
-  },
-  {
-    id: 2,
-    floor: "G",
-    x: 30,
-    y: 40,
-    image: img
+    line: {
+      cap: 'round',
+      color: 'red',
+      width: 3,
+      coordinates: [ [1,1], [1,10], [30,10], [30,100]]
+    }
   }
 ]);
-
-img.src = "http://pathadvisor.ust.hk/img/express.png";
-
-canvasHandler.addMapTiles([{ id: 3, floor: "G", x: 10, y: 200 }]);
 ```

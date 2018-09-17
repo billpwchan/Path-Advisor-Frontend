@@ -36,9 +36,9 @@ class MapCanvasPlugin extends Component {
   }
 
   render() {
-    const { mapItems, addMapItems, legends, updateMapItems, openOverlayHandler } = this.props;
+    const { mapItems, setMapItems, legends, openOverlayHandler } = this.props;
 
-    addMapItems(
+    setMapItems(
       mapItems.reduce((accumulator, { id, coordinates: [x, y], floor, name, type, photo, url }) => {
         const baseMapItem = {
           id: `${floor}_${id}`,
@@ -114,7 +114,7 @@ class MapCanvasPlugin extends Component {
 
               onMouseOver: () => {
                 document.body.style.cursor = 'pointer';
-                updateMapItems([
+                setMapItems([
                   {
                     ...defaultMapItem,
                     textElement: {
@@ -127,7 +127,7 @@ class MapCanvasPlugin extends Component {
 
               onMouseOut: () => {
                 document.body.style.cursor = 'auto';
-                updateMapItems([
+                setMapItems([
                   {
                     ...defaultMapItem,
                   },

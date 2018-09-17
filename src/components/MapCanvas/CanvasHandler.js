@@ -413,10 +413,6 @@ class CanvasHandler {
     this.render();
   }
 
-  updateMapItems(mapItems) {
-    this.addMapItems(mapItems, 'update');
-  }
-
   /**
    * @param {CanvasItem[]} mapTiles
    */
@@ -471,10 +467,9 @@ class CanvasHandler {
    * @param {CanvasItem[]} mapItems
    * @param {string} mode - add or update map item
    */
-  async addMapItems(mapItems, mode = 'add') {
+  async setMapItems(mapItems) {
     const asyncMapItems = [];
-
-    // handy to use this set default value from existing map item, and therefore we can reuse addMapItems for updating a map item with partial information
+    // use this set default value from existing map item, and therefore support updating a map item with partial information
     const getDefault = (id, prop, defaultValue) => get(this.mapItems[id], prop, defaultValue);
 
     mapItems.forEach(
@@ -498,8 +493,8 @@ class CanvasHandler {
       }) => {
         if (!id) {
           throw new Error('id is required for canvas item');
-        } else if (this.mapItems[id] && mode === 'add') {
-          return;
+        } else if (!this.mapItems[id]) {
+          this.mapItemIds.push(id);
         }
 
         this.mapItems[id] = {
@@ -519,10 +514,6 @@ class CanvasHandler {
           center,
           hidden,
         };
-
-        if (mode === 'add') {
-          this.mapItemIds.push(id);
-        }
 
         if (onClick) {
           this.addMapItemListener('click', id, onClick);
@@ -615,6 +606,23 @@ class CanvasHandler {
     await Promise.all(asyncMapItems);
 
     return mapItems;
+  }
+
+  /**
+   * @param {string} mapItemId
+   * @returns {boolean} true if map item found and deleted, false otherwise
+   */
+  removeMapItem(mapItemId) {
+    const index = this.mapItemIds.indexOf(mapItemId);
+
+    if (index === -1) {
+      return false;
+    }
+
+    this.mapItemIds.splice(index, 1);
+    delete this.mapItems[mapItemId];
+
+    return true;
   }
 
   inViewport(startX, startY, width, height) {
@@ -738,9 +746,8 @@ class CanvasHandler {
    */
   helperProps = {
     addMapTiles: args => this.addMapTiles(args),
-    addMapItems: args => this.addMapItems(args),
+    setMapItems: args => this.setMapItems(args),
     updateMapTiles: (...args) => this.updateMapTiles(...args),
-    updateMapItems: (...args) => this.updateMapItems(...args),
     updateLayers: (...args) => this.updateLayers(...args),
     updatePosition: (...args) => this.updatePosition(...args),
     updateDimenision: (...args) => this.updateDimenision(...args),
