@@ -10,13 +10,13 @@ import { searchShortestPathAction } from '../../reducers/searchShortestPath';
 
 function* searchNearestRequestWorker({ payload: { floor, name, nearestType, sameFloor } }) {
   try {
-    const { data } = yield call(searchNearestRequest, floor, name, nearestType, sameFloor);
-    yield put(searchNearestSuccessAction(data));
-
     const {
-      from: { id: fromId, floor: fromFloor },
-      nearest: { id: nearestId, floor: nearestFloor },
-    } = data;
+      data: { from, nearest },
+    } = yield call(searchNearestRequest, floor, name, nearestType, sameFloor);
+    yield put(searchNearestSuccessAction(from, nearest));
+
+    const { id: fromId, floor: fromFloor } = from;
+    const { id: nearestId, floor: nearestFloor } = nearest;
 
     yield put(
       searchShortestPathAction(

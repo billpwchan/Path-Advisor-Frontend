@@ -1,9 +1,11 @@
 import axios from 'axios';
 import get from 'lodash.get';
+
 import { APIEndpoint } from '../../config/config';
+import fetchAutoCompleteRequest from './fetchAutoCompleteRequest';
 
 // TO-DO: remove wrapper after backend api updated
-function searchNearestResponseWrapper(data) {
+async function searchNearestResponseWrapper(name, data) {
   if (typeof data !== 'string') {
     return [];
   }
@@ -19,10 +21,19 @@ function searchNearestResponseWrapper(data) {
     .split(',')
     .map(v => parseInt(v, 10));
 
+  const {
+    data: [mapItem],
+  } = await fetchAutoCompleteRequest(name);
+
+  const { coordinates: fromCoordinates, type: fromType } = mapItem || {
+    coordinates: null,
+    type: null,
+  };
+
   return {
     from: {
-      coordinates: null,
-      type: null,
+      coordinates: fromCoordinates,
+      type: fromType,
       name: mapItemValues[6],
       id: mapItemValues[4],
       floor: mapItemValues[5],
@@ -37,15 +48,17 @@ function searchNearestResponseWrapper(data) {
   };
 }
 
-export default function searchNearestRequest(floor, name, nearestType, sameFloor) {
+async function searchNearestRequest(floor, name, nearestType, sameFloor) {
   const sameFloorQS = sameFloor ? 'yes' : 'no';
 
-  return axios
-    .get(
-      `${APIEndpoint()}/phplib/search.php?type=${nearestType}&same_floor=${sameFloorQS}&keyword=${name}&floor=${floor}`,
-    )
-    .then(response => ({
-      ...response,
-      data: searchNearestResponseWrapper(response.data),
-    }));
+  const response = await axios.get(
+    `${APIEndpoint()}/phplib/search.php?type=${nearestType}&same_floor=${sameFloorQS}&keyword=${name}&floor=${floor}`,
+  );
+
+  return {
+    ...response,
+    data: await searchNearestResponseWrapper(name, response.data),
+  };
 }
+
+export default searchNearestRequest;
