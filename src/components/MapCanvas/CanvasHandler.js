@@ -11,10 +11,17 @@ import calculateTextDimension from './calculateTextDimension';
  * @property {array} lines
  */
 /**
- * @typedef CircleElement
+ * @typedef Circle
  * @property {number} radius
  * @property {string} color
  * @property {string} borderColor
+ */
+/**
+ * @typedef Line
+ * @property {array} coordinates
+ * @property {string} color
+ * @property {string} cap
+ * @property {number} width
  */
 /**
  * @typedef CanvasItem
@@ -30,10 +37,11 @@ import calculateTextDimension from './calculateTextDimension';
  * @property {boolean} [hidden]
  * @property {HTMLImageElement} [image]
  * @property {TextElement} [textElement]
+ * @property {Line} [line]
  * @property {mapItemListener} [onClick]
  * @property {mapItemListener} [onMouseOver]
  * @property {mapItemListener} [onMouseOut]
- * @property {CircleElement} [circle]
+ * @property {Circle} [circle]
  * @property {Object} [others] - additional data for plugins to attach
  */
 
@@ -466,7 +474,7 @@ class CanvasHandler {
   async addMapItems(mapItems, mode = 'add') {
     const asyncMapItems = [];
 
-    // handy to use this set default value from exisiting map item, and therefore we can reuse addMapItems for updating a map item with partial information
+    // handy to use this set default value from existing map item, and therefore we can reuse addMapItems for updating a map item with partial information
     const getDefault = (id, prop, defaultValue) => get(this.mapItems[id], prop, defaultValue);
 
     mapItems.forEach(
@@ -480,6 +488,7 @@ class CanvasHandler {
         image = getDefault(id, 'image', null),
         textElement = getDefault(id, 'textElement', null),
         circle = getDefault(id, 'circle', null),
+        line = getDefault(id, 'line', null),
         others = getDefault(id, 'others', {}),
         center = getDefault(id, 'center', false),
         hidden = getDefault(id, 'hidden', false),
@@ -504,6 +513,7 @@ class CanvasHandler {
           height,
           image,
           textElement,
+          line,
           circle,
           others,
           center,
@@ -630,7 +640,18 @@ class CanvasHandler {
       }
       // Render each canvas items in this layer
       this.getCanvasItems(key).forEach(
-        ({ floor, renderedX, renderedY, image, textElement, hidden, width, height, circle }) => {
+        ({
+          floor,
+          renderedX,
+          renderedY,
+          image,
+          textElement,
+          line,
+          hidden,
+          width,
+          height,
+          circle,
+        }) => {
           if (
             hidden ||
             floor !== this.floor ||
@@ -664,9 +685,9 @@ class CanvasHandler {
               ctx.font = `${size} ${family}`;
               ctx.textBaseline = 'top';
               if (lines) {
-                lines.forEach((line, i) => {
+                lines.forEach((textLine, i) => {
                   ctx.fillText(
-                    line.join(' '),
+                    textLine.join(' '),
                     renderedX - this.x,
                     renderedY + lineHeight * i - this.y,
                   );
@@ -677,6 +698,26 @@ class CanvasHandler {
 
               break;
             }
+            case Boolean(line):
+              {
+                const { color, width: lineWidth, cap, coordinates } = line;
+
+                ctx.beginPath();
+
+                coordinates.forEach(([x, y], i) => {
+                  if (i === 0) {
+                    ctx.moveTo(x, y);
+                    return;
+                  }
+                  ctx.lineTo(x, y);
+                });
+
+                ctx.strokeStyle = color;
+                ctx.lineCap = cap;
+                ctx.lineWidth = lineWidth;
+                ctx.stroke();
+              }
+              break;
 
             default:
           }
