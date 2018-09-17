@@ -24,5 +24,3 @@ export default function fetchIdToNodeIdRequest(floor, id) {
       data: fetchIdToNodeIdRequestWrapper(response.data, { floor, id }),
     }));
 }
-
-window.fetchIdToNodeIdRequest = fetchIdToNodeIdRequest;

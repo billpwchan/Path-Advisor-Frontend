@@ -56,5 +56,3 @@ export default function fetchNodeIdsToMapItemsRequest(nodes) {
       data: fetchNodeIdsToMapItemsRequestWrapper(response.data),
     }));
 }
-
-window.fetchNodeIdsToMapItemsRequest = fetchNodeIdsToMapItemsRequest;

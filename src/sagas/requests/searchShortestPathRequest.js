@@ -130,4 +130,3 @@ async function searchShortestPathRequest(inputFrom = {}, inputTo = {}) {
 }
 
 export default searchShortestPathRequest;
-window.searchShortestPathRequest = searchShortestPathRequest;

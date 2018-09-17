@@ -100,7 +100,6 @@ class MapCanvas extends Component {
 
     return (
       <div>
-        <div> MapCanvas own things </div>
         <div ref={this.canvasRootRef} />
         <div>
           {children.map(
