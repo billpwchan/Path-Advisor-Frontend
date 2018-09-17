@@ -714,10 +714,10 @@ class CanvasHandler {
 
                 coordinates.forEach(([x, y], i) => {
                   if (i === 0) {
-                    ctx.moveTo(x, y);
+                    ctx.moveTo(x - this.x, y - this.y);
                     return;
                   }
-                  ctx.lineTo(x, y);
+                  ctx.lineTo(x - this.x, y - this.y);
                 });
 
                 ctx.strokeStyle = color;
