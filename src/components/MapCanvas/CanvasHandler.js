@@ -106,10 +106,10 @@ class CanvasHandler {
   /** @type {Object.<string, Boolean>} - map items currently in mouse over event */
   mapItemsMouseOvering = {};
 
-  /** @type {number} - map coordinate x at top left concer of the canvas element */
+  /** @type {number} - map coordinate x at then center of the canvas element */
   x = 0;
 
-  /** @type {number} - map coordinate y at top left concer of the canvas element */
+  /** @type {number} - map coordinate y at then center of the canvas element */
   y = 0;
 
   /** @type {string} - current floor displaying */
@@ -183,8 +183,10 @@ class CanvasHandler {
    * @typedef CanvasEvent
    * @property {number} x
    * @property {number} y
-   * @property {number} endX
-   * @property {number} endY
+   * @property {number} topLeftX
+   * @property {number} topLeftY
+   * @property {number} bottomRightX
+   * @property {number} bottomRightY
    * @property {number} scale
    * @property {number} width
    * @property {number} height
@@ -306,14 +308,16 @@ class CanvasHandler {
 
   getListenerParamObject() {
     return {
-      x: this.x,
-      y: this.y,
       scale: this.scale,
       width: this.getWidth(),
       height: this.getHeight(),
       floor: this.floor,
-      endX: this.x + this.getWidth(),
-      endY: this.y + this.getHeight(),
+      x: this.x,
+      y: this.y,
+      topLeftX: this.getTopLeftX(),
+      topLeftY: this.getTopLeftY(),
+      bottomRightX: this.getTopLeftX() + this.getWidth(),
+      bottomRightY: this.getTopLeftY() + this.getHeight(),
     };
   }
 
@@ -355,8 +359,8 @@ class CanvasHandler {
     this.getCanvas().addEventListener(event, e => {
       const { clientX, clientY } = e;
       const canvasCoordinate = this.canvas.getBoundingClientRect();
-      const x = clientX - canvasCoordinate.left + this.x;
-      const y = clientY - canvasCoordinate.top + this.y;
+      const x = clientX - canvasCoordinate.left + this.getTopLeftX();
+      const y = clientY - canvasCoordinate.top + this.getTopLeftY();
 
       this.mapItemIds.forEach(id => {
         let mapItemEvent;
@@ -394,6 +398,14 @@ class CanvasHandler {
 
   getHeight() {
     return this.canvas.height;
+  }
+
+  getTopLeftX() {
+    return this.x - this.getWidth() / 2;
+  }
+
+  getTopLeftY() {
+    return this.y - this.getHeight() / 2;
   }
 
   updateLayers(layers) {
@@ -625,22 +637,30 @@ class CanvasHandler {
     return true;
   }
 
-  inViewport(startX, startY, width, height) {
-    const endX = startX + width;
-    const endY = startY + height;
+  inViewport(topLeftX, topLeftY, width, height) {
+    const bottomRightX = topLeftX + width;
+    const bottomRightY = topLeftY + height;
 
-    return [[startX, startY], [startX, endY], [endX, startY], [endX, endY]].some(
+    return [
+      [topLeftX, topLeftY],
+      [topLeftX, bottomRightY],
+      [bottomRightX, topLeftY],
+      [bottomRightX, bottomRightY],
+    ].some(
       ([x, y]) =>
-        this.x <= x &&
-        x <= this.x + this.getWidth() &&
-        this.y <= y &&
-        y <= this.y + this.getHeight(),
+        this.getTopLeftX() <= x &&
+        x <= this.getTopLeftX() + this.getWidth() &&
+        this.getTopLeftY() <= y &&
+        y <= this.getTopLeftY() + this.getHeight(),
     );
   }
 
   render = () => {
     const ctx = this.canvas.getContext('2d');
     ctx.clearRect(0, 0, this.getWidth(), this.getHeight());
+
+    const topLeftX = this.getTopLeftX();
+    const topLeftY = this.getTopLeftY();
 
     this.layerIds.forEach(key => {
       if (this.layers[key].hidden) {
@@ -672,7 +692,7 @@ class CanvasHandler {
             case Boolean(circle): {
               const { radius, color, borderColor } = circle;
               ctx.beginPath();
-              ctx.arc(renderedX - this.x, renderedY - this.y, radius, 0, Math.PI * 2);
+              ctx.arc(renderedX - topLeftX, renderedY - topLeftY, radius, 0, Math.PI * 2);
               if (color) {
                 ctx.fillStyle = color;
                 ctx.fill();
@@ -685,7 +705,7 @@ class CanvasHandler {
               break;
             }
             case Boolean(image):
-              ctx.drawImage(image, renderedX - this.x, renderedY - this.y);
+              ctx.drawImage(image, renderedX - topLeftX, renderedY - topLeftY);
               break;
             case Boolean(textElement): {
               const { size, color, family, text, lines, lineHeight } = textElement;
@@ -696,12 +716,12 @@ class CanvasHandler {
                 lines.forEach((textLine, i) => {
                   ctx.fillText(
                     textLine.join(' '),
-                    renderedX - this.x,
-                    renderedY + lineHeight * i - this.y,
+                    renderedX - topLeftX,
+                    renderedY + lineHeight * i - topLeftY,
                   );
                 });
               } else {
-                ctx.fillText(text, renderedX - this.x, renderedY - this.y);
+                ctx.fillText(text, renderedX - topLeftX, renderedY - topLeftY);
               }
 
               break;
@@ -714,10 +734,10 @@ class CanvasHandler {
 
                 coordinates.forEach(([x, y], i) => {
                   if (i === 0) {
-                    ctx.moveTo(x - this.x, y - this.y);
+                    ctx.moveTo(x - topLeftX, y - topLeftY);
                     return;
                   }
-                  ctx.lineTo(x - this.x, y - this.y);
+                  ctx.lineTo(x - topLeftX, y - topLeftY);
                 });
 
                 ctx.strokeStyle = color;

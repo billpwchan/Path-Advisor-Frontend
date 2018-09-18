@@ -55,17 +55,19 @@ class MapCanvas extends Component {
 
     this.canvasHandler.addPositionChangeListener(
       throttle(
-        ({ floor: _floor, x: startX, y: startY, width: _width, height: _height }) => {
-          getMapItemsHandler(_floor, [startX, startY], _width, _height);
+        ({ floor: _floor, topLeftX, topLeftY, width: _width, height: _height }) => {
+          getMapItemsHandler(_floor, [topLeftX, topLeftY], _width, _height);
         },
         1000,
         { leading: false },
       ),
     );
 
-    this.canvasHandler.addPositionChangeListener(({ x, y }) => {
-      this.setState({ movingX: x, movingY: y });
-    });
+    this.canvasHandler.addPositionChangeListener(
+      ({ x: movingX, y: movingY, topLeftX: movingTopLeftX, topLeftY: movingTopLeftY }) => {
+        this.setState({ movingX, movingY, movingTopLeftX, movingTopLeftY });
+      },
+    );
 
     // init position param
     history.push(getUrl({ floor, x, y, scale }));
@@ -96,7 +98,7 @@ class MapCanvas extends Component {
       legendStore,
       openOverlayHandler,
     } = this.props;
-    const { movingX = x, movingY = y, width, height } = this.state;
+    const { movingX, movingY, movingTopLeftX, movingTopLeftY, width, height } = this.state;
 
     return (
       <div>
@@ -111,6 +113,8 @@ class MapCanvas extends Component {
                   y={y}
                   movingX={movingX}
                   movingY={movingY}
+                  movingTopLeftX={movingTopLeftX}
+                  movingTopLeftY={movingTopLeftY}
                   floor={floor}
                   scale={scale}
                   APIEndpoint={APIEndpoint}

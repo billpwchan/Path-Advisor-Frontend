@@ -85,8 +85,8 @@ const MapCanvasPlugin = ({
   height,
   floor,
   scale,
-  movingX,
-  movingY,
+  movingTopLeftX,
+  movingTopLeftY,
 }) => {
   if (!throttledAddMapTiles) {
     throttledAddMapTiles = throttle((...args) => {
@@ -94,7 +94,7 @@ const MapCanvasPlugin = ({
     }, 100);
   }
   // Add map tiles while mouse moving to provide a better UX, but need to throttle the number of times triggering this listener
-  throttledAddMapTiles(APIEndpoint, movingX, movingY, width, height, floor, scale);
+  throttledAddMapTiles(APIEndpoint, movingTopLeftX, movingTopLeftY, width, height, floor, scale);
 
   return null;
 };
