@@ -13,6 +13,7 @@ class SearchInput extends Component {
         id: PropTypes.string,
       }),
     ).isRequired,
+    floorStore: PropTypes.shape({}),
     onKeywordChange: PropTypes.func.isRequired,
     onAutoCompleteItemClick: PropTypes.func.isRequired,
     onClickHook: PropTypes.func,
@@ -50,7 +51,13 @@ class SearchInput extends Component {
 
   render() {
     const { hideAutoComplete } = this.state;
-    const { loading, suggestions, value, placeholder = '' } = this.props;
+    const {
+      loading,
+      suggestions,
+      value,
+      placeholder = '',
+      floorStore: { floors, buildings },
+    } = this.props;
 
     return (
       <div>
@@ -73,7 +80,7 @@ class SearchInput extends Component {
                 >
                   <span className={style.autoCompleteListItemName}>{name}</span>
                   <span className={style.autoCompleteListItemLocation}>
-                    , Building, Floor {floor}
+                    , {buildings[floors[floor].buildingId].name}, Floor {floors[floor].name}
                   </span>
                 </button>
               </li>

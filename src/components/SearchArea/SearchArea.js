@@ -14,6 +14,7 @@ class SearchArea extends Component {
     searchShortestPathAction: PropTypes.func.isRequired,
     searchNearestAction: PropTypes.func.isRequired,
     autoCompleteStore: PropTypes.shape({}),
+    floorStore: PropTypes.shape({}),
     history: PropTypes.shape({}),
   };
 
@@ -89,12 +90,10 @@ class SearchArea extends Component {
 
   render() {
     const {
-      from,
-      to,
       searchOptions: { sameFloor },
       searchInputOrders,
     } = this.state;
-    const { autoCompleteStore } = this.props;
+    const { floorStore, autoCompleteStore } = this.props;
     const suggestions = get(autoCompleteStore, 'suggestions', []);
 
     const searchInputs = {
@@ -105,6 +104,7 @@ class SearchArea extends Component {
           loading={autoCompleteStore.loading}
           onAutoCompleteItemClick={this.onAutoCompleteItemClick(direction)}
           value={this.state[direction].name}
+          floorStore={floorStore}
         />
       ),
       SearchNearest: direction => (
@@ -119,6 +119,7 @@ class SearchArea extends Component {
             loading={autoCompleteStore.loading}
             onAutoCompleteItemClick={this.onAutoCompleteItemClick(direction)}
             placeholder="Room number/ name"
+            floorStore={floorStore}
           />
         </SearchNearest>
       ),
