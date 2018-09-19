@@ -80,7 +80,7 @@ class SearchInput extends Component {
                 >
                   <span className={style.autoCompleteListItemName}>{name}</span>
                   <span className={style.autoCompleteListItemLocation}>
-                    , {buildings[floors[floor].buildingId].name}, Floor {floors[floor].name}
+                    , {buildings[floors[floor].buildingId].name}, floor {floors[floor].name}
                   </span>
                 </button>
               </li>
