@@ -23,6 +23,7 @@ class SearchArea extends Component {
         id: PropTypes.string,
         floor: PropTypes.string,
         value: PropTypes.string,
+        coordinates: PropTypes.arrayOf(PropTypes.number),
       }),
     }),
     to: PropTypes.shape({
@@ -32,6 +33,7 @@ class SearchArea extends Component {
         id: PropTypes.string,
         floor: PropTypes.string,
         value: PropTypes.string,
+        coordinates: PropTypes.arrayOf(PropTypes.number),
       }),
     }),
     searchOptions: PropTypes.shape({
@@ -51,7 +53,7 @@ class SearchArea extends Component {
   onAutoCompleteItemClick = fieldName => ({ name, coordinates: [x, y], floor, id }) => {
     const { setSearchAreaInputHandler, linkTo } = this.props;
     setSearchAreaInputHandler({
-      [fieldName]: { name, data: { id, floor, value: name, type: 'id' } },
+      [fieldName]: { name, data: { id, floor, value: name, type: 'id', coordinates: [x, y] } },
     });
     linkTo({ floor, x, y, scale: 1 });
   };
