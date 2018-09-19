@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import SearchArea from '../SearchArea/SearchArea';
 import { getAutoCompleteAction } from '../../reducers/autoComplete';
@@ -32,12 +31,12 @@ class PrimaryPanel extends Component {
       legendStore,
       searchShortestPathStore,
       searchNearestStore,
-      history,
       closeOverlayHandler,
       x,
       y,
       scale,
       floor,
+      linkTo,
     } = this.props;
 
     const { selectedBuilding } = this.state;
@@ -84,7 +83,7 @@ class PrimaryPanel extends Component {
               buildingIds={floorStore.buildingIds}
               buildings={floorStore.buildings}
               floors={floorStore.floors}
-              linkTo={history.push}
+              linkTo={linkTo}
               x={x}
               y={y}
               currentFloor={floor}
@@ -96,7 +95,7 @@ class PrimaryPanel extends Component {
               searchShortestPathAction={searchShortestPathAction}
               searchNearestAction={searchNearestAction}
               floorStore={floorStore}
-              history={history}
+              linkTo={linkTo}
             />
             <div>
               {children.map(
@@ -110,6 +109,7 @@ class PrimaryPanel extends Component {
                       searchShortestPathStore={searchShortestPathStore}
                       searchNearestStore={searchNearestStore}
                       floorStore={floorStore}
+                      linkTo={linkTo}
                     />
                   ),
               )}
@@ -121,24 +121,22 @@ class PrimaryPanel extends Component {
   }
 }
 
-export default withRouter(
-  connect(
-    state => ({
-      autoCompleteStore: state.autoComplete,
-    }),
-    dispatch => ({
-      getAutoCompleteAction: keyword => {
-        dispatch(getAutoCompleteAction(keyword));
-      },
-      searchShortestPathAction: (from, to) => {
-        dispatch(searchShortestPathAction(from, to));
-      },
-      searchNearestAction: (floor, name, nearestType, sameFloor, id) => {
-        dispatch(searchNearestAction(floor, name, nearestType, sameFloor, id));
-      },
-    }),
-  )(PrimaryPanel),
-);
+export default connect(
+  state => ({
+    autoCompleteStore: state.autoComplete,
+  }),
+  dispatch => ({
+    getAutoCompleteAction: keyword => {
+      dispatch(getAutoCompleteAction(keyword));
+    },
+    searchShortestPathAction: (from, to) => {
+      dispatch(searchShortestPathAction(from, to));
+    },
+    searchNearestAction: (floor, name, nearestType, sameFloor, id) => {
+      dispatch(searchNearestAction(floor, name, nearestType, sameFloor, id));
+    },
+  }),
+)(PrimaryPanel);
 
 // export default withRouter(
 //   connect(

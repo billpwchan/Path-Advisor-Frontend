@@ -6,7 +6,6 @@ import style from './SearchArea.module.css';
 import switchImage from './switch.png';
 import SearchInput from '../SearchInput/SearchInput';
 import SearchNearest from '../SearchNearest/SearchNearest';
-import getUrl from '../RouterManager/GetUrl';
 
 class SearchArea extends Component {
   static propTypes = {
@@ -15,7 +14,7 @@ class SearchArea extends Component {
     searchNearestAction: PropTypes.func.isRequired,
     autoCompleteStore: PropTypes.shape({}),
     floorStore: PropTypes.shape({}),
-    history: PropTypes.shape({}),
+    linkTo: PropTypes.func.isRequired,
   };
 
   state = {
@@ -32,9 +31,8 @@ class SearchArea extends Component {
   };
 
   onAutoCompleteItemClick = fieldName => ({ name, coordinates: [x, y], floor, id }) => {
-    const { history } = this.props;
     this.setState({ [fieldName]: { name, data: { id, floor, value: name, type: 'id' } } });
-    history.push(getUrl({ floor, x, y, scale: 1 }));
+    this.props.linkTo({ floor, x, y, scale: 1 });
   };
 
   onNearestItemClick = fieldName => ({ name, data }) => {

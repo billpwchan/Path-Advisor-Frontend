@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-
 import styles from './Floor.module.css';
-import getUrl from '../RouterManager/GetUrl';
 
 class Floor extends Component {
   static propTypes = {
@@ -60,18 +58,16 @@ class Floor extends Component {
     };
 
     if (useSameCoordinates()) {
-      linkTo(getUrl({ x, y, floor, scale }));
+      linkTo({ x, y, floor, scale });
       return;
     }
 
-    linkTo(
-      getUrl({
-        x: floors[floor].defaultX,
-        y: floors[floor].defaultY,
-        floor,
-        scale: floors[floor].defaultScale,
-      }),
-    );
+    linkTo({
+      x: floors[floor].defaultX,
+      y: floors[floor].defaultY,
+      floor,
+      scale: floors[floor].defaultScale,
+    });
   };
 
   selectBuilding = buildingId => () => {
@@ -79,14 +75,12 @@ class Floor extends Component {
     if (buildings[buildingId].floorIds.length === 1) {
       const [floor] = buildings[buildingId].floorIds;
 
-      linkTo(
-        getUrl({
-          x: floors[floor].defaultX,
-          y: floors[floor].defaultY,
-          floor,
-          scale: floors[floor].defaultScale,
-        }),
-      );
+      linkTo({
+        x: floors[floor].defaultX,
+        y: floors[floor].defaultY,
+        floor,
+        scale: floors[floor].defaultScale,
+      });
       return;
     }
 

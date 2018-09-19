@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import get from 'lodash.get';
-
+import getUrl from '../RouterManager/GetUrl';
 import PrimaryPanel from '../PrimaryPanel/PrimaryPanel';
 import plugins from '../../plugins';
 import MapCanvas from '../MapCanvas/MapCanvas';
@@ -15,10 +15,15 @@ class Main extends Component {
     match: PropTypes.shape({
       params: PropTypes.object,
     }),
+    history: PropTypes.shape({
+      push: PropTypes.func.isRequired,
+    }).isRequired,
     mapItemStore: PropTypes.shape({}).isRequired,
     legendStore: PropTypes.shape({}).isRequired,
     overlayStore: PropTypes.shape({}).isRequired,
     floorStore: PropTypes.shape({}).isRequired,
+    searchShortestPathStore: PropTypes.shape({}).isRequired,
+    searchNearestStore: PropTypes.shape({}).isRequired,
     openOverlayHandler: PropTypes.func.isRequired,
     closeOverlayHandler: PropTypes.func.isRequired,
     getMapItemsHandler: PropTypes.func.isRequired,
@@ -54,6 +59,10 @@ class Main extends Component {
     };
   }
 
+  linkTo = ({ floor, x, y, scale }) => {
+    this.props.history.push(getUrl({ floor, x, y, scale }));
+  };
+
   render() {
     const {
       getMapItemsHandler,
@@ -63,6 +72,8 @@ class Main extends Component {
       floorStore,
       closeOverlayHandler,
       openOverlayHandler,
+      searchShortestPathStore,
+      searchNearestStore,
     } = this.props;
 
     return (
@@ -73,6 +84,9 @@ class Main extends Component {
           floorStore={floorStore}
           legendStore={legendStore}
           closeOverlayHandler={closeOverlayHandler}
+          searchShortestPathStore={searchShortestPathStore}
+          searchNearestStore={searchNearestStore}
+          linkTo={this.linkTo}
         >
           {plugins.map(
             ({ pluginId, PrimaryPanelPlugin, OverlayHeaderPlugin, OverlayContentPlugin }) => ({
@@ -89,6 +103,9 @@ class Main extends Component {
           mapItemStore={mapItemStore}
           legendStore={legendStore}
           openOverlayHandler={openOverlayHandler}
+          searchShortestPathStore={searchShortestPathStore}
+          searchNearestStore={searchNearestStore}
+          linkTo={this.linkTo}
         >
           {plugins.map(({ pluginId, MapCanvasPlugin }) => ({
             pluginId,
@@ -106,6 +123,8 @@ export default connect(
     legendStore: state.legends,
     overlayStore: state.overlay,
     floorStore: state.floors,
+    searchShortestPathStore: state.searchShortestPath,
+    searchNearestStore: state.searchNearest,
   }),
   dispatch => ({
     getMapItemsHandler: (floor, [startX, startY], width, height) => {

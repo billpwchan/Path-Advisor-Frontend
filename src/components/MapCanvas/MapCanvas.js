@@ -5,7 +5,6 @@ import { withRouter } from 'react-router-dom';
 import throttle from 'lodash.throttle';
 import CanvasHandler from './CanvasHandler';
 import { APIEndpoint } from '../../config/config';
-import getUrl from '../RouterManager/GetUrl';
 
 class MapCanvas extends Component {
   canvasRootRef = createRef();
@@ -18,11 +17,11 @@ class MapCanvas extends Component {
     y: PropTypes.number,
     floor: PropTypes.string,
     scale: PropTypes.number,
-    history: PropTypes.shape({ push: PropTypes.func.isRequired }).isRequired,
     getMapItemsHandler: PropTypes.func.isRequired,
     mapItemStore: PropTypes.shape({}).isRequired,
     legendStore: PropTypes.shape({}).isRequired,
     openOverlayHandler: PropTypes.func.isRequired,
+    linkTo: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
@@ -38,13 +37,13 @@ class MapCanvas extends Component {
   };
 
   componentDidMount() {
-    const { history, getMapItemsHandler } = this.props;
+    const { linkTo, getMapItemsHandler } = this.props;
 
     window.canvasHandler = this.canvasHandler;
 
     this.canvasHandler.addMouseUpListener(({ x, y, floor, scale }) => {
       // update position param if changed due to mouse event
-      history.push(getUrl({ floor, x, y, scale }));
+      linkTo({ floor, x, y, scale });
     });
 
     const { x, y, floor, scale } = this.props;
@@ -70,7 +69,7 @@ class MapCanvas extends Component {
     );
 
     // init position param
-    history.push(getUrl({ floor, x, y, scale }));
+    linkTo({ floor, x, y, scale });
     this.canvasHandler.updatePosition(x, y, floor, scale);
   }
 
