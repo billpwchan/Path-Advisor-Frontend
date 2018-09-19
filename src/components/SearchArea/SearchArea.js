@@ -15,35 +15,56 @@ class SearchArea extends Component {
     autoCompleteStore: PropTypes.shape({}),
     floorStore: PropTypes.shape({}),
     linkTo: PropTypes.func.isRequired,
-  };
-
-  state = {
-    from: { name: '' },
-    to: { name: '' },
-    searchOptions: { sameFloor: false },
-    searchInputOrders: ['SearchInput', 'SearchNearest'],
+    setSearchAreaInputHandler: PropTypes.func.isRequired,
+    from: PropTypes.shape({
+      name: PropTypes.string,
+      data: PropTypes.shape({
+        type: PropTypes.string,
+        id: PropTypes.string,
+        floor: PropTypes.string,
+        value: PropTypes.string,
+      }),
+    }),
+    to: PropTypes.shape({
+      name: PropTypes.string,
+      data: PropTypes.shape({
+        type: PropTypes.string,
+        id: PropTypes.string,
+        floor: PropTypes.string,
+        value: PropTypes.string,
+      }),
+    }),
+    searchOptions: PropTypes.shape({
+      sameFloor: PropTypes.bool,
+    }),
+    searchInputOrders: PropTypes.arrayOf(PropTypes.string),
   };
 
   onKeywordChange = fieldName => keyword => {
-    const { getAutoCompleteAction } = this.props;
-    this.setState({ [fieldName]: { name: keyword, data: { type: 'keyword', value: keyword } } });
+    const { getAutoCompleteAction, setSearchAreaInputHandler } = this.props;
+    setSearchAreaInputHandler({
+      [fieldName]: { name: keyword, data: { type: 'keyword', value: keyword } },
+    });
     getAutoCompleteAction(keyword);
   };
 
   onAutoCompleteItemClick = fieldName => ({ name, coordinates: [x, y], floor, id }) => {
-    this.setState({ [fieldName]: { name, data: { id, floor, value: name, type: 'id' } } });
-    this.props.linkTo({ floor, x, y, scale: 1 });
+    const { setSearchAreaInputHandler, linkTo } = this.props;
+    setSearchAreaInputHandler({
+      [fieldName]: { name, data: { id, floor, value: name, type: 'id' } },
+    });
+    linkTo({ floor, x, y, scale: 1 });
   };
 
   onNearestItemClick = fieldName => ({ name, data }) => {
-    this.setState({
+    this.props.setSearchAreaInputHandler({
       [fieldName]: { name, data },
     });
   };
 
   updateSameFloor = e => {
-    const { searchOptions } = this.state;
-    this.setState({
+    const { searchOptions, setSearchAreaInputHandler } = this.props;
+    setSearchAreaInputHandler({
       searchOptions: {
         ...searchOptions,
         sameFloor: e.target.checked,
@@ -52,8 +73,8 @@ class SearchArea extends Component {
   };
 
   switchInputOrder = () => {
-    const { searchInputOrders, from, to } = this.state;
-    this.setState({
+    const { searchInputOrders, from, to, setSearchAreaInputHandler } = this.props;
+    setSearchAreaInputHandler({
       searchInputOrders: searchInputOrders.reverse(),
       from: to,
       to: from,
@@ -61,8 +82,9 @@ class SearchArea extends Component {
   };
 
   search = () => {
-    const { searchShortestPathAction, searchNearestAction } = this.props;
     const {
+      searchShortestPathAction,
+      searchNearestAction,
       from: {
         data: { type: fromType, id: fromId, floor: fromFloor, value: fromValue },
       },
@@ -70,7 +92,7 @@ class SearchArea extends Component {
         data: { type: toType, id: toId, floor: toFloor, value: toValue },
       },
       searchOptions: { sameFloor },
-    } = this.state;
+    } = this.props;
 
     if (fromType === 'nearest') {
       searchNearestAction(toFloor, toValue, fromValue, sameFloor, toId);
@@ -88,10 +110,11 @@ class SearchArea extends Component {
 
   render() {
     const {
+      floorStore,
+      autoCompleteStore,
       searchOptions: { sameFloor },
       searchInputOrders,
-    } = this.state;
-    const { floorStore, autoCompleteStore } = this.props;
+    } = this.props;
     const suggestions = get(autoCompleteStore, 'suggestions', []);
 
     const searchInputs = {
@@ -101,7 +124,7 @@ class SearchArea extends Component {
           onKeywordChange={this.onKeywordChange(direction)}
           loading={autoCompleteStore.loading}
           onAutoCompleteItemClick={this.onAutoCompleteItemClick(direction)}
-          value={this.state[direction].name}
+          value={this.props[direction].name}
           floorStore={floorStore}
         />
       ),
@@ -109,7 +132,7 @@ class SearchArea extends Component {
         <SearchNearest
           direction={direction}
           onNearestItemClick={this.onNearestItemClick(direction)}
-          value={this.state[direction].name}
+          value={this.props[direction].name}
         >
           <SearchInput
             suggestions={suggestions}

@@ -8,6 +8,7 @@ import PrimaryPanel from '../PrimaryPanel/PrimaryPanel';
 import plugins from '../../plugins';
 import MapCanvas from '../MapCanvas/MapCanvas';
 import { getMapItemsAction } from '../../reducers/mapItems';
+import { setSearchAreaInputAction } from '../../reducers/searchAreaInput';
 import { openOverlayAction, closeOverlayAction } from '../../reducers/overlay';
 
 class Main extends Component {
@@ -24,9 +25,11 @@ class Main extends Component {
     floorStore: PropTypes.shape({}).isRequired,
     searchShortestPathStore: PropTypes.shape({}).isRequired,
     searchNearestStore: PropTypes.shape({}).isRequired,
+    searchAreaInputStore: PropTypes.shape({}).isRequired,
     openOverlayHandler: PropTypes.func.isRequired,
     closeOverlayHandler: PropTypes.func.isRequired,
     getMapItemsHandler: PropTypes.func.isRequired,
+    setSearchAreaInputHandler: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
@@ -60,7 +63,8 @@ class Main extends Component {
   }
 
   linkTo = ({ floor, x, y, scale }) => {
-    this.props.history.push(getUrl({ floor, x, y, scale }));
+    const currentScale = this.getUrlParams().scale;
+    this.props.history.push(getUrl({ floor, x, y, scale: scale || currentScale }));
   };
 
   render() {
@@ -74,6 +78,8 @@ class Main extends Component {
       openOverlayHandler,
       searchShortestPathStore,
       searchNearestStore,
+      searchAreaInputStore,
+      setSearchAreaInputHandler,
     } = this.props;
 
     return (
@@ -86,6 +92,8 @@ class Main extends Component {
           closeOverlayHandler={closeOverlayHandler}
           searchShortestPathStore={searchShortestPathStore}
           searchNearestStore={searchNearestStore}
+          searchAreaInputStore={searchAreaInputStore}
+          setSearchAreaInputHandler={setSearchAreaInputHandler}
           linkTo={this.linkTo}
         >
           {plugins.map(
@@ -105,6 +113,7 @@ class Main extends Component {
           openOverlayHandler={openOverlayHandler}
           searchShortestPathStore={searchShortestPathStore}
           searchNearestStore={searchNearestStore}
+          searchAreaInputStore={searchAreaInputStore}
           linkTo={this.linkTo}
         >
           {plugins.map(({ pluginId, MapCanvasPlugin }) => ({
@@ -125,6 +134,7 @@ export default connect(
     floorStore: state.floors,
     searchShortestPathStore: state.searchShortestPath,
     searchNearestStore: state.searchNearest,
+    searchAreaInputStore: state.searchAreaInput,
   }),
   dispatch => ({
     getMapItemsHandler: (floor, [startX, startY], width, height) => {
@@ -135,6 +145,9 @@ export default connect(
     },
     closeOverlayHandler: () => {
       dispatch(closeOverlayAction());
+    },
+    setSearchAreaInputHandler: payload => {
+      dispatch(setSearchAreaInputAction(payload));
     },
   }),
 )(Main);

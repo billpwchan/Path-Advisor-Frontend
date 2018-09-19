@@ -32,6 +32,8 @@ class PrimaryPanel extends Component {
       searchShortestPathStore,
       searchNearestStore,
       closeOverlayHandler,
+      setSearchAreaInputHandler,
+      searchAreaInputStore,
       x,
       y,
       scale,
@@ -94,6 +96,11 @@ class PrimaryPanel extends Component {
               autoCompleteStore={autoCompleteStore}
               searchShortestPathAction={searchShortestPathAction}
               searchNearestAction={searchNearestAction}
+              from={searchAreaInputStore.from}
+              to={searchAreaInputStore.to}
+              searchOptions={searchAreaInputStore.searchOptions}
+              searchInputOrders={searchAreaInputStore.searchInputOrders}
+              setSearchAreaInputHandler={setSearchAreaInputHandler}
               floorStore={floorStore}
               linkTo={linkTo}
             />
@@ -108,6 +115,7 @@ class PrimaryPanel extends Component {
                       legendIds={legendStore.legendIds}
                       searchShortestPathStore={searchShortestPathStore}
                       searchNearestStore={searchNearestStore}
+                      searchAreaInputStore={searchAreaInputStore}
                       floorStore={floorStore}
                       linkTo={linkTo}
                     />
