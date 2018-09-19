@@ -8,11 +8,11 @@ import {
 
 import { searchShortestPathAction } from '../../reducers/searchShortestPath';
 
-function* searchNearestRequestWorker({ payload: { floor, name, nearestType, sameFloor } }) {
+function* searchNearestRequestWorker({ payload: { floor, name, nearestType, sameFloor, id } }) {
   try {
     const {
       data: { from, nearest },
-    } = yield call(searchNearestRequest, floor, name, nearestType, sameFloor);
+    } = yield call(searchNearestRequest, floor, name, nearestType, sameFloor, id);
     yield put(searchNearestSuccessAction(from, nearest));
 
     const { id: fromId, floor: fromFloor } = from;

@@ -48,11 +48,12 @@ async function searchNearestResponseWrapper(name, data) {
   };
 }
 
-async function searchNearestRequest(floor, name, nearestType, sameFloor) {
+async function searchNearestRequest(floor, name, nearestType, sameFloor, id) {
   const sameFloorQS = sameFloor ? 'yes' : 'no';
 
+  const optionalQs = id ? `&d_roomId=${id}&d_floor=${floor}` : '';
   const response = await axios.get(
-    `${APIEndpoint()}/phplib/search.php?type=${nearestType}&same_floor=${sameFloorQS}&keyword=${name}&floor=${floor}`,
+    `${APIEndpoint()}/phplib/search.php?type=${nearestType}&same_floor=${sameFloorQS}&keyword=${name}&floor=${floor}${optionalQs}`,
   );
 
   return {

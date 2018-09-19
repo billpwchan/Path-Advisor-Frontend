@@ -8,10 +8,10 @@ export const SEARCH_NEAREST_FAILURE = 'SEARCH_NEAREST_FAILURE';
  * @param {string} nearestType
  * @param {boolean} sameFloor
  */
-export function searchNearestAction(floor, name, nearestType, sameFloor) {
+export function searchNearestAction(floor, name, nearestType, sameFloor, id) {
   return {
     type: SEARCH_NEAREST,
-    payload: { floor, name, nearestType, sameFloor },
+    payload: { floor, name, nearestType, sameFloor, id },
   };
 }
 

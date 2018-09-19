@@ -30,6 +30,8 @@ class PrimaryPanel extends Component {
       overlayStore,
       floorStore,
       legendStore,
+      searchShortestPathStore,
+      searchNearestStore,
       history,
       closeOverlayHandler,
       x,
@@ -93,6 +95,7 @@ class PrimaryPanel extends Component {
               autoCompleteStore={autoCompleteStore}
               searchShortestPathAction={searchShortestPathAction}
               searchNearestAction={searchNearestAction}
+              floorStore={floorStore}
               history={history}
             />
             <div>
@@ -104,6 +107,9 @@ class PrimaryPanel extends Component {
                       place={place}
                       legends={legendStore.legends}
                       legendIds={legendStore.legendIds}
+                      searchShortestPathStore={searchShortestPathStore}
+                      searchNearestStore={searchNearestStore}
+                      floorStore={floorStore}
                     />
                   ),
               )}
@@ -127,8 +133,8 @@ export default withRouter(
       searchShortestPathAction: (from, to) => {
         dispatch(searchShortestPathAction(from, to));
       },
-      searchNearestAction: (floor, name, nearestType, sameFloor) => {
-        dispatch(searchNearestAction(floor, name, nearestType, sameFloor));
+      searchNearestAction: (floor, name, nearestType, sameFloor, id) => {
+        dispatch(searchNearestAction(floor, name, nearestType, sameFloor, id));
       },
     }),
   )(PrimaryPanel),

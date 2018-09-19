@@ -75,9 +75,9 @@ class SearchArea extends Component {
     } = this.state;
 
     if (fromType === 'nearest') {
-      searchNearestAction(toFloor, toValue, fromValue, sameFloor);
+      searchNearestAction(toFloor, toValue, fromValue, sameFloor, toId);
     } else if (toType === 'nearest') {
-      searchNearestAction(fromFloor, fromValue, toValue, sameFloor);
+      searchNearestAction(fromFloor, fromValue, toValue, sameFloor, fromId);
     } else {
       // point to point search
       const searchFrom =
