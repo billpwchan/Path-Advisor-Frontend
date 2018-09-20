@@ -8,8 +8,10 @@ import searchAreaInput from './searchAreaInput';
 import legends from './legends';
 import floors from './floors';
 import overlay from './overlay';
+import appSettings from './appSettings';
 
 export default combineReducers({
+  appSettings,
   accessibleFloors,
   autoComplete,
   mapItems,
