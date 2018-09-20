@@ -274,8 +274,9 @@ class CanvasHandler {
    * @param {string} event
    * @param {string} mapItemId
    * @param {mapItemListener} listener
+   * @param {boolean} [isPrepend]
    */
-  addMapItemListener(event, mapItemId, listener) {
+  addMapItemListener(event, mapItemId, listener, isPrepend = false) {
     if (!Object.keys(this.mapItemListeners).includes(event)) {
       throw new Error(`Event ${event} not supported`);
     }
@@ -284,6 +285,11 @@ class CanvasHandler {
 
     if (!listenersById[mapItemId]) {
       listenersById[mapItemId] = [];
+    }
+
+    if (isPrepend) {
+      listenersById[mapItemId].unshift(listener);
+      return;
     }
 
     listenersById[mapItemId].push(listener);
@@ -384,9 +390,9 @@ class CanvasHandler {
 
         if (mapItemEvent) {
           console.log('mapItemEvent', mapItemEvent, id, this.mapItems[id]);
-          (get(this.mapItemListeners[mapItemEvent], id) || []).forEach(listener => {
-            listener({ ...this.mapItems[id] });
-          });
+          (get(this.mapItemListeners[mapItemEvent], id) || []).some(
+            listener => listener({ ...this.mapItems[id] }) === false,
+          );
         }
       });
     });
@@ -634,6 +640,8 @@ class CanvasHandler {
     this.mapItemIds.splice(index, 1);
     delete this.mapItems[mapItemId];
 
+    this.render();
+
     return true;
   }
 
@@ -767,6 +775,7 @@ class CanvasHandler {
   helperProps = {
     addMapTiles: args => this.addMapTiles(args),
     setMapItems: args => this.setMapItems(args),
+    removeMapItem: args => this.removeMapItem(args),
     updateMapTiles: (...args) => this.updateMapTiles(...args),
     updateLayers: (...args) => this.updateLayers(...args),
     updatePosition: (...args) => this.updatePosition(...args),
