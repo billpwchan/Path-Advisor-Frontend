@@ -29,6 +29,7 @@
       }
     ],
     "prefer-destructuring": ["warn", { "object": true, "array": true }],
-    "no-fallthrough": ["error", { "commentPattern": "break[\\s\\w]*omitted" }]
+    "no-fallthrough": ["error", { "commentPattern": "break[\\s\\w]*omitted" }],
+    "react/destructuring-assignment": [0]
   }
 }
