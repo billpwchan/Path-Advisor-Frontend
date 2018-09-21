@@ -381,7 +381,7 @@ const initialState = {
     Overall: {
       name: '',
       buildingId: 'campusMap',
-      meterPerPixel: 0.413,
+      meterPerPixel: 0.0455,
       mapWidth: 2200,
       mapHeight: 1800,
       ratio: 0.1,
