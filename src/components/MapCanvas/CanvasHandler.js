@@ -483,7 +483,6 @@ class CanvasHandler {
 
   /**
    * @param {CanvasItem[]} mapItems
-   * @param {string} mode - add or update map item
    */
   async setMapItems(mapItems) {
     const asyncMapItems = [];
@@ -586,6 +585,22 @@ class CanvasHandler {
             this.mapItems[id].height = lines.length * dimension.height;
             this.mapItems[id].textElement.lines = lines;
           }
+        }
+
+        if (line) {
+          const { coordinates } = line;
+          const coorXs = coordinates.map(([v]) => v);
+          const coorYs = coordinates.map(([, v]) => v);
+          const minX = Math.min(...coorXs);
+          const minY = Math.min(...coorYs);
+          const maxX = Math.max(...coorXs);
+          const maxY = Math.max(...coorYs);
+          this.mapItems[id].x = minX;
+          this.mapItems[id].renderedX = minX;
+          this.mapItems[id].y = minY;
+          this.mapItems[id].renderedY = minY;
+          this.mapItems[id].width = maxX - minX + line.width;
+          this.mapItems[id].height = maxY - minY + line.width;
         }
 
         if (center) {
@@ -701,6 +716,7 @@ class CanvasHandler {
               const { radius, color, borderColor } = circle;
               ctx.beginPath();
               ctx.arc(renderedX - topLeftX, renderedY - topLeftY, radius, 0, Math.PI * 2);
+              ctx.lineWidth = 1;
               if (color) {
                 ctx.fillStyle = color;
                 ctx.fill();
