@@ -1,7 +1,6 @@
 .head {
   font-weight: bold;
   font-size: 13px;
-  font-family: Arial;
   border-bottom: 1px solid #cccccc;
   padding: 5px 0;
   margin-bottom: 5px;
@@ -10,7 +9,6 @@
 .input {
   border: 1px solid #999999;
   border-radius: 3px 3px 3px 3px;
-  font-family: Arial;
   font-size: 14px;
   height: 23px;
   padding-left: 3px;
@@ -23,7 +21,6 @@
   border-radius: 3px 3px 3px 3px;
   color: white;
   cursor: pointer;
-  font-family: Arial;
   font-weight: bold;
   padding: 0px 15px;
   text-shadow: 0 1px rgba(0, 0, 0, 0.4);
@@ -94,7 +91,6 @@
 }
 
 .body {
-  font-family: Verdana;
   font-size: 13px;
 }
 

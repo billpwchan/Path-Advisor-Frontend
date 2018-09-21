@@ -19,7 +19,6 @@
 
 .floorButton {
   text-decoration: underline;
-  font-family: Verdana;
   font-size: 10pt;
   color: blue;
 }
@@ -38,7 +37,6 @@
 
 .buildingButton {
   font-weight: bold;
-  font-family: Arial;
   font-size: 10pt;
   padding: 4px;
 }

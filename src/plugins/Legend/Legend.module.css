@@ -1,7 +1,6 @@
 .head {
   font-weight: bold;
   font-size: 13px;
-  font-family: Arial;
   border-bottom: 1px solid #cccccc;
   padding: 5px 0;
   margin-bottom: 5px;
@@ -9,7 +8,7 @@
 
 .legendList li {
   display: inline-block;
-  font-size: 14px;
+  font-size: 13px;
   width: 30%;
   padding: 5px 0px;
   vertical-align: middle;
