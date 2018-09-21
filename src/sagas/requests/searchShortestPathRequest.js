@@ -43,23 +43,25 @@ async function searchShortestPathResponseWrapper(data) {
   const { data: mapItemData } = await fetchNodeIdsToMapItemsRequest(path);
   let mapItemDataIndex = 0;
 
-  return path.map(node => {
-    if (
-      mapItemDataIndex < mapItemData.length &&
-      node.nodeId === mapItemData[mapItemDataIndex].nodeId
-    ) {
-      const nodeWithInfo = {
-        ...node,
-        ...mapItemData[mapItemDataIndex],
-      };
+  return path
+    .map(node => {
+      if (
+        mapItemDataIndex < mapItemData.length &&
+        node.nodeId === mapItemData[mapItemDataIndex].nodeId
+      ) {
+        const nodeWithInfo = {
+          ...node,
+          ...mapItemData[mapItemDataIndex],
+        };
 
-      mapItemDataIndex += 1;
+        mapItemDataIndex += 1;
 
-      return nodeWithInfo;
-    }
+        return nodeWithInfo;
+      }
 
-    return { ...node };
-  });
+      return { ...node };
+    })
+    .reverse();
 }
 
 /**
