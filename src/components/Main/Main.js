@@ -19,6 +19,7 @@ class Main extends Component {
     history: PropTypes.shape({
       push: PropTypes.func.isRequired,
     }).isRequired,
+    appSettings: PropTypes.shape({}).isRequired,
     mapItemStore: PropTypes.shape({}).isRequired,
     legendStore: PropTypes.shape({}).isRequired,
     overlayStore: PropTypes.shape({}).isRequired,
@@ -69,6 +70,7 @@ class Main extends Component {
 
   render() {
     const {
+      appSettings,
       getMapItemsHandler,
       mapItemStore,
       legendStore,
@@ -84,11 +86,28 @@ class Main extends Component {
 
     return (
       <div>
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
         <PrimaryPanel
           {...this.getUrlParams()}
           overlayStore={overlayStore}
           floorStore={floorStore}
           legendStore={legendStore}
+          appSettings={appSettings}
           closeOverlayHandler={closeOverlayHandler}
           searchShortestPathStore={searchShortestPathStore}
           searchNearestStore={searchNearestStore}
@@ -107,6 +126,7 @@ class Main extends Component {
         </PrimaryPanel>
         <MapCanvas
           {...this.getUrlParams()}
+          appSettings={appSettings}
           getMapItemsHandler={getMapItemsHandler}
           mapItemStore={mapItemStore}
           legendStore={legendStore}
@@ -135,6 +155,7 @@ export default connect(
     searchShortestPathStore: state.searchShortestPath,
     searchNearestStore: state.searchNearest,
     searchAreaInputStore: state.searchAreaInput,
+    appSettings: state.appSettings,
   }),
   dispatch => ({
     getMapItemsHandler: (floor, [startX, startY], width, height) => {

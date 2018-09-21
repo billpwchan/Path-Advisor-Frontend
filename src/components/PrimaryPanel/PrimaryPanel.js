@@ -20,6 +20,7 @@ class PrimaryPanel extends Component {
 
   render() {
     const {
+      appSettings,
       children,
       place,
       getAutoCompleteAction,
@@ -109,6 +110,7 @@ class PrimaryPanel extends Component {
                 ({ pluginId, PrimaryPanelPlugin }) =>
                   PrimaryPanelPlugin && (
                     <PrimaryPanelPlugin
+                      appSettings={appSettings}
                       key={pluginId}
                       place={place}
                       legends={legendStore.legends}

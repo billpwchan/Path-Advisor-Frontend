@@ -20,6 +20,9 @@ class MapCanvas extends Component {
     getMapItemsHandler: PropTypes.func.isRequired,
     mapItemStore: PropTypes.shape({}).isRequired,
     legendStore: PropTypes.shape({}).isRequired,
+    searchShortestPathStore: PropTypes.shape({}).isRequired,
+    searchNearestStore: PropTypes.shape({}).isRequired,
+    searchAreaInputStore: PropTypes.shape({}).isRequired,
     openOverlayHandler: PropTypes.func.isRequired,
     linkTo: PropTypes.func.isRequired,
   };
@@ -96,6 +99,9 @@ class MapCanvas extends Component {
       scale,
       legendStore,
       openOverlayHandler,
+      searchNearestStore,
+      searchShortestPathStore,
+      searchAreaInputStore,
     } = this.props;
     const { movingX, movingY, movingTopLeftX, movingTopLeftY, width, height } = this.state;
 
@@ -122,6 +128,9 @@ class MapCanvas extends Component {
                   height={height}
                   legends={legendStore.legends}
                   openOverlayHandler={openOverlayHandler}
+                  searchNearestStore={searchNearestStore}
+                  searchShortestPathStore={searchShortestPathStore}
+                  searchAreaInputStore={searchAreaInputStore}
                   {...this.canvasHandler.getProps()}
                 />
               ),
