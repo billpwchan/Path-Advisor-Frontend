@@ -88,6 +88,20 @@ function imageNotLoaded(image) {
     !(image.complete && image.naturalWidth && image.naturalHeight)
   );
 }
+
+function setCanvasItemHitArea(canvasItem) {
+  [
+    { target: 'hitX', replace: 'renderedX' },
+    { target: 'hitY', replace: 'renderedY' },
+    { target: 'hitWidth', replace: 'width' },
+    { target: 'hitHeight', replace: 'height' },
+  ].forEach(({ target, replace }) => {
+    if (canvasItem[target] === null) {
+      /* eslint no-param-reassign: [0] */
+      canvasItem[target] = canvasItem[replace];
+    }
+  });
+}
 class CanvasHandler {
   layers = {
     mapTiles: { id: 'mapTiles', hidden: false },
@@ -448,7 +462,7 @@ class CanvasHandler {
         return;
       }
 
-      this.mapTiles[id] = {
+      const mapTile = {
         id,
         floor,
         x,
@@ -459,34 +473,36 @@ class CanvasHandler {
         height,
         hitX: x,
         hitY: y,
-        hitWidth: width,
-        hitHeight: height,
+        hitWidth: null,
+        hitHeight: null,
         hidden,
         image,
         others: {},
       };
-      this.mapTileIds.push(id);
 
-      this.mapTiles[id].width = image.width;
-      this.mapTiles[id].height = image.height;
-      this.mapTiles[id].hitWidth = image.width;
-      this.mapTiles[id].hitHeight = image.height;
+      this.mapTiles[id] = mapTile;
+      this.mapTileIds.push(id);
 
       if (imageNotLoaded(image)) {
         asyncMapTiles.push(
           createImageLoadPromise(image)
             .then(() => {
+              mapTile.width = image.width;
+              mapTile.height = image.height;
+              setCanvasItemHitArea(mapTile);
               this.render();
-              this.mapTiles[id].width = image.width;
-              this.mapTiles[id].height = image.height;
-              this.mapTiles[id].hitWidth = image.width;
-              this.mapTiles[id].hitHeight = image.height;
             })
             .catch(err => {
               console.log(err);
             }),
         );
+      } else {
+        mapTile.width = image.width;
+        mapTile.height = image.height;
+        setCanvasItemHitArea(mapTile);
       }
+
+      this.render();
     });
 
     await Promise.all(asyncMapTiles);
@@ -530,7 +546,7 @@ class CanvasHandler {
           this.mapItemIds.push(id);
         }
 
-        this.mapItems[id] = {
+        const mapItem = {
           id,
           floor,
           x,
@@ -552,6 +568,8 @@ class CanvasHandler {
           hidden,
         };
 
+        this.mapItems[id] = mapItem;
+
         if (onClick) {
           this.addMapItemListener('click', id, onClick);
         }
@@ -564,109 +582,111 @@ class CanvasHandler {
           this.addMapItemListener('mouseout', id, onMouseOut);
         }
 
-        if (image) {
-          this.mapItems[id].width = image.width;
-          this.mapItems[id].height = image.height;
-        }
+        switch (true) {
+          case Boolean(textElement): {
+            const { family, size, text, maxLineWidth } = textElement;
+            const dimension = calculateTextDimension(family, size, text);
+            mapItem.width = dimension.width;
+            mapItem.height = dimension.height;
+            mapItem.textElement.lineHeight = dimension.height;
 
-        if (textElement) {
-          const { family, size, text, maxLineWidth } = textElement;
-          const dimension = calculateTextDimension(family, size, text);
-          this.mapItems[id].width = dimension.width;
-          this.mapItems[id].height = dimension.height;
-          this.mapItems[id].textElement.lineHeight = dimension.height;
+            if (maxLineWidth && dimension.width > maxLineWidth) {
+              const lines = [];
 
-          if (maxLineWidth && dimension.width > maxLineWidth) {
-            const lines = [];
+              let currentLine;
+              let computedMaxLineWidth = 0;
 
-            let currentLine;
-            let computedMaxLineWidth = 0;
-
-            textElement.text.split(' ').forEach(word => {
-              if (
-                currentLine &&
-                calculateTextDimension(family, size, currentLine.join(' ')).width +
-                  calculateTextDimension(family, size, `${word} `).width <
-                  maxLineWidth
-              ) {
-                currentLine.push(word);
-              } else {
-                currentLine = [word];
-                lines.push(currentLine);
-              }
-
-              computedMaxLineWidth = Math.max(
-                computedMaxLineWidth,
-                calculateTextDimension(family, size, currentLine.join(' ')).width,
-              );
-            });
-
-            this.mapItems[id].width = computedMaxLineWidth;
-            this.mapItems[id].height = lines.length * dimension.height;
-            this.mapItems[id].textElement.lines = lines;
-          }
-        }
-
-        if (line) {
-          const { coordinates } = line;
-          const coorXs = coordinates.map(([v]) => v);
-          const coorYs = coordinates.map(([, v]) => v);
-          const minX = Math.min(...coorXs);
-          const minY = Math.min(...coorYs);
-          const maxX = Math.max(...coorXs);
-          const maxY = Math.max(...coorYs);
-          this.mapItems[id].x = minX;
-          this.mapItems[id].renderedX = minX;
-          this.mapItems[id].y = minY;
-          this.mapItems[id].renderedY = minY;
-          this.mapItems[id].width = maxX - minX + line.width;
-          this.mapItems[id].height = maxY - minY + line.width;
-        }
-
-        if (center && !circle) {
-          this.mapItems[id].renderedX = x - this.mapItems[id].width / 2;
-          this.mapItems[id].renderedY = y - this.mapItems[id].height / 2;
-        }
-
-        if (circle) {
-          this.mapItems[id].width = circle.radius * 2;
-          this.mapItems[id].height = circle.radius * 2;
-          this.mapItems[id].hitX = x - circle.radius;
-          this.mapItems[id].hitY = y - circle.radius;
-        }
-
-        [
-          { target: 'hitX', replace: 'renderedX' },
-          { target: 'hitY', replace: 'renderedY' },
-          { target: 'hitWidth', replace: 'width' },
-          { target: 'hitHeight', replace: 'height' },
-        ].forEach(({ target, replace }) => {
-          if (this.mapItems[id][target] === null) {
-            this.mapItems[id][target] = this.mapItems[id][replace];
-          }
-        });
-
-        // async work after adding items
-        if (imageNotLoaded(image)) {
-          // wait for img data to load completely before rendering
-          asyncMapItems.push(
-            createImageLoadPromise(image)
-              .then(() => {
-                this.mapItems[id].width = image.width;
-                this.mapItems[id].height = image.height;
-
-                if (center) {
-                  this.mapItems[id].renderedX = x - this.mapItems[id].width / 2;
-                  this.mapItems[id].renderedY = y - this.mapItems[id].height / 2;
+              textElement.text.split(' ').forEach(word => {
+                if (
+                  currentLine &&
+                  calculateTextDimension(family, size, currentLine.join(' ')).width +
+                    calculateTextDimension(family, size, `${word} `).width <
+                    maxLineWidth
+                ) {
+                  currentLine.push(word);
+                } else {
+                  currentLine = [word];
+                  lines.push(currentLine);
                 }
 
-                this.render();
-              })
-              .catch(err => {
-                console.log(err);
-              }),
-          );
+                computedMaxLineWidth = Math.max(
+                  computedMaxLineWidth,
+                  calculateTextDimension(family, size, currentLine.join(' ')).width,
+                );
+              });
+
+              mapItem.width = computedMaxLineWidth;
+              mapItem.height = lines.length * dimension.height;
+              mapItem.textElement.lines = lines;
+            }
+            break;
+          }
+          case Boolean(line): {
+            const { coordinates } = line;
+            const coorXs = coordinates.map(([v]) => v);
+            const coorYs = coordinates.map(([, v]) => v);
+            const minX = Math.min(...coorXs);
+            const minY = Math.min(...coorYs);
+            const maxX = Math.max(...coorXs);
+            const maxY = Math.max(...coorYs);
+            mapItem.x = minX;
+            mapItem.renderedX = minX;
+            mapItem.y = minY;
+            mapItem.renderedY = minY;
+            mapItem.width = maxX - minX + line.width;
+            mapItem.height = maxY - minY + line.width;
+
+            break;
+          }
+          case Boolean(image): {
+            // extra async work for unloaded image
+            if (imageNotLoaded(image)) {
+              // wait for img data to load completely before rendering
+              asyncMapItems.push(
+                createImageLoadPromise(image)
+                  .then(() => {
+                    mapItem.width = image.width;
+                    mapItem.height = image.height;
+
+                    if (center) {
+                      mapItem.renderedX = x - mapItem.width / 2;
+                      mapItem.renderedY = y - mapItem.height / 2;
+                    }
+
+                    setCanvasItemHitArea(mapItem);
+
+                    this.render();
+                  })
+                  .catch(err => {
+                    console.log(err);
+                  }),
+              );
+              break;
+            }
+
+            mapItem.width = image.width;
+            mapItem.height = image.height;
+
+            break;
+          }
+          case Boolean(circle): {
+            mapItem.width = circle.radius * 2;
+            mapItem.height = circle.radius * 2;
+            mapItem.hitX = x - circle.radius;
+            mapItem.hitY = y - circle.radius;
+            // circle must be center
+            center = false;
+            break;
+          }
+          default:
         }
+
+        if (center) {
+          mapItem.renderedX = x - mapItem.width / 2;
+          mapItem.renderedY = y - mapItem.height / 2;
+        }
+
+        setCanvasItemHitArea(mapItem);
       },
     );
 
