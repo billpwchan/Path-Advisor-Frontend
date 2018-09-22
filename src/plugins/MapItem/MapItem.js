@@ -11,6 +11,14 @@ const DEFAULT_TEXT_STYLE = {
   maxLineWidth: 35,
 };
 
+const CIRCLE_RADUIS = 15;
+
+const DEFAULT_CIRCLE_STYLE = {
+  radius: CIRCLE_RADUIS,
+  borderColor: '#666666',
+  color: 'lightblue',
+};
+
 function convertName(name) {
   if (name.startsWith('ROOM')) {
     return name.substr(4).trim();
@@ -47,7 +55,7 @@ class MapCanvasPlugin extends Component {
           y,
           center: true,
         };
-        const defaultMapItem = {
+        const textMapItem = {
           ...baseMapItem,
           textElement: {
             ...DEFAULT_TEXT_STYLE,
@@ -79,15 +87,42 @@ class MapCanvasPlugin extends Component {
                 ...baseMapItem,
                 id: `${floor}_${id}_circle`,
                 circle: {
-                  radius: 15,
-                  borderColor: '#666666',
-                  color: 'lightblue',
+                  ...DEFAULT_CIRCLE_STYLE,
+                },
+                onMouseOver: () => {
+                  setMapItems([
+                    {
+                      id: `${floor}_${id}_circle`,
+                      circle: {
+                        ...DEFAULT_CIRCLE_STYLE,
+                        color: 'lightyellow',
+                      },
+                    },
+                  ]);
+                },
+                onMouseOut: () => {
+                  setMapItems([
+                    {
+                      id: `${floor}_${id}_circle`,
+                      circle: {
+                        ...DEFAULT_CIRCLE_STYLE,
+                      },
+                    },
+                  ]);
                 },
               },
               {
-                ...defaultMapItem,
-                id: `${floor}_${id}_text`,
-
+                ...baseMapItem,
+                textElement: {
+                  ...DEFAULT_TEXT_STYLE,
+                  maxLineWidth: 30,
+                  text: name,
+                },
+                id: `${floor}_${id}`,
+                hitX: x - CIRCLE_RADUIS,
+                hitY: y - CIRCLE_RADUIS,
+                hitWidth: CIRCLE_RADUIS * 2,
+                hitHeight: CIRCLE_RADUIS * 2,
                 onMouseOver: () => {
                   document.body.style.cursor = 'pointer';
                 },
@@ -106,7 +141,7 @@ class MapCanvasPlugin extends Component {
             break;
           default: {
             accumulator.push({
-              ...defaultMapItem,
+              ...textMapItem,
 
               onClick: () => {
                 if (photo) openOverlayHandler(name, photo, url);
@@ -116,9 +151,9 @@ class MapCanvasPlugin extends Component {
                 document.body.style.cursor = 'pointer';
                 setMapItems([
                   {
-                    ...defaultMapItem,
+                    ...textMapItem,
                     textElement: {
-                      ...defaultMapItem.textElement,
+                      ...textMapItem.textElement,
                       color: 'lightblue',
                     },
                   },
@@ -129,7 +164,7 @@ class MapCanvasPlugin extends Component {
                 document.body.style.cursor = 'auto';
                 setMapItems([
                   {
-                    ...defaultMapItem,
+                    ...textMapItem,
                   },
                 ]);
               },

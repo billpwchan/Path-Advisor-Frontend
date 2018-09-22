@@ -30,8 +30,12 @@ import calculateTextDimension from './calculateTextDimension';
  * @property {number} y
  * @property {number} renderedX
  * @property {number} renderedY
- * @property {?number} [width]
- * @property {?number} [height]
+ * @property {number} width
+ * @property {number} height
+ * @property {number} hitX
+ * @property {number} hitY
+ * @property {number} hitWidth
+ * @property {number} hitHeight
  * @property {string} floor
  * @property {boolean} [center]
  * @property {boolean} [hidden]
@@ -70,10 +74,10 @@ async function createImageLoadPromise(img) {
  * @return {boolean}
  */
 function hitTest(x, y, canvasItem) {
-  const { width, height, renderedX: itemX, renderedY: itemY } = canvasItem;
+  const { hitX, hitY, hitWidth, hitHeight } = canvasItem;
 
-  const xInRange = x >= itemX && x <= itemX + width;
-  const yInRange = y >= itemY && y <= itemY + height;
+  const xInRange = x >= hitX && x <= hitX + hitWidth;
+  const yInRange = y >= hitY && y <= hitY + hitHeight;
 
   return xInRange && yInRange;
 }
@@ -453,6 +457,10 @@ class CanvasHandler {
         renderedY: y,
         width,
         height,
+        hitX: x,
+        hitY: y,
+        hitWidth: width,
+        hitHeight: height,
         hidden,
         image,
         others: {},
@@ -461,6 +469,8 @@ class CanvasHandler {
 
       this.mapTiles[id].width = image.width;
       this.mapTiles[id].height = image.height;
+      this.mapTiles[id].hitWidth = image.width;
+      this.mapTiles[id].hitHeight = image.height;
 
       if (imageNotLoaded(image)) {
         asyncMapTiles.push(
@@ -469,6 +479,8 @@ class CanvasHandler {
               this.render();
               this.mapTiles[id].width = image.width;
               this.mapTiles[id].height = image.height;
+              this.mapTiles[id].hitWidth = image.width;
+              this.mapTiles[id].hitHeight = image.height;
             })
             .catch(err => {
               console.log(err);
@@ -507,6 +519,10 @@ class CanvasHandler {
         onClick = getDefault(id, 'onClick', null),
         onMouseOver = getDefault(id, 'onMouseOver', null),
         onMouseOut = getDefault(id, 'onMouseOut', null),
+        hitX = getDefault(id, 'hitX', null),
+        hitY = getDefault(id, 'hitY', null),
+        hitWidth = getDefault(id, 'hitWidth', null),
+        hitHeight = getDefault(id, 'hitHeight', null),
       }) => {
         if (!id) {
           throw new Error('id is required for canvas item');
@@ -521,6 +537,10 @@ class CanvasHandler {
           y,
           renderedX: x,
           renderedY: y,
+          hitX,
+          hitY,
+          hitWidth,
+          hitHeight,
           width,
           height,
           image,
@@ -603,10 +623,28 @@ class CanvasHandler {
           this.mapItems[id].height = maxY - minY + line.width;
         }
 
-        if (center) {
+        if (center && !circle) {
           this.mapItems[id].renderedX = x - this.mapItems[id].width / 2;
           this.mapItems[id].renderedY = y - this.mapItems[id].height / 2;
         }
+
+        if (circle) {
+          this.mapItems[id].width = circle.radius * 2;
+          this.mapItems[id].height = circle.radius * 2;
+          this.mapItems[id].hitX = x - circle.radius;
+          this.mapItems[id].hitY = y - circle.radius;
+        }
+
+        [
+          { target: 'hitX', replace: 'renderedX' },
+          { target: 'hitY', replace: 'renderedY' },
+          { target: 'hitWidth', replace: 'width' },
+          { target: 'hitHeight', replace: 'height' },
+        ].forEach(({ target, replace }) => {
+          if (this.mapItems[id][target] === null) {
+            this.mapItems[id][target] = this.mapItems[id][replace];
+          }
+        });
 
         // async work after adding items
         if (imageNotLoaded(image)) {
@@ -699,15 +737,13 @@ class CanvasHandler {
           textElement,
           line,
           hidden,
-          width,
-          height,
           circle,
+          hitX,
+          hitY,
+          hitWidth,
+          hitHeight,
         }) => {
-          if (
-            hidden ||
-            floor !== this.floor ||
-            !this.inViewport(renderedX, renderedY, width, height)
-          ) {
+          if (hidden || floor !== this.floor || !this.inViewport(hitX, hitY, hitWidth, hitHeight)) {
             return;
           }
 
@@ -796,12 +832,12 @@ class CanvasHandler {
     updateLayers: (...args) => this.updateLayers(...args),
     updatePosition: (...args) => this.updatePosition(...args),
     updateDimenision: (...args) => this.updateDimenision(...args),
-    addMapItemClickListener: (mapItemId, listener) =>
-      this.addMapItemListener('click', mapItemId, listener),
-    addMapItemMouseOverListener: (mapItemId, listener) =>
-      this.addMapItemListener('mouseover', mapItemId, listener),
-    addMapItemMouseOutListener: (mapItemId, listener) =>
-      this.addMapItemListener('mouseout', mapItemId, listener),
+    addMapItemClickListener: (mapItemId, listener, ...args) =>
+      this.addMapItemListener('click', mapItemId, listener, ...args),
+    addMapItemMouseOverListener: (mapItemId, listener, ...args) =>
+      this.addMapItemListener('mouseover', mapItemId, listener, ...args),
+    addMapItemMouseOutListener: (mapItemId, listener, ...args) =>
+      this.addMapItemListener('mouseout', mapItemId, listener, ...args),
   };
 
   getProps() {
