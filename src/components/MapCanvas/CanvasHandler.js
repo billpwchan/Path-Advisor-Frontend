@@ -672,10 +672,6 @@ class CanvasHandler {
           case Boolean(circle): {
             mapItem.width = circle.radius * 2;
             mapItem.height = circle.radius * 2;
-            mapItem.hitX = x - circle.radius;
-            mapItem.hitY = y - circle.radius;
-            // circle must be center
-            center = false;
             break;
           }
           default:
@@ -758,12 +754,14 @@ class CanvasHandler {
           line,
           hidden,
           circle,
-          hitX,
-          hitY,
-          hitWidth,
-          hitHeight,
+          width,
+          height,
         }) => {
-          if (hidden || floor !== this.floor || !this.inViewport(hitX, hitY, hitWidth, hitHeight)) {
+          if (
+            hidden ||
+            floor !== this.floor ||
+            !this.inViewport(renderedX, renderedY, width, height)
+          ) {
             return;
           }
 
@@ -771,7 +769,13 @@ class CanvasHandler {
             case Boolean(circle): {
               const { radius, color, borderColor } = circle;
               ctx.beginPath();
-              ctx.arc(renderedX - topLeftX, renderedY - topLeftY, radius, 0, Math.PI * 2);
+              ctx.arc(
+                renderedX - topLeftX + width / 2,
+                renderedY - topLeftY + height / 2,
+                radius,
+                0,
+                Math.PI * 2,
+              );
               ctx.lineWidth = 1;
               if (color) {
                 ctx.fillStyle = color;
