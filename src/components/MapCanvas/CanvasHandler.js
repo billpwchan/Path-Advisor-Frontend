@@ -1,5 +1,8 @@
 import get from 'lodash.get';
 import calculateTextDimension from './calculateTextDimension';
+
+const DEFAULT_LISTENER_ID = 'default';
+
 /**
  * @typedef TextElement
  * @property {string} size
@@ -145,9 +148,16 @@ class CanvasHandler {
   /** @type {function[]} - canvas position changed listeners */
   positionChangeListeners = [];
 
-  /** @typedef {Object.<string, mapItemListener[]>} listenerGroup */
+  /** @typedef {Object.<string, Object.<string, mapItemListener>>} listenerGroup */
   /** @type {Object.<string, listenerGroup>} - map items listeners grouped by id */
   mapItemListeners = {
+    click: {},
+    mouseover: {},
+    mouseout: {},
+  };
+
+  /** @type {Object.<string, Object.<string, string[]>>} */
+  mapItemListenerIds = {
     click: {},
     mouseover: {},
     mouseout: {},
@@ -290,41 +300,52 @@ class CanvasHandler {
   /**
    * add map item listener
    * @param {string} event
+   * @param {string} id listener id
    * @param {string} mapItemId
    * @param {mapItemListener} listener
    * @param {boolean} [isPrepend]
    */
-  addMapItemListener(event, mapItemId, listener, isPrepend = false) {
+  addMapItemListener(event, id, mapItemId, listener, isPrepend = false) {
     if (!Object.keys(this.mapItemListeners).includes(event)) {
       throw new Error(`Event ${event} not supported`);
     }
 
-    const listenersById = this.mapItemListeners[event];
+    const listeners = this.mapItemListeners[event];
+    const listenerIds = this.mapItemListenerIds[event];
 
-    if (!listenersById[mapItemId]) {
-      listenersById[mapItemId] = [];
+    if (!listeners[mapItemId]) {
+      listeners[mapItemId] = {};
+      listenerIds[mapItemId] = [];
     }
 
-    if (isPrepend) {
-      listenersById[mapItemId].unshift(listener);
+    const isNew = !listeners[mapItemId][id];
+    listeners[mapItemId][id] = listener;
+
+    if (!isNew) {
       return;
     }
 
-    listenersById[mapItemId].push(listener);
+    if (isPrepend) {
+      listenerIds[mapItemId].unshift(id);
+      return;
+    }
+
+    listenerIds[mapItemId].push(id);
   }
 
   /**
-   * remove map item click listener
+   * remove map item listener
    * @param {string} event
+   * @param {string} id
    * @param {string} mapItemId
-   * @param {mapItemListener} listener
    * @return {boolean} True is removed otherwise false
    */
-  removeMapItemListener(event, mapItemId, listener) {
-    const mapItemListeners = this.mapItemListeners[event][mapItemId] || [];
-    const listenerIndex = mapItemListeners.indexOf(listener);
+  removeMapItemListener(event, id, mapItemId) {
+    const mapItemListenerIds = this.mapItemListenerIds[event][mapItemId] || [];
+    const listenerIndex = mapItemListenerIds.indexOf(id);
     if (listenerIndex !== -1) {
-      mapItemListeners.splice(listenerIndex, 1);
+      mapItemListenerIds.splice(listenerIndex, 1);
+      delete this.mapItemListeners[event][mapItemId][id];
       return true;
     }
     return false;
@@ -408,8 +429,10 @@ class CanvasHandler {
 
         if (mapItemEvent) {
           console.log('mapItemEvent', mapItemEvent, id, this.mapItems[id]);
-          (get(this.mapItemListeners[mapItemEvent], id) || []).some(
-            listener => listener({ ...this.mapItems[id] }) === false,
+          (get(this.mapItemListenerIds[mapItemEvent], id) || []).some(
+            listenerId =>
+              this.mapItemListeners[mapItemEvent][id][listenerId]({ ...this.mapItems[id] }) ===
+              false,
           );
         }
       });
@@ -571,15 +594,15 @@ class CanvasHandler {
         this.mapItems[id] = mapItem;
 
         if (onClick) {
-          this.addMapItemListener('click', id, onClick);
+          this.addMapItemListener('click', DEFAULT_LISTENER_ID, id, onClick);
         }
 
         if (onMouseOver) {
-          this.addMapItemListener('mouseover', id, onMouseOver);
+          this.addMapItemListener('mouseover', DEFAULT_LISTENER_ID, id, onMouseOver);
         }
 
         if (onMouseOut) {
-          this.addMapItemListener('mouseout', id, onMouseOut);
+          this.addMapItemListener('mouseout', DEFAULT_LISTENER_ID, id, onMouseOut);
         }
 
         switch (true) {
@@ -856,12 +879,12 @@ class CanvasHandler {
     updateLayers: (...args) => this.updateLayers(...args),
     updatePosition: (...args) => this.updatePosition(...args),
     updateDimenision: (...args) => this.updateDimenision(...args),
-    addMapItemClickListener: (mapItemId, listener, ...args) =>
-      this.addMapItemListener('click', mapItemId, listener, ...args),
-    addMapItemMouseOverListener: (mapItemId, listener, ...args) =>
-      this.addMapItemListener('mouseover', mapItemId, listener, ...args),
-    addMapItemMouseOutListener: (mapItemId, listener, ...args) =>
-      this.addMapItemListener('mouseout', mapItemId, listener, ...args),
+    addMapItemClickListener: (id, mapItemId, listener, isPrepend) =>
+      this.addMapItemListener('click', id, mapItemId, listener, isPrepend),
+    addMapItemMouseOverListener: (id, mapItemId, listener, isPrepend) =>
+      this.addMapItemListener('mouseover', id, mapItemId, listener, isPrepend),
+    addMapItemMouseOutListener: (id, mapItemId, listener, isPrepend) =>
+      this.addMapItemListener('mouseout', id, mapItemId, listener, isPrepend),
   };
 
   getProps() {
