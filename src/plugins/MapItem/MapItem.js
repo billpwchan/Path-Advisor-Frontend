@@ -63,7 +63,6 @@ class MapCanvasPlugin extends Component {
           },
         };
         switch (type) {
-          case 'restaurant':
           case 'maleToilet':
           case 'femaleToilet':
           case 'stair':
@@ -182,11 +181,25 @@ class MapCanvasPlugin extends Component {
           }
         }
 
+        const marginLeft = -40;
+        let marginTop = 0;
+
+        if (type === 'restaurant') {
+          accumulator.push({
+            ...baseMapItem,
+            id: `${floor}_${id}_restaurant`,
+            x: x + marginLeft,
+            image: createImage(legends[type].image),
+          });
+          marginTop += 20;
+        }
+
         if (photo) {
           accumulator.push({
             ...baseMapItem,
             id: `${floor}_${id}_photo`,
-            x: x - 40,
+            x: x + marginLeft,
+            y: y + marginTop,
             image: createImage(legends.photo.image),
             onClick: () => {
               openOverlayHandler(name, photo, url);
