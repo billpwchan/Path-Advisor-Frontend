@@ -57,8 +57,8 @@ class MapCanvas extends Component {
 
     this.canvasHandler.addPositionChangeListener(
       throttle(
-        ({ floor: _floor, topLeftX, topLeftY, width: _width, height: _height }) => {
-          getMapItemsHandler(_floor, [topLeftX, topLeftY], _width, _height);
+        ({ floor: _floor, leftX, topY, width: _width, height: _height }) => {
+          getMapItemsHandler(_floor, [leftX, topY], _width, _height);
         },
         1000,
         { leading: false },
@@ -66,8 +66,8 @@ class MapCanvas extends Component {
     );
 
     this.canvasHandler.addPositionChangeListener(
-      ({ x: movingX, y: movingY, topLeftX: movingTopLeftX, topLeftY: movingTopLeftY }) => {
-        this.setState({ movingX, movingY, movingTopLeftX, movingTopLeftY });
+      ({ x: movingX, y: movingY, leftX: movingLeftX, topY: movingTopY }) => {
+        this.setState({ movingX, movingY, movingLeftX, movingTopY });
       },
     );
 
@@ -102,8 +102,9 @@ class MapCanvas extends Component {
       searchNearestStore,
       searchShortestPathStore,
       searchAreaInputStore,
+      linkTo,
     } = this.props;
-    const { movingX, movingY, movingTopLeftX, movingTopLeftY, width, height } = this.state;
+    const { movingX, movingY, movingLeftX, movingTopY, width, height } = this.state;
 
     return (
       <div>
@@ -118,8 +119,8 @@ class MapCanvas extends Component {
                   y={y}
                   movingX={movingX}
                   movingY={movingY}
-                  movingTopLeftX={movingTopLeftX}
-                  movingTopLeftY={movingTopLeftY}
+                  movingLeftX={movingLeftX}
+                  movingTopY={movingTopY}
                   floor={floor}
                   scale={scale}
                   APIEndpoint={APIEndpoint}
@@ -131,6 +132,7 @@ class MapCanvas extends Component {
                   searchNearestStore={searchNearestStore}
                   searchShortestPathStore={searchShortestPathStore}
                   searchAreaInputStore={searchAreaInputStore}
+                  linkTo={linkTo}
                   {...this.canvasHandler.getProps()}
                 />
               ),
