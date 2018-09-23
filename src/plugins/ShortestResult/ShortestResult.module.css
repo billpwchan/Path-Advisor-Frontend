@@ -1,0 +1,53 @@
+.head {
+  font-weight: bold;
+  font-size: 13px;
+  border-bottom: 1px solid #cccccc;
+  padding: 5px 0;
+  margin-bottom: 5px;
+}
+
+.content {
+  font-size: 13px;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  padding: 5px;
+}
+
+.floorTitle {
+  font-weight: bold;
+  border-bottom: 1px solid #cccccc;
+  padding: 5px 0;
+}
+
+.row {
+  padding: 5px;
+}
+
+.link {
+  text-decoration: underline;
+  color: blue;
+  padding: 5px;
+  display: block;
+  text-align: left;
+}
+
+.instructionCol {
+  width: 60%;
+  display: inline-block;
+  vertical-align: top;
+}
+
+.timeCol {
+  width: 40%;
+  display: inline-block;
+  vertical-align: top;
+  text-align: right;
+}
+
+.totalTime{
+  margin-top: 10px;
+  text-align: right;
+}
+
+.link:hover {
+  color: red;
+}

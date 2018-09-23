@@ -1,0 +1,22 @@
+.head {
+  font-weight: bold;
+  font-size: 13px;
+  border-bottom: 1px solid #cccccc;
+  padding: 5px 0;
+  margin-bottom: 5px;
+}
+
+.content {
+  font-size: 13px;
+  padding: 20px;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.link {
+  text-decoration: underline;
+  color: blue;
+}
+
+.link:hover {
+  color: red;
+}
