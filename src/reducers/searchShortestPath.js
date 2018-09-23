@@ -1,7 +1,7 @@
 export const SEARCH_SHORTEST_PATH = 'SEARCH_SHORTEST_PATH';
 export const SEARCH_SHORTEST_PATH_SUCCESS = 'SEARCH_SHORTEST_PATH_SUCCESS';
 export const SEARCH_SHORTEST_PATH_FAILURE = 'SEARCH_SHORTEST_PATH_FAILURE';
-
+export const CLEAR_SEARCH_SHORTEST_PATH_RESULT = 'CLEAR_SEARCH_SHORTEST_PATH_RESULT';
 /**
  * @typedef {object} requestNode
  * @property {string} [nodeId]
@@ -33,6 +33,12 @@ export function searchShortestPathFailureAction() {
   };
 }
 
+export function clearSearchShortestPathResultAction() {
+  return {
+    type: CLEAR_SEARCH_SHORTEST_PATH_RESULT,
+  };
+}
+
 const initialState = {
   loading: false,
   success: false,
@@ -42,6 +48,10 @@ const initialState = {
 
 const searchShortestPath = (state = initialState, { type, payload }) => {
   switch (type) {
+    case CLEAR_SEARCH_SHORTEST_PATH_RESULT:
+      return {
+        ...initialState,
+      };
     case SEARCH_SHORTEST_PATH:
       return {
         ...initialState,

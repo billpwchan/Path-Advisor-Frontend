@@ -4,4 +4,4 @@ import * as Legend from './Legend/Legend';
 import * as NearestResult from './NearestResult/NearestResult';
 import * as ShortestResult from './ShortestResult/ShortestResult';
 
-export default [MapTile, MapItem, Legend, NearestResult, ShortestResult];
+export default [MapTile, MapItem, NearestResult, ShortestResult, Legend];

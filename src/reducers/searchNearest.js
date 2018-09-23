@@ -1,7 +1,7 @@
 export const SEARCH_NEAREST = 'SEARCH_NEAREST';
 export const SEARCH_NEAREST_SUCCESS = 'SEARCH_NEAREST_SUCCESS';
 export const SEARCH_NEAREST_FAILURE = 'SEARCH_NEAREST_FAILURE';
-
+export const CLEAR_SEARCH_NEAREST_RESULT = 'CLEAR_SEARCH_NEAREST_RESULT';
 /**
  * @param {string} floor
  * @param {string} name
@@ -28,6 +28,12 @@ export function searchNearestFailureAction() {
   };
 }
 
+export function clearSearchNearestResultAction() {
+  return {
+    type: CLEAR_SEARCH_NEAREST_RESULT,
+  };
+}
+
 const initialState = {
   loading: false,
   success: false,
@@ -38,6 +44,10 @@ const initialState = {
 
 const searchNearest = (state = initialState, { type, payload }) => {
   switch (type) {
+    case CLEAR_SEARCH_NEAREST_RESULT:
+      return {
+        ...initialState,
+      };
     case SEARCH_NEAREST:
       return {
         ...initialState,

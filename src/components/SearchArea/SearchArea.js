@@ -10,8 +10,10 @@ import SearchNearest from '../SearchNearest/SearchNearest';
 class SearchArea extends Component {
   static propTypes = {
     getAutoCompleteAction: PropTypes.func.isRequired,
-    searchShortestPathAction: PropTypes.func.isRequired,
-    searchNearestAction: PropTypes.func.isRequired,
+    searchShortestPathHandler: PropTypes.func.isRequired,
+    clearSearchShortestPathResultHandler: PropTypes.func.isRequired,
+    searchNearestHandler: PropTypes.func.isRequired,
+    clearSearchNearestResultHandler: PropTypes.func.isRequired,
     autoCompleteStore: PropTypes.shape({}),
     floorStore: PropTypes.shape({}),
     linkTo: PropTypes.func.isRequired,
@@ -85,8 +87,10 @@ class SearchArea extends Component {
 
   search = () => {
     const {
-      searchShortestPathAction,
-      searchNearestAction,
+      searchShortestPathHandler,
+      clearSearchShortestPathResultHandler,
+      searchNearestHandler,
+      clearSearchNearestResultHandler,
       from: {
         data: { type: fromType, id: fromId, floor: fromFloor, value: fromValue },
       },
@@ -96,17 +100,20 @@ class SearchArea extends Component {
       searchOptions: { sameFloor },
     } = this.props;
 
+    clearSearchNearestResultHandler();
+    clearSearchShortestPathResultHandler();
+
     if (fromType === 'nearest') {
-      searchNearestAction(toFloor, toValue, fromValue, sameFloor, toId);
+      searchNearestHandler(toFloor, toValue, fromValue, sameFloor, toId);
     } else if (toType === 'nearest') {
-      searchNearestAction(fromFloor, fromValue, toValue, sameFloor, fromId);
+      searchNearestHandler(fromFloor, fromValue, toValue, sameFloor, fromId);
     } else {
       // point to point search
       const searchFrom =
         fromType === 'keyword' ? { keyword: fromValue } : { id: fromId, floor: fromFloor };
       const searchTo = toType === 'keyword' ? { keyword: toValue } : { id: toId, floor: toFloor };
 
-      searchShortestPathAction(searchFrom, searchTo);
+      searchShortestPathHandler(searchFrom, searchTo);
     }
   };
 

@@ -2,8 +2,11 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import SearchArea from '../SearchArea/SearchArea';
 import { getAutoCompleteAction } from '../../reducers/autoComplete';
-import { searchShortestPathAction } from '../../reducers/searchShortestPath';
-import { searchNearestAction } from '../../reducers/searchNearest';
+import {
+  searchShortestPathAction,
+  clearSearchShortestPathResultAction,
+} from '../../reducers/searchShortestPath';
+import { searchNearestAction, clearSearchNearestResultAction } from '../../reducers/searchNearest';
 import PanelOverlay from '../PanelOverlay/PanelOverlay';
 import Floor from '../Floor/Floor';
 
@@ -24,8 +27,10 @@ class PrimaryPanel extends Component {
       children,
       place,
       getAutoCompleteAction,
-      searchShortestPathAction,
-      searchNearestAction,
+      searchShortestPathHandler,
+      clearSearchShortestPathResultHandler,
+      searchNearestHandler,
+      clearSearchNearestResultHandler,
       autoCompleteStore,
       overlayStore,
       floorStore,
@@ -95,8 +100,10 @@ class PrimaryPanel extends Component {
             <SearchArea
               getAutoCompleteAction={getAutoCompleteAction}
               autoCompleteStore={autoCompleteStore}
-              searchShortestPathAction={searchShortestPathAction}
-              searchNearestAction={searchNearestAction}
+              searchShortestPathHandler={searchShortestPathHandler}
+              clearSearchShortestPathResultHandler={clearSearchShortestPathResultHandler}
+              searchNearestHandler={searchNearestHandler}
+              clearSearchNearestResultHandler={clearSearchNearestResultHandler}
               from={searchAreaInputStore.from}
               to={searchAreaInputStore.to}
               searchOptions={searchAreaInputStore.searchOptions}
@@ -139,11 +146,17 @@ export default connect(
     getAutoCompleteAction: keyword => {
       dispatch(getAutoCompleteAction(keyword));
     },
-    searchShortestPathAction: (from, to) => {
+    searchShortestPathHandler: (from, to) => {
       dispatch(searchShortestPathAction(from, to));
     },
-    searchNearestAction: (floor, name, nearestType, sameFloor, id) => {
+    clearSearchShortestPathResultHandler: () => {
+      dispatch(clearSearchShortestPathResultAction());
+    },
+    searchNearestHandler: (floor, name, nearestType, sameFloor, id) => {
       dispatch(searchNearestAction(floor, name, nearestType, sameFloor, id));
+    },
+    clearSearchNearestResultHandler: () => {
+      dispatch(clearSearchNearestResultAction());
     },
   }),
 )(PrimaryPanel);
