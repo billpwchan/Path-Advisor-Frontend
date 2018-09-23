@@ -63,8 +63,6 @@ class MapCanvasPlugin extends Component {
           },
         };
         switch (type) {
-          case 'crossBuildingConnector':
-          case 'escalator':
           case 'restaurant':
           case 'maleToilet':
           case 'femaleToilet':
@@ -79,6 +77,19 @@ class MapCanvasPlugin extends Component {
             accumulator.push({
               ...baseMapItem,
               image: createImage(legends[type].image),
+            });
+            break;
+          case 'crossBuildingConnector':
+          case 'escalator':
+            accumulator.push({
+              ...baseMapItem,
+              image: createImage(legends[type].image),
+              onMouseOver: () => {
+                document.body.style.cursor = 'pointer';
+              },
+              onMouseOut: () => {
+                document.body.style.cursor = 'auto';
+              },
             });
             break;
           case 'lift':
@@ -142,7 +153,6 @@ class MapCanvasPlugin extends Component {
           default: {
             accumulator.push({
               ...textMapItem,
-
               onClick: () => {
                 if (photo) openOverlayHandler(name, photo, url);
               },
