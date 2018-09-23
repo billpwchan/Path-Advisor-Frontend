@@ -2,8 +2,10 @@ import React from 'react';
 import style from './ShortestResult.module.css';
 
 const pluginId = 'shortestResult';
+
 // local store
 const pathIds = new Set();
+const clickListenerMapItemIds = new Set();
 
 function ShortestResultPrimaryPanel({
   appSettings,
@@ -131,6 +133,7 @@ function ShortestResultMapCanvas({
   removeMapItem,
   searchShortestPathStore,
   addMapItemClickListener,
+  removeMapItemClickListener,
   linkTo,
 }) {
   const { paths = [] } = searchShortestPathStore;
@@ -142,13 +145,19 @@ function ShortestResultMapCanvas({
 
   const mapItems = {};
 
-  const LISTENER_ID = 'searchResultLiftClick';
+  const LISTENER_ID = 'shortestResultConnector';
 
   pathIds.forEach(id => {
-    console.log('removeMapItem', id, removeMapItem(id));
+    removeMapItem(id);
   });
 
   pathIds.clear();
+
+  clickListenerMapItemIds.forEach(id => {
+    removeMapItemClickListener(LISTENER_ID, id);
+  });
+
+  clickListenerMapItemIds.clear();
 
   paths.forEach(({ floor, coordinates, id }, i) => {
     if (!mapItems[floor]) {
@@ -193,6 +202,9 @@ function ShortestResultMapCanvas({
         },
         true,
       );
+
+      clickListenerMapItemIds.add(`${floor}_${id}`);
+      clickListenerMapItemIds.add(`${prevPath.floor}_${prevPath.id}`);
     }
   });
 

@@ -887,6 +887,12 @@ class CanvasHandler {
       this.addMapItemListener('mouseover', id, mapItemId, listener, isPrepend),
     addMapItemMouseOutListener: (id, mapItemId, listener, isPrepend) =>
       this.addMapItemListener('mouseout', id, mapItemId, listener, isPrepend),
+    removeMapItemClickListener: (id, mapItemId) =>
+      this.removeMapItemListener('click', id, mapItemId),
+    removeMapItemMouseOverListener: (id, mapItemId) =>
+      this.removeMapItemListener('mouseover', id, mapItemId),
+    removeMapItemMouseOutListener: (id, mapItemId) =>
+      this.removeMapItemListener('mouseout', id, mapItemId),
   };
 
   getProps() {
