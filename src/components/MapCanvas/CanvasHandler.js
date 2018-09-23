@@ -741,18 +741,20 @@ class CanvasHandler {
     const bottomRightX = topLeftX + width;
     const bottomRightY = topLeftY + height;
 
-    return [
-      [topLeftX, topLeftY],
-      [topLeftX, bottomRightY],
-      [bottomRightX, topLeftY],
-      [bottomRightX, bottomRightY],
-    ].some(
-      ([x, y]) =>
-        this.getTopLeftX() <= x &&
-        x <= this.getTopLeftX() + this.getWidth() &&
-        this.getTopLeftY() <= y &&
-        y <= this.getTopLeftY() + this.getHeight(),
-    );
+    const canvasLeftX = this.getTopLeftX();
+    const canvasRightX = canvasLeftX + this.getWidth();
+    const canvasTopY = this.getTopLeftY();
+    const canvasBottomY = canvasTopY + this.getHeight();
+
+    const xInRange =
+      [topLeftX, bottomRightX].some(x => canvasLeftX <= x && x <= canvasRightX) ||
+      (topLeftX < canvasLeftX && canvasRightX < bottomRightX);
+
+    const yInRange =
+      [topLeftY, bottomRightY].some(y => canvasTopY <= y && y <= canvasBottomY) ||
+      (topLeftY < canvasTopY && canvasBottomY < bottomRightY);
+
+    return xInRange && yInRange;
   }
 
   render = () => {
