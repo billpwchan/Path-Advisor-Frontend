@@ -2,7 +2,7 @@ import get from 'lodash.get';
 import calculateTextDimension from './calculateTextDimension';
 
 const DEFAULT_LISTENER_ID = 'default';
-
+const DEVICE_PIXEL_RATIO = window.devicePixelRatio || 1;
 /**
  * @typedef TextElement
  * @property {string} size
@@ -163,6 +163,10 @@ class CanvasHandler {
     mouseout: {},
   };
 
+  width = 0;
+
+  height = 0;
+
   getCanvasItems(key) {
     switch (key) {
       case 'mapTiles':
@@ -183,8 +187,13 @@ class CanvasHandler {
   }
 
   updateDimension(width, height) {
-    this.canvas.width = width;
-    this.canvas.height = height;
+    this.canvas.width = width * DEVICE_PIXEL_RATIO;
+    this.canvas.height = height * DEVICE_PIXEL_RATIO;
+    this.width = width;
+    this.height = height;
+    this.canvas.style.width = `${width}px`;
+    this.canvas.style.height = `${height}px`;
+    this.canvas.getContext('2d').setTransform(DEVICE_PIXEL_RATIO, 0, 0, DEVICE_PIXEL_RATIO, 0, 0);
     this.render();
   }
 
@@ -440,11 +449,11 @@ class CanvasHandler {
   }
 
   getWidth() {
-    return this.canvas.width;
+    return this.width;
   }
 
   getHeight() {
-    return this.canvas.height;
+    return this.height;
   }
 
   getLeftX() {
@@ -759,7 +768,7 @@ class CanvasHandler {
 
   render = () => {
     const ctx = this.canvas.getContext('2d');
-    ctx.clearRect(0, 0, this.getWidth(), this.getHeight());
+    ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     const leftX = this.getLeftX();
     const topY = this.getTopY();
