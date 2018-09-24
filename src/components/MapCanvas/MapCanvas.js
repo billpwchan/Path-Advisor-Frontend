@@ -5,6 +5,7 @@ import { withRouter } from 'react-router-dom';
 import throttle from 'lodash.throttle';
 import CanvasHandler from './CanvasHandler';
 import { APIEndpoint } from '../../config/config';
+import style from './MapCanvas.module.css';
 
 class MapCanvas extends Component {
   canvasRootRef = createRef();
@@ -53,7 +54,7 @@ class MapCanvas extends Component {
     const { width, height } = this.state;
 
     this.canvasRootRef.current.appendChild(this.canvasHandler.getCanvas());
-    this.canvasHandler.updateDimenision(width, height);
+    this.canvasHandler.updateDimension(width, height);
 
     this.canvasHandler.addPositionChangeListener(
       throttle(
@@ -107,7 +108,7 @@ class MapCanvas extends Component {
     const { movingX, movingY, movingLeftX, movingTopY, width, height } = this.state;
 
     return (
-      <div>
+      <div className={style.body}>
         <div ref={this.canvasRootRef} />
         <div>
           {children.map(

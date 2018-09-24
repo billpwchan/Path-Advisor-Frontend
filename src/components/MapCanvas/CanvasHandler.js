@@ -176,13 +176,13 @@ class CanvasHandler {
 
   constructor(x, y, width, height, floor, scale) {
     this.canvas = document.createElement('canvas');
-    this.updateDimenision(width, height);
+    this.updateDimension(width, height);
     this.updatePosition(x, y, floor, scale);
     this.setUpDragAndDropListener();
     ['click', 'mousemove'].forEach(event => this.setUpListener(event));
   }
 
-  updateDimenision(width, height) {
+  updateDimension(width, height) {
     this.canvas.width = width;
     this.canvas.height = height;
     this.render();
@@ -880,7 +880,7 @@ class CanvasHandler {
     updateMapTiles: (...args) => this.updateMapTiles(...args),
     updateLayers: (...args) => this.updateLayers(...args),
     updatePosition: (...args) => this.updatePosition(...args),
-    updateDimenision: (...args) => this.updateDimenision(...args),
+    updateDimension: (...args) => this.updateDimension(...args),
     addMapItemClickListener: (id, mapItemId, listener, isPrepend) =>
       this.addMapItemListener('click', id, mapItemId, listener, isPrepend),
     addMapItemMouseOverListener: (id, mapItemId, listener, isPrepend) =>
