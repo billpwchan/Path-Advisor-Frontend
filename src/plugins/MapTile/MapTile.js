@@ -67,10 +67,10 @@ function generateMapTiles(APIEndpoint, canvasOffsetX, canvasOffsetY, width, heig
         y: nextTileY,
         image: createImage(getMapTileUrl(APIEndpoint, nextTileX, nextTileY, floor, scale)),
       });
-    } while (nextTileY - y < height);
+    } while (nextTileY - y < height + MAP_TILE_HEIGHT);
 
     nextTileX += MAP_TILE_WIDTH;
-  } while (nextTileX - x < width);
+  } while (nextTileX - x < width + MAP_TILE_WIDTH);
 
   return mapTiles;
 }
