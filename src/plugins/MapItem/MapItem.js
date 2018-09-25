@@ -1,5 +1,8 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
+
 import fetchAccessibleFoorsRequest from '../../sagas/requests/fetchAccessibleFloorsRequest';
+import MapItemOverlayHeader from './MapItemOverlayHeader';
+import MapItemOverlayContent from './MapItemOverlayContent';
 
 const pluginId = 'mapitem';
 const imgCached = {};
@@ -37,7 +40,7 @@ function createImage(src) {
   return imgCached[src];
 }
 
-class MapCanvasPlugin extends Component {
+class MapItem extends Component {
   shouldComponentUpdate(nextProps) {
     const { mapItems } = this.props;
     return mapItems !== nextProps.mapItems;
@@ -221,26 +224,9 @@ class MapCanvasPlugin extends Component {
   }
 }
 
-const OverlayHeaderPlugin = ({ name }) => <h1>{name}</h1>;
-const OverlayContentPlugin = ({ name, photo, url, others: { accessibleFloors } }) => (
-  <div>
-    {url && (
-      <div>
-        Link: <a href={url}>url</a>
-      </div>
-    )}
-    <div>{photo && <img src={photo} alt={name} />}</div>
-    {accessibleFloors && (
-      <div>
-        Accessible floors:
-        <ul>
-          {accessibleFloors.map(floor => (
-            <li>{floor}</li>
-          ))}
-        </ul>
-      </div>
-    )}
-  </div>
-);
-
-export { pluginId, MapCanvasPlugin, OverlayHeaderPlugin, OverlayContentPlugin };
+export {
+  pluginId,
+  MapItem as MapCanvasPlugin,
+  MapItemOverlayHeader as OverlayHeaderPlugin,
+  MapItemOverlayContent as OverlayContentPlugin,
+};

@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import style from './PanelOverlay.module.css';
 
 const PanelOverlay = ({ headerElements, contentElements, closeOverlayHandler }) => (
   <div>
-    Overlay
-    <button type="button" onClick={closeOverlayHandler}>
-      Close
+    <button type="button" onClick={closeOverlayHandler} className={style.close}>
+      ×
     </button>
     <div>{headerElements}</div>
     <div>{contentElements}</div>
