@@ -1,0 +1,30 @@
+.body {
+  font-size: 14px;
+  padding: 5px;
+}
+.head {
+  font-weight: bold;
+  font-size: 13px;
+  border-bottom: 1px solid #cccccc;
+  padding: 5px 0;
+  margin-bottom: 5px;
+}
+
+.timeAndDistanceHead {
+  margin-top:15px;
+}
+
+.list li {
+  padding: 3px;
+}
+
+.itemInput {
+  display: inline-block;
+  vertical-align: middle;
+}
+.itemText {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 5px;
+}
+

@@ -6,6 +6,7 @@ import style from './SearchArea.module.css';
 import switchImage from './switch.png';
 import SearchInput from '../SearchInput/SearchInput';
 import SearchNearest from '../SearchNearest/SearchNearest';
+import AdvancedSearch from '../AdvancedSearch/AdvancedSearch';
 
 class SearchArea extends Component {
   static propTypes = {
@@ -42,6 +43,9 @@ class SearchArea extends Component {
       sameFloor: PropTypes.bool,
     }),
     searchInputOrders: PropTypes.arrayOf(PropTypes.string),
+    searchShortestPathStore: PropTypes.shape({}),
+    updateSearchShortestPathSettingHandler: PropTypes.func.isRequired,
+    displayAdvancedSearch: PropTypes.func.isRequired,
   };
 
   onKeywordChange = fieldName => keyword => {
@@ -123,6 +127,9 @@ class SearchArea extends Component {
       autoCompleteStore,
       searchOptions: { sameFloor },
       searchInputOrders,
+      searchShortestPathStore,
+      updateSearchShortestPathSettingHandler,
+      displayAdvancedSearch,
     } = this.props;
     const suggestions = get(autoCompleteStore, 'suggestions', []);
 
@@ -157,6 +164,13 @@ class SearchArea extends Component {
 
     return (
       <div className={style.body}>
+        {displayAdvancedSearch && (
+          <AdvancedSearch
+            searchShortestPathStore={searchShortestPathStore}
+            updateSearchShortestPathSettingHandler={updateSearchShortestPathSettingHandler}
+            search={this.search}
+          />
+        )}
         <div className={style.head}>Search</div>
         <div className={style.contentContainer}>
           <div className={style.content}>

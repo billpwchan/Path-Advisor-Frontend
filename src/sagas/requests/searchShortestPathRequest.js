@@ -5,7 +5,7 @@ import fetchAutoCompleteRequest from './fetchAutoCompleteRequest';
 import fetchIdToNodeIdRequest from './fetchIdToNodeIdRequest';
 import fetchNodeIdsToMapItemsRequest from './fetchNodeIdsToMapItemsRequest';
 import { SearchAPIEndpoint } from '../../config/config';
-import { SEARCH_MODE } from '../../reducers/searchShortestPath';
+import { SEARCH_MODES } from '../../reducers/searchShortestPath';
 /*
   DEBUG: start_id1350
   DEBUG: end_id3830
@@ -125,9 +125,9 @@ async function searchShortestPathRequest(inputFrom = {}, inputTo = {}, settings 
 
   const noStairCase = settings.noStairCase ? 'ON' : 'OFF';
   const noEscalator = settings.noEscalator ? 'ON' : 'OFF';
-  const shortestTime = settings.searchMode === SEARCH_MODE.SHORTEST_TIME ? 'ON' : 'OFF';
-  const shortestDistance = settings.searchMode === SEARCH_MODE.SHORTEST_DISTANCE ? 'ON' : 'OFF';
-  const minNoOfLifts = settings.searchMode === SEARCH_MODE.MIN_NO_OF_LIFTS ? 'ON' : 'OFF';
+  const shortestTime = settings.searchMode === SEARCH_MODES.SHORTEST_TIME ? 'ON' : 'OFF';
+  const shortestDistance = settings.searchMode === SEARCH_MODES.SHORTEST_DISTANCE ? 'ON' : 'OFF';
+  const minNoOfLifts = settings.searchMode === SEARCH_MODES.MIN_NO_OF_LIFTS ? 'ON' : 'OFF';
 
   const response = await axios.get(
     `${SearchAPIEndpoint()}/cgi-bin/find_path_new.cgi?mins_per_pixel=0.000546&get_distance_array=NO&start_id=${
