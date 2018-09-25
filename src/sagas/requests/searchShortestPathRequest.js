@@ -5,7 +5,7 @@ import fetchAutoCompleteRequest from './fetchAutoCompleteRequest';
 import fetchIdToNodeIdRequest from './fetchIdToNodeIdRequest';
 import fetchNodeIdsToMapItemsRequest from './fetchNodeIdsToMapItemsRequest';
 import { SearchAPIEndpoint } from '../../config/config';
-
+import { SEARCH_MODE } from '../../reducers/searchShortestPath';
 /*
   DEBUG: start_id1350
   DEBUG: end_id3830
@@ -78,17 +78,25 @@ async function getNodeIdFloorfromKeyword(keyword) {
 
 /**
  * @typedef searchSearchInput
- * @property {string} keyword
- * @property {string} nodeId
- * @property {string} id
- * @property {string} floor
+ * @property {string} [keyword]
+ * @property {string} [nodeId]
+ * @property {string} [id]
+ * @property {string} [floor]
+ */
+
+/**
+ * @typedef searchSetting
+ * @property {boolean} [noStairCase]
+ * @property {boolean} [noEscalator]
+ * @property {string} [searchMode]
  */
 /**
  *
  * @param {searchSearchInput} inputFrom
  * @param {searchSearchInput} inputTo
+ * @param {searchSetting} settings
  */
-async function searchShortestPathRequest(inputFrom = {}, inputTo = {}) {
+async function searchShortestPathRequest(inputFrom = {}, inputTo = {}, settings = {}) {
   const inputs = [inputFrom, inputTo];
 
   const [from, to] = await Promise.all(
@@ -108,8 +116,6 @@ async function searchShortestPathRequest(inputFrom = {}, inputTo = {}) {
     }),
   );
 
-  console.log(from, to);
-
   if (!from.floor || !from.nodeId || !to.floor || !to.nodeId) {
     throw new Error('Invalid start or end point input');
   }
@@ -117,12 +123,18 @@ async function searchShortestPathRequest(inputFrom = {}, inputTo = {}) {
   from.nodeId = from.nodeId.substr(1);
   to.nodeId = to.nodeId.substr(1);
 
+  const noStairCase = settings.noStairCase ? 'ON' : 'OFF';
+  const noEscalator = settings.noEscalator ? 'ON' : 'OFF';
+  const shortestTime = settings.searchMode === SEARCH_MODE.SHORTEST_TIME ? 'ON' : 'OFF';
+  const shortestDistance = settings.searchMode === SEARCH_MODE.SHORTEST_DISTANCE ? 'ON' : 'OFF';
+  const minNoOfLifts = settings.searchMode === SEARCH_MODE.MIN_NO_OF_LIFTS ? 'ON' : 'OFF';
+
   const response = await axios.get(
     `${SearchAPIEndpoint()}/cgi-bin/find_path_new.cgi?mins_per_pixel=0.000546&get_distance_array=NO&start_id=${
       from.nodeId
     }&start_floor=${from.floor}&end_id=${to.nodeId}&end_floor=${
       to.floor
-    }&no_stair_mode=ON&no_escalator_mode=OFF&shortest_time_mode=ON&shortest_distance_mode=OFF&less_lift_mode=OFF&range=ALL`,
+    }&no_stair_mode=${noStairCase}&no_escalator_mode=${noEscalator}&shortest_time_mode=${shortestTime}&shortest_distance_mode=${shortestDistance}&less_lift_mode=${minNoOfLifts}&range=ALL`,
   );
 
   return {

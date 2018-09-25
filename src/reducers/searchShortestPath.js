@@ -2,6 +2,14 @@ export const SEARCH_SHORTEST_PATH = 'SEARCH_SHORTEST_PATH';
 export const SEARCH_SHORTEST_PATH_SUCCESS = 'SEARCH_SHORTEST_PATH_SUCCESS';
 export const SEARCH_SHORTEST_PATH_FAILURE = 'SEARCH_SHORTEST_PATH_FAILURE';
 export const CLEAR_SEARCH_SHORTEST_PATH_RESULT = 'CLEAR_SEARCH_SHORTEST_PATH_RESULT';
+export const UPDATE_SEARCH_SHORTEST_PATH_SETTINGS = 'UPDATE_SEARCH_SHORTEST_PATH_SETTINGS';
+
+export const SEARCH_MODES = {
+  SHORTEST_TIME: 'SHORTEST_TIME',
+  SHORTEST_DISTANCE: 'SHORTEST_DISTANCE',
+  MIN_NO_OF_LIFTS: 'MIN_NO_OF_LIFTS',
+};
+
 /**
  * @typedef {object} requestNode
  * @property {string} [nodeId]
@@ -39,22 +47,47 @@ export function clearSearchShortestPathResultAction() {
   };
 }
 
-const initialState = {
+export function updateSearchShortestPathSettingAction(noStairCase, noEscalator, searchMode) {
+  return {
+    type: UPDATE_SEARCH_SHORTEST_PATH_SETTINGS,
+    payload: { noStairCase, noEscalator, searchMode },
+  };
+}
+
+const initialResult = {
   loading: false,
   success: false,
   failure: false,
   paths: [],
 };
 
-const searchShortestPath = (state = initialState, { type, payload }) => {
+const initialSettings = {
+  settings: {
+    noStairCase: true,
+    noEscalator: false,
+    searchMode: SEARCH_MODES.SHORTEST_TIME,
+  },
+};
+
+const searchShortestPath = (
+  state = { ...initialResult, ...initialSettings },
+  { type, payload },
+) => {
   switch (type) {
     case CLEAR_SEARCH_SHORTEST_PATH_RESULT:
       return {
-        ...initialState,
+        ...state,
+        ...initialResult,
+      };
+    case UPDATE_SEARCH_SHORTEST_PATH_SETTINGS:
+      return {
+        ...state,
+        settings: { ...payload },
       };
     case SEARCH_SHORTEST_PATH:
       return {
-        ...initialState,
+        ...state,
+        ...initialResult,
         loading: true,
       };
     case SEARCH_SHORTEST_PATH_SUCCESS:

@@ -1,4 +1,4 @@
-import { put, takeLatest, call } from 'redux-saga/effects';
+import { put, takeLatest, call, select } from 'redux-saga/effects';
 import searchShortestPathRequest from '../requests/searchShortestPathRequest';
 import {
   SEARCH_SHORTEST_PATH,
@@ -13,10 +13,13 @@ function* searchShortestPathRequestWorker({
   },
 }) {
   try {
+    const { settings } = yield select(state => state.searchShortestPath);
+
     const { data } = yield call(
       searchShortestPathRequest,
       { keyword: fromKeyword, nodeId: fromNodeId, floor: fromFloor, id: fromId },
       { keyword: toKeyword, nodeId: toNodeId, floor: toFloor, id: toId },
+      settings,
     );
     yield put(searchShortestPathSuccessAction(data));
   } catch (error) {
