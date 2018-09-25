@@ -9,7 +9,7 @@
 .legendList li {
   display: inline-block;
   font-size: 13px;
-  width: 30%;
+  width: 32%;
   padding: 5px 0px;
   vertical-align: middle;
 }
@@ -18,10 +18,15 @@
   display: inline-block;
   vertical-align: middle;
   margin-left: 5px;
-  width: 80%;
+  width: 75%;
 }
 
 .image {
   display: inline-block;
   vertical-align: middle;
+}
+
+.body {
+  padding: 5px;
+  margin-top: 15px;
 }

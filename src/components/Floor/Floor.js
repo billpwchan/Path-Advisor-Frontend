@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import styles from './Floor.module.css';
+import style from './Floor.module.css';
 
 class Floor extends Component {
   static propTypes = {
@@ -90,16 +90,16 @@ class Floor extends Component {
   render() {
     const { buildingIds, buildings, floors, selectedBuilding } = this.props;
     return (
-      <div>
-        <ul className={styles.buildingList}>
+      <div className={style.body}>
+        <ul className={style.buildingList}>
           {buildingIds.map(buildingId => (
             <li
               key={buildingId}
-              className={classnames({ [styles.selected]: buildingId === selectedBuilding })}
+              className={classnames({ [style.selected]: buildingId === selectedBuilding })}
             >
               <button
                 type="button"
-                className={styles.buildingButton}
+                className={style.buildingButton}
                 onClick={this.selectBuilding(buildingId)}
               >
                 {buildings[buildingId].name}
@@ -107,12 +107,12 @@ class Floor extends Component {
             </li>
           ))}
         </ul>
-        <ul className={styles.floorList}>
+        <ul className={style.floorList}>
           {buildings[selectedBuilding].floorIds.map(floorId => (
             <li key={floorId}>
               <button
                 type="button"
-                className={styles.floorButton}
+                className={style.floorButton}
                 onClick={this.selectFloor(floorId)}
               >
                 {floors[floorId].name}

@@ -1,19 +1,19 @@
 import React from 'react';
-import styles from './Legend.module.css';
+import style from './Legend.module.css';
 
 const pluginId = 'legend';
 
 function Legend({ legends, legendIds }) {
   return (
-    <div>
-      <div className={styles.head}>Legends</div>
-      <ul className={styles.legendList}>
+    <div className={style.body}>
+      <div className={style.head}>Legends</div>
+      <ul className={style.legendList}>
         {legendIds.map(id => {
           const { name, image } = legends[id];
           return (
             <li key={id}>
-              <img className={styles.image} src={image} alt={name} />
-              <span className={styles.text}>{name}</span>
+              <img className={style.image} src={image} alt={name} />
+              <span className={style.text}>{name}</span>
             </li>
           );
         })}

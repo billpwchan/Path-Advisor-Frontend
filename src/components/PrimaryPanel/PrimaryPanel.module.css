@@ -1,4 +1,22 @@
 .body {
-  max-width: 370px;
   width: 30%;
+  height: 100%;
+  max-width: 370px;
+  float: left;
+  overflow-y: auto;
+}
+
+.tab {
+  padding: 0 5px;
+  background-color: #6a6a6a;
+  line-height: 30px;
+}
+
+.tabButton {
+  color: #EDEDED;
+  text-decoration: none;
+  text-shadow: 0 1px rgba(0, 0, 0, 0.4);
+  font-family: Verdana;
+  margin-right: 15px;
+  font-size: 13px;
 }

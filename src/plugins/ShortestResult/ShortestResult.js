@@ -1,5 +1,6 @@
 import React from 'react';
 import style from './ShortestResult.module.css';
+import Loading from '../../components/Loading/Loading';
 
 const pluginId = 'shortestResult';
 
@@ -63,13 +64,16 @@ function ShortestResultPrimaryPanel({
   switch (true) {
     case searchShortestPathStore.loading:
       return (
-        <div>
-          {shortestPathHead} <div className={style.content}>Please wait...</div>
+        <div className={style.body}>
+          {shortestPathHead}{' '}
+          <div className={style.content}>
+            <Loading text="Please wait..." />
+          </div>
         </div>
       );
     case searchShortestPathStore.success:
       return (
-        <div>
+        <div className={style.body}>
           {shortestPathHead}
           <div className={style.content}>
             {instructions.map(({ floor, nextFloor, from, to, distance }) => (

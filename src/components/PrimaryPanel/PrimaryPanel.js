@@ -85,6 +85,14 @@ class PrimaryPanel extends Component {
           />
         ) : (
           <div>
+            <div className={style.tab}>
+              <button type="button" className={style.tabButton}>
+                Path advisor
+              </button>
+              <button type="button" className={style.tabButton}>
+                Advanced Search
+              </button>
+            </div>
             <Floor
               selectedBuilding={selectedBuilding}
               selectBuildingAction={this.selectBuildingAction}

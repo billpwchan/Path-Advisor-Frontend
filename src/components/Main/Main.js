@@ -11,6 +11,8 @@ import { getMapItemsAction } from '../../reducers/mapItems';
 import { setSearchAreaInputAction } from '../../reducers/searchAreaInput';
 import { openOverlayAction, closeOverlayAction } from '../../reducers/overlay';
 
+import style from './Main.module.css';
+
 class Main extends Component {
   static propTypes = {
     match: PropTypes.shape({
@@ -85,23 +87,8 @@ class Main extends Component {
     } = this.props;
 
     return (
-      <div>
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
+      <div className={style.body}>
+        <div className={style.header}>HKUST Path Advisor</div>
         <PrimaryPanel
           {...this.getUrlParams()}
           overlayStore={overlayStore}
@@ -127,6 +114,7 @@ class Main extends Component {
         <MapCanvas
           {...this.getUrlParams()}
           appSettings={appSettings}
+          floorStore={floorStore}
           getMapItemsHandler={getMapItemsHandler}
           mapItemStore={mapItemStore}
           legendStore={legendStore}

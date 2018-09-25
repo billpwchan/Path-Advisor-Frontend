@@ -1,6 +1,7 @@
 import React from 'react';
 import arrowImage from './arrow.png';
 import style from './NearestResult.module.css';
+import Loading from '../../components/Loading/Loading';
 
 const arrowImageWidth = 9;
 const arrowImageHeight = 20;
@@ -19,16 +20,18 @@ function NearestResultPrimaryPanel({
   switch (true) {
     case searchNearestStore.loading:
       return (
-        <div>
+        <div className={style.body}>
           {searchNearestHead}
-          <div className={style.content}>Please wait...</div>
+          <div className={style.content}>
+            <Loading text="Please wait..." />
+          </div>
         </div>
       );
 
     case searchNearestStore.success: {
       const { from, nearest } = searchNearestStore;
       return (
-        <div>
+        <div className={style.body}>
           {searchNearestHead}
           <div className={style.content}>
             <div className={style.head}>

@@ -54,3 +54,8 @@
   width: 100%;
   text-align: left;
 }
+
+.loading {
+  width: 15px;
+  height: 15px;
+}
