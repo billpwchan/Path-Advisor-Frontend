@@ -11,6 +11,7 @@ const clickListenerMapItemIds = new Set();
 function ShortestResultPrimaryPanel({
   appSettings,
   searchShortestPathStore,
+  searchNearestStore,
   floorStore: { floors, buildings },
   linkTo,
 }) {
@@ -71,7 +72,22 @@ function ShortestResultPrimaryPanel({
           </div>
         </div>
       );
-    case searchShortestPathStore.success:
+    case searchShortestPathStore.success: {
+      // only do auto focus to start point if user is not search for nearest item
+      if (searchNearestStore.nearest === null) {
+        const [
+          {
+            floor,
+            coordinates: [x, y],
+          },
+        ] = paths;
+        linkTo({
+          floor,
+          x,
+          y,
+        });
+      }
+
       return (
         <div className={style.body}>
           {shortestPathHead}
@@ -127,6 +143,7 @@ function ShortestResultPrimaryPanel({
           </div>
         </div>
       );
+    }
     default:
       return null;
   }

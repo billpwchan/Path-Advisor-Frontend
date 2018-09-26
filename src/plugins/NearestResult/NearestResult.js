@@ -30,6 +30,13 @@ function NearestResultPrimaryPanel({
 
     case searchNearestStore.success: {
       const { from, nearest } = searchNearestStore;
+
+      linkTo({
+        x: nearest.coordinates[0],
+        y: nearest.coordinates[1],
+        floor: nearest.floor,
+      });
+
       return (
         <div className={style.body}>
           {searchNearestHead}
@@ -62,12 +69,12 @@ function NearestResultPrimaryPanel({
   }
 }
 
+const PIN_ID = 'PIN_ID';
+
 function NearestResultMapCanvas({ setMapItems, removeMapItem, searchAreaInputStore }) {
   // put a read pin in map if user specified the 'from' value in input field
   const { from: { data: { coordinates: [x, y] = [null, null], floor = null } = {} } = {} } =
     searchAreaInputStore || {};
-
-  const pinId = 'targetPin';
 
   if (x && y && floor) {
     const image = new Image();
@@ -75,7 +82,7 @@ function NearestResultMapCanvas({ setMapItems, removeMapItem, searchAreaInputSto
 
     setMapItems([
       {
-        id: pinId,
+        id: PIN_ID,
         floor,
         x: x - arrowImageWidth / 2,
         y: y - arrowImageHeight,
@@ -83,7 +90,7 @@ function NearestResultMapCanvas({ setMapItems, removeMapItem, searchAreaInputSto
       },
     ]);
   } else {
-    removeMapItem(pinId);
+    removeMapItem(PIN_ID);
   }
 
   return null;

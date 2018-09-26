@@ -65,9 +65,20 @@ class Main extends Component {
     };
   }
 
-  linkTo = ({ floor, x, y, scale }) => {
-    const currentScale = this.getUrlParams().scale;
-    this.props.history.push(getUrl({ floor, x, y, scale: scale || currentScale }));
+  linkTo = ({ floor, x, y, scale = this.getUrlParams().scale }) => {
+    const {
+      scale: currentScale,
+      x: currentX,
+      y: currentY,
+      floor: currentFloor,
+    } = this.getUrlParams();
+
+    const isNewPosition =
+      floor !== currentFloor || x !== currentX || y !== currentY || scale !== currentScale;
+
+    if (isNewPosition) {
+      this.props.history.push(getUrl({ floor, x, y, scale }));
+    }
   };
 
   render() {
