@@ -1,8 +1,8 @@
 export const SET_SEARCH_AREA_INPUT = 'SET_SEARCH_AREA_INPUT';
 
 const initialState = {
-  from: { name: '' },
-  to: { name: '' },
+  from: { name: '', data: {} },
+  to: { name: '', data: {} },
   searchOptions: { sameFloor: false },
   searchInputOrders: ['SearchInput', 'SearchNearest'],
 };

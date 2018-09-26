@@ -104,6 +104,10 @@ class SearchArea extends Component {
       searchOptions: { sameFloor },
     } = this.props;
 
+    if ((!fromValue && !fromId) || (!toValue && !toId)) {
+      return;
+    }
+
     clearSearchNearestResultHandler();
     clearSearchShortestPathResultHandler();
 
