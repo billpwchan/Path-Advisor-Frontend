@@ -68,24 +68,25 @@ class SearchInput extends Component {
           value={value}
           placeholder={placeholder}
         />
-        <ul className={style.autoCompleteList}>
-          {!hideAutoComplete &&
-            !loading &&
-            suggestions.map(({ name, floor, coordinates, id }) => (
-              <li key={id} className={style.autoCompleteListItem}>
-                <button
-                  type="button"
-                  className={style.autoCompleteListItemButton}
-                  onClick={() => this.onClick({ name, floor, coordinates, id })}
-                >
-                  <span className={style.autoCompleteListItemName}>{name}</span>
-                  <span className={style.autoCompleteListItemLocation}>
-                    , {buildings[floors[floor].buildingId].name}, floor {floors[floor].name}
-                  </span>
-                </button>
-              </li>
-            ))}
-        </ul>
+        {!hideAutoComplete &&
+          !loading && (
+            <ul className={style.autoCompleteList}>
+              {suggestions.map(({ name, floor, coordinates, id }) => (
+                <li key={id} className={style.autoCompleteListItem}>
+                  <button
+                    type="button"
+                    className={style.autoCompleteListItemButton}
+                    onClick={() => this.onClick({ name, floor, coordinates, id })}
+                  >
+                    <span className={style.autoCompleteListItemName}>{name}</span>
+                    <span className={style.autoCompleteListItemLocation}>
+                      , {buildings[floors[floor].buildingId].name}, floor {floors[floor].name}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
       </div>
     );
   }

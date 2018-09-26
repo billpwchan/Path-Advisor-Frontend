@@ -164,13 +164,6 @@ class SearchArea extends Component {
 
     return (
       <div className={style.body}>
-        {displayAdvancedSearch && (
-          <AdvancedSearch
-            searchShortestPathStore={searchShortestPathStore}
-            updateSearchShortestPathSettingHandler={updateSearchShortestPathSettingHandler}
-            search={this.search}
-          />
-        )}
         <div className={style.head}>Search</div>
         <div className={style.contentContainer}>
           <div className={style.content}>
@@ -213,6 +206,13 @@ class SearchArea extends Component {
             </div>
           </div>
         </div>
+        {displayAdvancedSearch && (
+          <AdvancedSearch
+            searchShortestPathStore={searchShortestPathStore}
+            updateSearchShortestPathSettingHandler={updateSearchShortestPathSettingHandler}
+            search={this.search}
+          />
+        )}
       </div>
     );
   }
