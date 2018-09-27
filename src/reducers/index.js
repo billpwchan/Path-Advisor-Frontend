@@ -1,5 +1,4 @@
 import { combineReducers } from 'redux';
-import accessibleFloors from './accessibleFloors';
 import autoComplete from './autoComplete';
 import mapItems from './mapItems';
 import searchNearest from './searchNearest';
@@ -12,7 +11,6 @@ import appSettings from './appSettings';
 
 export default combineReducers({
   appSettings,
-  accessibleFloors,
   autoComplete,
   mapItems,
   searchNearest,

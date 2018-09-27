@@ -75,10 +75,9 @@ function generateMapTiles(APIEndpoint, canvasOffsetX, canvasOffsetY, width, heig
   return mapTiles;
 }
 
-const pluginId = 'maptile';
 let throttledAddMapTiles;
 
-const MapCanvasPlugin = ({
+const MapTile = ({
   APIEndpoint,
   addMapTiles,
   width,
@@ -99,4 +98,18 @@ const MapCanvasPlugin = ({
   return null;
 };
 
-export { pluginId, MapCanvasPlugin };
+const MapCanvasPlugin = {
+  Component: MapTile,
+  connect: [
+    'APIEndpoint',
+    'addMapTiles',
+    'width',
+    'height',
+    'floor',
+    'scale',
+    'movingLeftX',
+    'movingTopY',
+  ],
+};
+const id = 'maptile';
+export { id, MapCanvasPlugin };

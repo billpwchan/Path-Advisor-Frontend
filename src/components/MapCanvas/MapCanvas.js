@@ -1,11 +1,14 @@
 import PropTypes from 'prop-types';
 import React, { Component, createRef } from 'react';
-import { withRouter } from 'react-router-dom';
+import pick from 'lodash.pick';
+
 // import { connect, connectAdvanced } from 'react-redux';
 import throttle from 'lodash.throttle';
 import CanvasHandler from './CanvasHandler';
 import { APIEndpoint } from '../../config/config';
 import style from './MapCanvas.module.css';
+import { propTypes as urlPropTypes } from '../RouterManager/Url';
+import getConnectedComponent from '../ConnectedComponent/getConnectedComponent';
 
 class MapCanvas extends Component {
   canvasRootRef = createRef();
@@ -14,18 +17,9 @@ class MapCanvas extends Component {
 
   static propTypes = {
     children: PropTypes.arrayOf(PropTypes.object),
-    x: PropTypes.number,
-    y: PropTypes.number,
-    floor: PropTypes.string,
-    scale: PropTypes.number,
+    ...urlPropTypes,
     getMapItemsHandler: PropTypes.func.isRequired,
-    mapItemStore: PropTypes.shape({}).isRequired,
-    legendStore: PropTypes.shape({}).isRequired,
     floorStore: PropTypes.shape({}).isRequired,
-    searchShortestPathStore: PropTypes.shape({}).isRequired,
-    searchNearestStore: PropTypes.shape({}).isRequired,
-    searchAreaInputStore: PropTypes.shape({}).isRequired,
-    openOverlayHandler: PropTypes.func.isRequired,
     linkTo: PropTypes.func.isRequired,
   };
 
@@ -37,8 +31,12 @@ class MapCanvas extends Component {
   };
 
   state = {
-    width: 0,
-    height: 0,
+    width: null,
+    height: null,
+    movingX: null,
+    movingY: null,
+    movingLeftX: null,
+    movingTopY: null,
   };
 
   componentDidMount() {
@@ -101,20 +99,30 @@ class MapCanvas extends Component {
   render() {
     const {
       children,
-      mapItemStore,
+      place,
+      fromPlace,
+      toPlace,
+      mapItemType,
       x,
       y,
       floor,
       scale,
-      legendStore,
-      openOverlayHandler,
-      searchNearestStore,
-      searchShortestPathStore,
-      searchAreaInputStore,
       linkTo,
       floorStore: { floors, buildings },
     } = this.props;
-    const { movingX, movingY, movingLeftX, movingTopY, width, height } = this.state;
+
+    const { width, height } = this.state;
+
+    const urlParams = {
+      place,
+      fromPlace,
+      toPlace,
+      mapItemType,
+      x,
+      y,
+      scale,
+      floor,
+    };
 
     const isDimensionReady = width && height;
 
@@ -136,33 +144,33 @@ class MapCanvas extends Component {
         <div className={style.canvasRoot} ref={this.canvasRootRef} />
         {isDimensionReady && (
           <div className={style.canvasPlugins}>
-            {children.map(
-              ({ pluginId, MapCanvasPlugin }) =>
-                MapCanvasPlugin && (
-                  <MapCanvasPlugin
-                    key={pluginId}
-                    x={x}
-                    y={y}
-                    movingX={movingX}
-                    movingY={movingY}
-                    movingLeftX={movingLeftX}
-                    movingTopY={movingTopY}
-                    floor={floor}
-                    scale={scale}
-                    APIEndpoint={APIEndpoint}
-                    mapItems={mapItemStore.mapItems}
-                    width={width}
-                    height={height}
-                    legends={legendStore.legends}
-                    openOverlayHandler={openOverlayHandler}
-                    searchNearestStore={searchNearestStore}
-                    searchShortestPathStore={searchShortestPathStore}
-                    searchAreaInputStore={searchAreaInputStore}
-                    linkTo={linkTo}
-                    {...this.canvasHandler.getProps()}
-                  />
-                ),
-            )}
+            {children.map(({ id, MapCanvasPlugin }) => {
+              if (!MapCanvasPlugin) {
+                return null;
+              }
+
+              const PluginComponent = getConnectedComponent(
+                `mapCanvas_${id}`,
+                MapCanvasPlugin.connect,
+                MapCanvasPlugin.Component,
+              );
+
+              return (
+                <PluginComponent
+                  key={id}
+                  {...urlParams}
+                  {...pick(
+                    {
+                      ...this.state,
+                      ...this.canvasHandler.getProps(),
+                      linkTo,
+                      APIEndpoint,
+                    },
+                    MapCanvasPlugin.connect,
+                  )}
+                />
+              );
+            })}
           </div>
         )}
       </div>
@@ -170,13 +178,4 @@ class MapCanvas extends Component {
   }
 }
 
-export default withRouter(MapCanvas);
-
-// export default withRouter(
-//   connect(
-//     null,
-//     null,
-//     null,
-//     { withRef: true },
-//   )(MapCanvas),
-// );
+export default MapCanvas;

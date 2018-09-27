@@ -3,13 +3,13 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import get from 'lodash.get';
-import getUrl from '../RouterManager/GetUrl';
 import PrimaryPanel from '../PrimaryPanel/PrimaryPanel';
 import plugins from '../../plugins';
 import MapCanvas from '../MapCanvas/MapCanvas';
 import { getMapItemsAction } from '../../reducers/mapItems';
 import { setSearchAreaInputAction } from '../../reducers/searchAreaInput';
 import { openOverlayAction, closeOverlayAction } from '../../reducers/overlay';
+import { parseParams, build as buildUrl } from '../RouterManager/Url';
 
 import style from './Main.module.css';
 
@@ -39,45 +39,18 @@ class Main extends Component {
     match: { params: {} },
   };
 
-  getUrlParams() {
-    const {
-      match: {
-        params: { place, fromPlace, toPlace, mapItemType, coordinatePath, floorPath },
-      },
-    } = this.props;
-
-    const coordinateString =
-      (typeof coordinatePath === 'string' && get(coordinatePath.split('/'), 1)) || null;
-    const floor = (typeof floorPath === 'string' && get(floorPath.split('/'), 1)) || undefined;
-    const [x = undefined, y = undefined, scale = undefined] = coordinateString
-      ? coordinateString.split(',').map(v => parseInt(v, 10))
-      : [];
-
-    return {
-      place,
-      fromPlace,
-      toPlace,
-      mapItemType,
-      x,
-      y,
-      scale,
-      floor,
-    };
+  get urlParams() {
+    return parseParams(this.props.match.params);
   }
 
-  linkTo = ({ floor, x, y, scale = this.getUrlParams().scale }) => {
-    const {
-      scale: currentScale,
-      x: currentX,
-      y: currentY,
-      floor: currentFloor,
-    } = this.getUrlParams();
+  linkTo = ({ floor, x, y, scale = this.urlParams.scale }) => {
+    const { scale: currentScale, x: currentX, y: currentY, floor: currentFloor } = this.urlParams;
 
     const isNewPosition =
       floor !== currentFloor || x !== currentX || y !== currentY || scale !== currentScale;
 
     if (isNewPosition) {
-      this.props.history.push(getUrl({ floor, x, y, scale }));
+      this.props.history.push(buildUrl({ floor, x, y, scale }));
     }
   };
 
@@ -101,7 +74,7 @@ class Main extends Component {
       <div className={style.body}>
         <div className={style.header}>HKUST Path Advisor</div>
         <PrimaryPanel
-          {...this.getUrlParams()}
+          {...this.urlParams}
           overlayStore={overlayStore}
           floorStore={floorStore}
           legendStore={legendStore}
@@ -113,17 +86,15 @@ class Main extends Component {
           setSearchAreaInputHandler={setSearchAreaInputHandler}
           linkTo={this.linkTo}
         >
-          {plugins.map(
-            ({ pluginId, PrimaryPanelPlugin, OverlayHeaderPlugin, OverlayContentPlugin }) => ({
-              pluginId,
-              PrimaryPanelPlugin,
-              OverlayHeaderPlugin,
-              OverlayContentPlugin,
-            }),
-          )}
+          {plugins.map(({ id, PrimaryPanelPlugin, OverlayHeaderPlugin, OverlayContentPlugin }) => ({
+            id,
+            PrimaryPanelPlugin,
+            OverlayHeaderPlugin,
+            OverlayContentPlugin,
+          }))}
         </PrimaryPanel>
         <MapCanvas
-          {...this.getUrlParams()}
+          {...this.urlParams}
           appSettings={appSettings}
           floorStore={floorStore}
           getMapItemsHandler={getMapItemsHandler}
@@ -135,8 +106,8 @@ class Main extends Component {
           searchAreaInputStore={searchAreaInputStore}
           linkTo={this.linkTo}
         >
-          {plugins.map(({ pluginId, MapCanvasPlugin }) => ({
-            pluginId,
+          {plugins.map(({ id, MapCanvasPlugin }) => ({
+            id,
             MapCanvasPlugin,
           }))}
         </MapCanvas>

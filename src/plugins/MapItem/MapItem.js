@@ -4,7 +4,6 @@ import fetchAccessibleFoorsRequest from '../../sagas/requests/fetchAccessibleFlo
 import MapItemOverlayHeader from './MapItemOverlayHeader';
 import MapItemOverlayContent from './MapItemOverlayContent';
 
-const pluginId = 'mapitem';
 const imgCached = {};
 
 const DEFAULT_TEXT_STYLE = {
@@ -42,12 +41,17 @@ function createImage(src) {
 
 class MapItem extends Component {
   shouldComponentUpdate(nextProps) {
-    const { mapItems } = this.props;
-    return mapItems !== nextProps.mapItems;
+    return !nextProps.mapItemStore.loading;
   }
 
   render() {
-    const { mapItems, setMapItems, legends, openOverlayHandler } = this.props;
+    console.log('MapItem rendered');
+    const {
+      mapItemStore: { mapItems },
+      setMapItems,
+      legendStore: { legends },
+      openOverlayHandler,
+    } = this.props;
 
     setMapItems(
       mapItems.reduce((accumulator, { id, coordinates: [x, y], floor, name, type, photo, url }) => {
@@ -224,9 +228,14 @@ class MapItem extends Component {
   }
 }
 
+const MapCanvasPlugin = {
+  connect: ['mapItemStore', 'legendStore', 'openOverlayHandler', 'setMapItems'],
+  Component: MapItem,
+};
+const id = 'mapItem';
 export {
-  pluginId,
-  MapItem as MapCanvasPlugin,
+  id,
+  MapCanvasPlugin,
   MapItemOverlayHeader as OverlayHeaderPlugin,
   MapItemOverlayContent as OverlayContentPlugin,
 };

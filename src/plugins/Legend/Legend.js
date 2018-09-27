@@ -1,9 +1,8 @@
 import React from 'react';
 import style from './Legend.module.css';
 
-const pluginId = 'legend';
-
-function Legend({ legends, legendIds }) {
+function Legend({ legendStore: { legends, legendIds } }) {
+  console.log('Legend rendered');
   return (
     <div className={style.body}>
       <div className={style.head}>Legends</div>
@@ -22,4 +21,9 @@ function Legend({ legends, legendIds }) {
   );
 }
 
-export { pluginId, Legend as PrimaryPanelPlugin };
+const PrimaryPanelPlugin = {
+  Component: Legend,
+  connect: ['legendStore'],
+};
+const id = 'legend';
+export { id, PrimaryPanelPlugin };

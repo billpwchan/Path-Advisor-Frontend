@@ -1,103 +1,90 @@
-import React from 'react';
-import arrowImage from './arrow.png';
+import React, { Component } from 'react';
 import style from './NearestResult.module.css';
 import Loading from '../../components/Loading/Loading';
 
-const arrowImageWidth = 9;
-const arrowImageHeight = 20;
+class NearestResult extends Component {
+  componentDidUpdate(prevProps) {
+    if (prevProps.searchNearestStore === this.props.searchNearestStore) {
+      return;
+    }
 
-const pluginId = 'nearestResult';
+    const {
+      searchNearestStore: { nearest },
+      linkTo,
+    } = this.props;
 
-function NearestResultPrimaryPanel({
-  searchNearestStore,
-  floorStore: { floors, buildings },
-  linkTo,
-}) {
-  const getBuildingAndFloorText = floor =>
-    `Floor ${floors[floor].name}, ${buildings[floors[floor].buildingId].name}`;
-
-  const searchNearestHead = <div className={style.head}>Search result</div>;
-  switch (true) {
-    case searchNearestStore.loading:
-      return (
-        <div className={style.body}>
-          {searchNearestHead}
-          <div className={style.content}>
-            <Loading text="Please wait..." />
-          </div>
-        </div>
-      );
-
-    case searchNearestStore.success: {
-      const { from, nearest } = searchNearestStore;
-
+    if (nearest) {
       linkTo({
         x: nearest.coordinates[0],
         y: nearest.coordinates[1],
         floor: nearest.floor,
       });
+    }
+  }
 
-      return (
-        <div className={style.body}>
-          {searchNearestHead}
-          <div className={style.content}>
-            <div className={style.head}>
-              Nearest {nearest.type} from {from.name} ({getBuildingAndFloorText(from.floor)})
-            </div>
-            <div>
-              <button
-                className={style.link}
-                type="button"
-                onClick={() =>
-                  linkTo({
-                    x: nearest.coordinates[0],
-                    y: nearest.coordinates[1],
-                    floor: nearest.floor,
-                  })
-                }
-              >
-                {nearest.name} ({getBuildingAndFloorText(nearest.floor)})
-              </button>
+  getBuildingAndFloorText(floor) {
+    const {
+      floorStore: { floors, buildings },
+    } = this.props;
+    return `Floor ${floors[floor].name}, ${buildings[floors[floor].buildingId].name}`;
+  }
+
+  render() {
+    console.log('NearestResult rendered');
+    const { searchNearestStore, linkTo } = this.props;
+
+    const searchNearestHead = <div className={style.head}>Search result</div>;
+    switch (true) {
+      case searchNearestStore.loading:
+        return (
+          <div className={style.body}>
+            {searchNearestHead}
+            <div className={style.content}>
+              <Loading text="Please wait..." />
             </div>
           </div>
-        </div>
-      );
+        );
+
+      case searchNearestStore.success: {
+        const { from, nearest } = searchNearestStore;
+
+        return (
+          <div className={style.body}>
+            {searchNearestHead}
+            <div className={style.content}>
+              <div className={style.head}>
+                Nearest {nearest.type} from {from.name} ({this.getBuildingAndFloorText(from.floor)})
+              </div>
+              <div>
+                <button
+                  className={style.link}
+                  type="button"
+                  onClick={() =>
+                    linkTo({
+                      x: nearest.coordinates[0],
+                      y: nearest.coordinates[1],
+                      floor: nearest.floor,
+                    })
+                  }
+                >
+                  {nearest.name} ({this.getBuildingAndFloorText(nearest.floor)})
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      default:
+        return null;
     }
-
-    default:
-      return null;
   }
 }
 
-const PIN_ID = 'PIN_ID';
-
-function NearestResultMapCanvas({ setMapItems, removeMapItem, searchAreaInputStore }) {
-  // put a read pin in map if user specified the 'from' value in input field
-  const { from: { data: { coordinates: [x, y] = [null, null], floor = null } = {} } = {} } =
-    searchAreaInputStore || {};
-
-  if (x && y && floor) {
-    const image = new Image();
-    image.src = arrowImage;
-
-    setMapItems([
-      {
-        id: PIN_ID,
-        floor,
-        x: x - arrowImageWidth / 2,
-        y: y - arrowImageHeight,
-        image,
-      },
-    ]);
-  } else {
-    removeMapItem(PIN_ID);
-  }
-
-  return null;
-}
-
-export {
-  pluginId,
-  NearestResultPrimaryPanel as PrimaryPanelPlugin,
-  NearestResultMapCanvas as MapCanvasPlugin,
+const id = 'nearestResult';
+const PrimaryPanelPlugin = {
+  Component: NearestResult,
+  connect: ['searchNearestStore', 'floorStore', 'linkTo'],
 };
+
+export { id, PrimaryPanelPlugin };

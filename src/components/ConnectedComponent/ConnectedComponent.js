@@ -1,0 +1,71 @@
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { openOverlayAction } from '../../reducers/overlay';
+
+const paramStateMap = {
+  legendStore: 'legends',
+  mapItemStore: 'mapItems',
+  floorStore: 'floors',
+  searchNearestStore: 'searchNearest',
+  searchShortestPathStore: 'searchShortestPath',
+  searchAreaInputStore: 'searchAreaInput',
+  appSettingStore: 'appSettings',
+  overlayStore: 'overlay',
+  autoCompleteStore: 'autoComplete',
+};
+
+const urlParams = ['place', 'fromPlace', 'toPlace', 'mapItemType', 'x', 'y', 'scale', 'floor'];
+const canvasParams = ['width', 'height', 'movingLeftX', 'movingTopY'];
+
+const paramDispatchMap = {
+  openOverlayHandler: dispatch => (photo, url, name, others) => {
+    dispatch(openOverlayAction(photo, url, name, others));
+  },
+};
+
+/* eslint no-param-reassign: [0] */
+const ConnectedComponent = connectParams => PluginComponent => {
+  if (!PluginComponent) {
+    throw new Error(
+      'You must wrap you plugin component in an object { Component: <Your plugin component>, connect: [<param1>, <param2>, ..., <paramN>] }',
+    );
+  }
+  if (!Array.isArray(connectParams)) {
+    throw new Error(
+      'You must provide connect value in plugin object, if you do not wish to connect any param, pass empty array []',
+    );
+  }
+
+  class ProxyComponent extends Component {
+    shouldComponentUpdate(nextProps) {
+      return connectParams.some(
+        param =>
+          (canvasParams.includes(param) || urlParams.includes(param) || paramStateMap[param]) &&
+          this.props[param] !== nextProps[param],
+      );
+    }
+
+    render() {
+      return <PluginComponent {...this.props} />;
+    }
+  }
+
+  return connect(
+    state =>
+      connectParams.reduce((connectedState, param) => {
+        if (paramStateMap[param]) {
+          connectedState[param] = state[paramStateMap[param]];
+        }
+        return connectedState;
+      }, {}),
+    dispatch =>
+      connectParams.reduce((connectedDispatch, param) => {
+        if (paramDispatchMap[param]) {
+          connectedDispatch[param] = paramDispatchMap[param](dispatch);
+        }
+        return connectedDispatch;
+      }, {}),
+  )(ProxyComponent);
+};
+
+export default ConnectedComponent;

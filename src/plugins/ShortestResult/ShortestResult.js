@@ -1,151 +1,167 @@
-import React from 'react';
+import React, { Component } from 'react';
 import style from './ShortestResult.module.css';
 import Loading from '../../components/Loading/Loading';
-
-const pluginId = 'shortestResult';
 
 // local store
 const pathIds = new Set();
 const clickListenerMapItemIds = new Set();
 
-function ShortestResultPrimaryPanel({
-  appSettings,
-  searchShortestPathStore,
-  searchNearestStore,
-  floorStore: { floors, buildings },
-  linkTo,
-}) {
-  const distanceToMinutes = distance => {
-    const { meterPerPixel, minutesPerMeter } = appSettings;
-    return Math.ceil(distance * meterPerPixel * minutesPerMeter);
-  };
+class ShortestResultPrimaryPanel extends Component {
+  componentDidUpdate(prevProps) {
+    const { searchShortestPathStore, searchNearestStore, linkTo } = this.props;
 
-  const getBuildingAndFloorText = floor =>
-    `Floor ${floors[floor].name}, ${buildings[floors[floor].buildingId].name}`;
+    if (searchShortestPathStore === prevProps.searchShortestPathStore) {
+      return;
+    }
 
-  const { paths = [] } = searchShortestPathStore;
+    // only do auto focus to start point if user is not search for nearest item
+    if (searchNearestStore.nearest !== null) {
+      return;
+    }
 
-  let [currentFloorFirstPath] = paths;
-  let [currentFloorLastPath] = paths;
-  let currentFloorDistance = 0;
-  let totalDistance = 0;
-  const instructions = [];
+    const { paths } = searchShortestPathStore;
+    if (!paths.length) {
+      return;
+    }
 
-  paths.forEach(path => {
-    if (path.floor !== currentFloorFirstPath.floor) {
+    const [
+      {
+        floor,
+        coordinates: [x, y],
+      },
+    ] = paths;
+
+    linkTo({
+      floor,
+      x,
+      y,
+    });
+  }
+
+  render() {
+    const {
+      appSettingStore,
+      searchShortestPathStore,
+      floorStore: { floors, buildings },
+      linkTo,
+    } = this.props;
+    const distanceToMinutes = distance => {
+      const { meterPerPixel, minutesPerMeter } = appSettingStore;
+      return Math.ceil(distance * meterPerPixel * minutesPerMeter);
+    };
+
+    const getBuildingAndFloorText = floor =>
+      `Floor ${floors[floor].name}, ${buildings[floors[floor].buildingId].name}`;
+
+    const { paths = [] } = searchShortestPathStore;
+
+    let [currentFloorFirstPath] = paths;
+    let [currentFloorLastPath] = paths;
+    let currentFloorDistance = 0;
+    let totalDistance = 0;
+    const instructions = [];
+
+    paths.forEach(path => {
+      if (path.floor !== currentFloorFirstPath.floor) {
+        instructions.push({
+          floor: currentFloorLastPath.floor,
+          from: currentFloorFirstPath,
+          to: currentFloorLastPath,
+          distance: currentFloorDistance,
+          nextFloor: path.floor,
+        });
+        currentFloorFirstPath = path;
+        currentFloorDistance = 0;
+      } else {
+        currentFloorLastPath = path;
+      }
+
+      currentFloorDistance += path.distance;
+      totalDistance += path.distance;
+    });
+
+    if (currentFloorLastPath) {
       instructions.push({
         floor: currentFloorLastPath.floor,
         from: currentFloorFirstPath,
         to: currentFloorLastPath,
         distance: currentFloorDistance,
-        nextFloor: path.floor,
+        nextFloor: null,
       });
-      currentFloorFirstPath = path;
-      currentFloorDistance = 0;
-    } else {
-      currentFloorLastPath = path;
     }
 
-    currentFloorDistance += path.distance;
-    totalDistance += path.distance;
-  });
+    const shortestPathHead = <div className={style.head}>Direction</div>;
 
-  if (currentFloorLastPath) {
-    instructions.push({
-      floor: currentFloorLastPath.floor,
-      from: currentFloorFirstPath,
-      to: currentFloorLastPath,
-      distance: currentFloorDistance,
-      nextFloor: null,
-    });
-  }
-
-  const shortestPathHead = <div className={style.head}>Direction</div>;
-
-  switch (true) {
-    case searchShortestPathStore.loading:
-      return (
-        <div className={style.body}>
-          {shortestPathHead}{' '}
-          <div className={style.content}>
-            <Loading text="Please wait..." />
+    switch (true) {
+      case searchShortestPathStore.loading:
+        return (
+          <div className={style.body}>
+            {shortestPathHead}{' '}
+            <div className={style.content}>
+              <Loading text="Please wait..." />
+            </div>
           </div>
-        </div>
-      );
-    case searchShortestPathStore.success: {
-      // only do auto focus to start point if user is not search for nearest item
-      if (searchNearestStore.nearest === null) {
-        const [
-          {
-            floor,
-            coordinates: [x, y],
-          },
-        ] = paths;
-        linkTo({
-          floor,
-          x,
-          y,
-        });
-      }
-
-      return (
-        <div className={style.body}>
-          {shortestPathHead}
-          <div className={style.content}>
-            {instructions.map(({ floor, nextFloor, from, to, distance }) => (
-              <div key={floor}>
-                <div className={style.floorTitle}>{getBuildingAndFloorText(floor)}</div>
-                <div className={style.row}>
-                  <div className={style.instructionCol}>
-                    <button
-                      type="button"
-                      className={style.link}
-                      onClick={() => {
-                        const mapItem = nextFloor ? from : to;
-                        linkTo({
-                          x: mapItem.coordinates[0],
-                          y: mapItem.coordinates[1],
-                          floor: mapItem.floor,
-                        });
-                      }}
-                    >
-                      From {from.name} to {to.name}
-                    </button>
-                    {nextFloor && (
+        );
+      case searchShortestPathStore.success: {
+        return (
+          <div className={style.body}>
+            {shortestPathHead}
+            <div className={style.content}>
+              {instructions.map(({ floor, nextFloor, from, to, distance }) => (
+                <div key={floor}>
+                  <div className={style.floorTitle}>{getBuildingAndFloorText(floor)}</div>
+                  <div className={style.row}>
+                    <div className={style.instructionCol}>
                       <button
                         type="button"
                         className={style.link}
                         onClick={() => {
+                          const mapItem = nextFloor ? from : to;
                           linkTo({
-                            x: to.coordinates[0],
-                            y: to.coordinates[1],
-                            floor: to.floor,
+                            x: mapItem.coordinates[0],
+                            y: mapItem.coordinates[1],
+                            floor: mapItem.floor,
                           });
                         }}
                       >
-                        Take {to.name} to floor {floors[nextFloor].name}
+                        From {from.name} to {to.name}
                       </button>
-                    )}
-                  </div>
-                  <div className={style.timeCol}>
-                    <div>
-                      ({Math.round(distance * appSettings.meterPerPixel)}
-                      m)
+                      {nextFloor && (
+                        <button
+                          type="button"
+                          className={style.link}
+                          onClick={() => {
+                            linkTo({
+                              x: to.coordinates[0],
+                              y: to.coordinates[1],
+                              floor: to.floor,
+                            });
+                          }}
+                        >
+                          Take {to.name} to floor {floors[nextFloor].name}
+                        </button>
+                      )}
                     </div>
-                    <div>~{distanceToMinutes(distance)} min</div>
+                    <div className={style.timeCol}>
+                      <div>
+                        ({Math.round(distance * appSettingStore.meterPerPixel)}
+                        m)
+                      </div>
+                      <div>~{distanceToMinutes(distance)} min</div>
+                    </div>
                   </div>
                 </div>
+              ))}
+              <div className={style.totalTime}>
+                Total estimated time: {distanceToMinutes(totalDistance)} min
               </div>
-            ))}
-            <div className={style.totalTime}>
-              Total estimated time: {distanceToMinutes(totalDistance)} min
             </div>
           </div>
-        </div>
-      );
+        );
+      }
+      default:
+        return null;
     }
-    default:
-      return null;
   }
 }
 
@@ -236,8 +252,28 @@ function ShortestResultMapCanvas({
   return null;
 }
 
-export {
-  pluginId,
-  ShortestResultPrimaryPanel as PrimaryPanelPlugin,
-  ShortestResultMapCanvas as MapCanvasPlugin,
+const id = 'shortestResult';
+const PrimaryPanelPlugin = {
+  connect: [
+    'appSettingStore',
+    'searchShortestPathStore',
+    'searchNearestStore',
+    'floorStore',
+    'linkTo',
+  ],
+  Component: ShortestResultPrimaryPanel,
 };
+
+const MapCanvasPlugin = {
+  connect: [
+    'setMapItems',
+    'removeMapItem',
+    'searchShortestPathStore',
+    'addMapItemClickListener',
+    'removeMapItemClickListener',
+    'linkTo',
+  ],
+  Component: ShortestResultMapCanvas,
+};
+
+export { id, PrimaryPanelPlugin, MapCanvasPlugin };

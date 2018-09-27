@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import pick from 'lodash.pick';
 import { connect } from 'react-redux';
 import SearchArea from '../SearchArea/SearchArea';
 import { getAutoCompleteAction } from '../../reducers/autoComplete';
@@ -10,6 +11,7 @@ import {
 import { searchNearestAction, clearSearchNearestResultAction } from '../../reducers/searchNearest';
 import PanelOverlay from '../PanelOverlay/PanelOverlay';
 import Floor from '../Floor/Floor';
+import getConnectedComponent from '../ConnectedComponent/getConnectedComponent';
 
 import style from './PrimaryPanel.module.css';
 
@@ -52,9 +54,23 @@ class PrimaryPanel extends Component {
       scale,
       floor,
       linkTo,
+      fromPlace,
+      toPlace,
+      mapItemType,
     } = this.props;
 
     const { selectedBuilding, displayAdvancedSearch } = this.state;
+
+    const urlParams = {
+      place,
+      fromPlace,
+      toPlace,
+      mapItemType,
+      x,
+      y,
+      scale,
+      floor,
+    };
 
     const renderTab = () => {
       switch (overlayStore.open) {
@@ -62,12 +78,12 @@ class PrimaryPanel extends Component {
           return (
             <PanelOverlay
               closeOverlayHandler={closeOverlayHandler}
-              headerElements={children.map(({ pluginId, OverlayHeaderPlugin }) => {
+              headerElements={children.map(({ id, OverlayHeaderPlugin }) => {
                 const { photo, name, url, others } = overlayStore;
                 return (
                   OverlayHeaderPlugin && (
                     <OverlayHeaderPlugin
-                      key={`header_${pluginId}`}
+                      key={`header_${id}`}
                       name={name}
                       photo={photo}
                       url={url}
@@ -76,12 +92,12 @@ class PrimaryPanel extends Component {
                   )
                 );
               })}
-              contentElements={children.map(({ pluginId, OverlayContentPlugin }) => {
+              contentElements={children.map(({ id, OverlayContentPlugin }) => {
                 const { photo, name, url, others } = overlayStore;
                 return (
                   OverlayContentPlugin && (
                     <OverlayContentPlugin
-                      key={`content_${pluginId}`}
+                      key={`content_${id}`}
                       name={name}
                       photo={photo}
                       url={url}
@@ -145,25 +161,25 @@ class PrimaryPanel extends Component {
                 floorStore={floorStore}
                 linkTo={linkTo}
               />
-              <div>
-                {children.map(
-                  ({ pluginId, PrimaryPanelPlugin }) =>
-                    PrimaryPanelPlugin && (
-                      <PrimaryPanelPlugin
-                        appSettings={appSettings}
-                        key={pluginId}
-                        place={place}
-                        legends={legendStore.legends}
-                        legendIds={legendStore.legendIds}
-                        searchShortestPathStore={searchShortestPathStore}
-                        searchNearestStore={searchNearestStore}
-                        searchAreaInputStore={searchAreaInputStore}
-                        floorStore={floorStore}
-                        linkTo={linkTo}
-                      />
-                    ),
-                )}
-              </div>
+
+              {children.map(({ id, PrimaryPanelPlugin }) => {
+                if (!PrimaryPanelPlugin) {
+                  return null;
+                }
+
+                const PluginComponent = getConnectedComponent(
+                  `primaryPanel_${id}`,
+                  PrimaryPanelPlugin.connect,
+                  PrimaryPanelPlugin.Component,
+                );
+
+                return (
+                  <PluginComponent
+                    key={id}
+                    {...pick({ ...urlParams, linkTo }, PrimaryPanelPlugin.connect)}
+                  />
+                );
+              })}
             </div>
           );
       }
@@ -198,12 +214,3 @@ export default connect(
     },
   }),
 )(PrimaryPanel);
-
-// export default withRouter(
-//   connect(
-//     null,
-//     null,
-//     null,
-//     { withRef: true },
-//   )(PrimaryPanel),
-// );

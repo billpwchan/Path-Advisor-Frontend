@@ -198,7 +198,6 @@ class CanvasHandler {
   }
 
   updatePosition(x, y, floor = this.floor, scale = this.scale) {
-    console.log('Update position called', x, y);
     if (this.x === x && this.y === y && this.floor === floor && this.scale === scale) {
       console.log('no op');
       return;
@@ -437,7 +436,6 @@ class CanvasHandler {
         }
 
         if (mapItemEvent) {
-          console.log('mapItemEvent', mapItemEvent, id, this.mapItems[id]);
           (get(this.mapItemListenerIds[mapItemEvent], id) || []).some(
             listenerId =>
               this.mapItemListeners[mapItemEvent][id][listenerId]({ ...this.mapItems[id] }) ===
