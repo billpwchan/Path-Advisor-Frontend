@@ -1,5 +1,6 @@
 import classnames from 'classnames';
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import get from 'lodash.get';
 import PropTypes from 'prop-types';
 import style from './SearchArea.module.css';
@@ -7,10 +8,18 @@ import switchImage from './switch.png';
 import SearchInput from '../SearchInput/SearchInput';
 import SearchNearest from '../SearchNearest/SearchNearest';
 import AdvancedSearch from '../AdvancedSearch/AdvancedSearch';
+import { getAutoCompleteAction } from '../../reducers/autoComplete';
+import {
+  searchShortestPathAction,
+  clearSearchShortestPathResultAction,
+  updateSearchShortestPathSettingAction,
+} from '../../reducers/searchShortestPath';
+import { searchNearestAction, clearSearchNearestResultAction } from '../../reducers/searchNearest';
+import { setSearchAreaInputAction } from '../../reducers/searchAreaInput';
 
 class SearchArea extends Component {
   static propTypes = {
-    getAutoCompleteAction: PropTypes.func.isRequired,
+    getAutoCompleteHandler: PropTypes.func.isRequired,
     searchShortestPathHandler: PropTypes.func.isRequired,
     clearSearchShortestPathResultHandler: PropTypes.func.isRequired,
     searchNearestHandler: PropTypes.func.isRequired,
@@ -19,41 +28,43 @@ class SearchArea extends Component {
     floorStore: PropTypes.shape({}),
     linkTo: PropTypes.func.isRequired,
     setSearchAreaInputHandler: PropTypes.func.isRequired,
-    from: PropTypes.shape({
-      name: PropTypes.string,
-      data: PropTypes.shape({
-        type: PropTypes.string,
-        id: PropTypes.string,
-        floor: PropTypes.string,
-        value: PropTypes.string,
-        coordinates: PropTypes.arrayOf(PropTypes.number),
+    searchAreaInputStore: PropTypes.shape({
+      from: PropTypes.shape({
+        name: PropTypes.string,
+        data: PropTypes.shape({
+          type: PropTypes.string,
+          id: PropTypes.string,
+          floor: PropTypes.string,
+          value: PropTypes.string,
+          coordinates: PropTypes.arrayOf(PropTypes.number),
+        }),
       }),
-    }),
-    to: PropTypes.shape({
-      name: PropTypes.string,
-      data: PropTypes.shape({
-        type: PropTypes.string,
-        id: PropTypes.string,
-        floor: PropTypes.string,
-        value: PropTypes.string,
-        coordinates: PropTypes.arrayOf(PropTypes.number),
+      to: PropTypes.shape({
+        name: PropTypes.string,
+        data: PropTypes.shape({
+          type: PropTypes.string,
+          id: PropTypes.string,
+          floor: PropTypes.string,
+          value: PropTypes.string,
+          coordinates: PropTypes.arrayOf(PropTypes.number),
+        }),
       }),
+      searchOptions: PropTypes.shape({
+        sameFloor: PropTypes.bool,
+      }),
+      searchInputOrders: PropTypes.arrayOf(PropTypes.string),
     }),
-    searchOptions: PropTypes.shape({
-      sameFloor: PropTypes.bool,
-    }),
-    searchInputOrders: PropTypes.arrayOf(PropTypes.string),
     searchShortestPathStore: PropTypes.shape({}),
     updateSearchShortestPathSettingHandler: PropTypes.func.isRequired,
     displayAdvancedSearch: PropTypes.func.isRequired,
   };
 
   onKeywordChange = fieldName => keyword => {
-    const { getAutoCompleteAction, setSearchAreaInputHandler } = this.props;
+    const { getAutoCompleteHandler, setSearchAreaInputHandler } = this.props;
     setSearchAreaInputHandler({
       [fieldName]: { name: keyword, data: { type: 'keyword', value: keyword } },
     });
-    getAutoCompleteAction(keyword);
+    getAutoCompleteHandler(keyword);
   };
 
   onAutoCompleteItemClick = fieldName => ({ name, coordinates: [x, y], floor, id }) => {
@@ -71,7 +82,10 @@ class SearchArea extends Component {
   };
 
   updateSameFloor = e => {
-    const { searchOptions, setSearchAreaInputHandler } = this.props;
+    const {
+      searchAreaInputStore: { searchOptions },
+      setSearchAreaInputHandler,
+    } = this.props;
     setSearchAreaInputHandler({
       searchOptions: {
         ...searchOptions,
@@ -81,7 +95,10 @@ class SearchArea extends Component {
   };
 
   switchInputOrder = () => {
-    const { searchInputOrders, from, to, setSearchAreaInputHandler } = this.props;
+    const {
+      searchAreaInputStore: { searchInputOrders, from, to },
+      setSearchAreaInputHandler,
+    } = this.props;
     setSearchAreaInputHandler({
       searchInputOrders: searchInputOrders.reverse(),
       from: to,
@@ -95,13 +112,15 @@ class SearchArea extends Component {
       clearSearchShortestPathResultHandler,
       searchNearestHandler,
       clearSearchNearestResultHandler,
-      from: {
-        data: { type: fromType, id: fromId, floor: fromFloor, value: fromValue },
+      searchAreaInputStore: {
+        from: {
+          data: { type: fromType, id: fromId, floor: fromFloor, value: fromValue },
+        },
+        to: {
+          data: { type: toType, id: toId, floor: toFloor, value: toValue },
+        },
+        searchOptions: { sameFloor },
       },
-      to: {
-        data: { type: toType, id: toId, floor: toFloor, value: toValue },
-      },
-      searchOptions: { sameFloor },
     } = this.props;
 
     if ((!fromValue && !fromId) || (!toValue && !toId)) {
@@ -129,8 +148,10 @@ class SearchArea extends Component {
     const {
       floorStore,
       autoCompleteStore,
-      searchOptions: { sameFloor },
-      searchInputOrders,
+      searchAreaInputStore: {
+        searchOptions: { sameFloor },
+        searchInputOrders,
+      },
       searchShortestPathStore,
       updateSearchShortestPathSettingHandler,
       displayAdvancedSearch,
@@ -144,7 +165,7 @@ class SearchArea extends Component {
           onKeywordChange={this.onKeywordChange(direction)}
           loading={autoCompleteStore.loading}
           onAutoCompleteItemClick={this.onAutoCompleteItemClick(direction)}
-          value={this.props[direction].name}
+          value={this.props.searchAreaInputStore[direction].name}
           floorStore={floorStore}
         />
       ),
@@ -152,7 +173,7 @@ class SearchArea extends Component {
         <SearchNearest
           direction={direction}
           onNearestItemClick={this.onNearestItemClick(direction)}
-          value={this.props[direction].name}
+          value={this.props.searchAreaInputStore[direction].name}
         >
           <SearchInput
             suggestions={suggestions}
@@ -222,4 +243,34 @@ class SearchArea extends Component {
   }
 }
 
-export default SearchArea;
+export default connect(
+  state => ({
+    autoCompleteStore: state.autoComplete,
+    searchShortestPathStore: state.searchShortestPath,
+    searchAreaInputStore: state.searchAreaInput,
+    floorStore: state.floors,
+  }),
+  dispatch => ({
+    getAutoCompleteHandler: keyword => {
+      dispatch(getAutoCompleteAction(keyword));
+    },
+    searchShortestPathHandler: (from, to) => {
+      dispatch(searchShortestPathAction(from, to));
+    },
+    clearSearchShortestPathResultHandler: () => {
+      dispatch(clearSearchShortestPathResultAction());
+    },
+    searchNearestHandler: (floor, name, nearestType, sameFloor, id) => {
+      dispatch(searchNearestAction(floor, name, nearestType, sameFloor, id));
+    },
+    updateSearchShortestPathSettingHandler: (noStairCase, noEscalator, searchMode) => {
+      dispatch(updateSearchShortestPathSettingAction(noStairCase, noEscalator, searchMode));
+    },
+    clearSearchNearestResultHandler: () => {
+      dispatch(clearSearchNearestResultAction());
+    },
+    setSearchAreaInputHandler: payload => {
+      dispatch(setSearchAreaInputAction(payload));
+    },
+  }),
+)(SearchArea);

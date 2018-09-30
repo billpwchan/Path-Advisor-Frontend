@@ -1,35 +1,38 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
+import { connect } from 'react-redux';
 import style from './Floor.module.css';
 
 class Floor extends Component {
   static propTypes = {
-    buildingIds: PropTypes.arrayOf(PropTypes.string),
+    floorStore: PropTypes.shape({
+      buildingIds: PropTypes.arrayOf(PropTypes.string),
+      floors: PropTypes.objectOf(
+        PropTypes.shape({
+          name: PropTypes.string.isRequired,
+          buildingId: PropTypes.string.isRequired,
+          meterPerPixel: PropTypes.number.isRequired,
+          mapWidth: PropTypes.number.isRequired,
+          mapHeight: PropTypes.number.isRequired,
+          ratio: PropTypes.number.isRequired,
+          defaultX: PropTypes.number.isRequired,
+          defaultY: PropTypes.number.isRequired,
+          defaultScale: PropTypes.number.isRequired,
+        }),
+      ),
+      buildings: PropTypes.objectOf(
+        PropTypes.shape({
+          name: PropTypes.string.isRequired,
+          floors: PropTypes.arrayOf(PropTypes.string).isRequired,
+        }),
+      ),
+    }),
     x: PropTypes.number.isRequired,
     y: PropTypes.number.isRequired,
     scale: PropTypes.number.isRequired,
     currentFloor: PropTypes.string.isRequired,
     selectedBuilding: PropTypes.string.isRequired,
-    floors: PropTypes.objectOf(
-      PropTypes.shape({
-        name: PropTypes.string.isRequired,
-        buildingId: PropTypes.string.isRequired,
-        meterPerPixel: PropTypes.number.isRequired,
-        mapWidth: PropTypes.number.isRequired,
-        mapHeight: PropTypes.number.isRequired,
-        ratio: PropTypes.number.isRequired,
-        defaultX: PropTypes.number.isRequired,
-        defaultY: PropTypes.number.isRequired,
-        defaultScale: PropTypes.number.isRequired,
-      }),
-    ),
-    buildings: PropTypes.objectOf(
-      PropTypes.shape({
-        name: PropTypes.string.isRequired,
-        floors: PropTypes.arrayOf(PropTypes.string).isRequired,
-      }),
-    ),
     linkTo: PropTypes.func.isRequired,
     selectBuildingAction: PropTypes.func.isRequired,
   };
@@ -39,11 +42,18 @@ class Floor extends Component {
   }
 
   getFloorBuilding(floor) {
-    return this.props.floors[floor].buildingId;
+    return this.props.floorStore.floors[floor].buildingId;
   }
 
   selectFloor = floor => () => {
-    const { x, y, scale, linkTo, currentFloor, floors } = this.props;
+    const {
+      x,
+      y,
+      scale,
+      linkTo,
+      currentFloor,
+      floorStore: { floors },
+    } = this.props;
 
     const useSameCoordinates = () => {
       switch (this.currentBuilding) {
@@ -71,7 +81,12 @@ class Floor extends Component {
   };
 
   selectBuilding = buildingId => () => {
-    const { buildings, linkTo, floors, selectBuildingAction } = this.props;
+    const {
+      floorStore: { buildings },
+      linkTo,
+      floorStore: { floors },
+      selectBuildingAction,
+    } = this.props;
     if (buildings[buildingId].floorIds.length === 1) {
       const [floor] = buildings[buildingId].floorIds;
 
@@ -88,7 +103,10 @@ class Floor extends Component {
   };
 
   render() {
-    const { buildingIds, buildings, floors, selectedBuilding } = this.props;
+    const {
+      floorStore: { buildingIds, buildings, floors },
+      selectedBuilding,
+    } = this.props;
     return (
       <div className={style.body}>
         <ul className={style.buildingList}>
@@ -125,4 +143,6 @@ class Floor extends Component {
   }
 }
 
-export default Floor;
+export default connect(state => ({
+  floorStore: state.floors,
+}))(Floor);

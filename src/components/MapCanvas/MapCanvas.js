@@ -1,14 +1,14 @@
 import PropTypes from 'prop-types';
 import React, { Component, createRef } from 'react';
 import pick from 'lodash.pick';
-
-// import { connect, connectAdvanced } from 'react-redux';
+import { connect } from 'react-redux';
 import throttle from 'lodash.throttle';
 import CanvasHandler from './CanvasHandler';
 import { APIEndpoint } from '../../config/config';
 import style from './MapCanvas.module.css';
 import { propTypes as urlPropTypes } from '../RouterManager/Url';
 import getConnectedComponent from '../ConnectedComponent/getConnectedComponent';
+import { getMapItemsAction } from '../../reducers/mapItems';
 
 class MapCanvas extends Component {
   canvasRootRef = createRef();
@@ -178,4 +178,13 @@ class MapCanvas extends Component {
   }
 }
 
-export default MapCanvas;
+export default connect(
+  state => ({
+    floorStore: state.floors,
+  }),
+  dispatch => ({
+    getMapItemsHandler: (floor, [startX, startY], width, height) => {
+      dispatch(getMapItemsAction(floor, [startX, startY], width, height));
+    },
+  }),
+)(MapCanvas);

@@ -1,21 +1,25 @@
 import React, { Component } from 'react';
 import pick from 'lodash.pick';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import SearchArea from '../SearchArea/SearchArea';
-import { getAutoCompleteAction } from '../../reducers/autoComplete';
-import {
-  searchShortestPathAction,
-  updateSearchShortestPathSettingAction,
-  clearSearchShortestPathResultAction,
-} from '../../reducers/searchShortestPath';
-import { searchNearestAction, clearSearchNearestResultAction } from '../../reducers/searchNearest';
 import PanelOverlay from '../PanelOverlay/PanelOverlay';
 import Floor from '../Floor/Floor';
 import getConnectedComponent from '../ConnectedComponent/getConnectedComponent';
 
 import style from './PrimaryPanel.module.css';
+import { closeOverlayAction } from '../../reducers/overlay';
+import { propTypes as urlPropTypes } from '../RouterManager/Url';
 
 class PrimaryPanel extends Component {
+  static propTypes = {
+    children: PropTypes.arrayOf(PropTypes.object),
+    overlayStore: PropTypes.shape({}).isRequired,
+    closeOverlayHandler: PropTypes.func.isRequired,
+    linkTo: PropTypes.func.isRequired,
+    ...urlPropTypes,
+  };
+
   state = {
     selectedBuilding: 'academicBuilding',
     displayAdvancedSearch: false,
@@ -30,47 +34,20 @@ class PrimaryPanel extends Component {
   };
 
   render() {
-    const {
-      appSettings,
-      children,
-      place,
-      getAutoCompleteAction,
-      searchShortestPathHandler,
-      clearSearchShortestPathResultHandler,
-      searchNearestHandler,
-      clearSearchNearestResultHandler,
-      autoCompleteStore,
-      overlayStore,
-      floorStore,
-      legendStore,
-      searchShortestPathStore,
-      searchNearestStore,
-      closeOverlayHandler,
-      setSearchAreaInputHandler,
-      searchAreaInputStore,
-      updateSearchShortestPathSettingHandler,
-      x,
-      y,
-      scale,
-      floor,
-      linkTo,
-      fromPlace,
-      toPlace,
-      mapItemType,
-    } = this.props;
+    const { children, overlayStore, closeOverlayHandler, x, y, scale, floor, linkTo } = this.props;
 
     const { selectedBuilding, displayAdvancedSearch } = this.state;
 
-    const urlParams = {
-      place,
-      fromPlace,
-      toPlace,
-      mapItemType,
-      x,
-      y,
-      scale,
-      floor,
-    };
+    const urlParams = pick(this.props, [
+      'place',
+      'fromPlace',
+      'toPlace',
+      'mapItemType',
+      'x',
+      'y',
+      'scale',
+      'floor',
+    ]);
 
     const renderTab = () => {
       switch (overlayStore.open) {
@@ -133,9 +110,6 @@ class PrimaryPanel extends Component {
                 <Floor
                   selectedBuilding={selectedBuilding}
                   selectBuildingAction={this.selectBuildingAction}
-                  buildingIds={floorStore.buildingIds}
-                  buildings={floorStore.buildings}
-                  floors={floorStore.floors}
                   linkTo={linkTo}
                   x={x}
                   y={y}
@@ -143,24 +117,7 @@ class PrimaryPanel extends Component {
                   scale={scale}
                 />
               )}
-              <SearchArea
-                displayAdvancedSearch={displayAdvancedSearch}
-                getAutoCompleteAction={getAutoCompleteAction}
-                autoCompleteStore={autoCompleteStore}
-                searchShortestPathHandler={searchShortestPathHandler}
-                clearSearchShortestPathResultHandler={clearSearchShortestPathResultHandler}
-                searchShortestPathStore={searchShortestPathStore}
-                updateSearchShortestPathSettingHandler={updateSearchShortestPathSettingHandler}
-                searchNearestHandler={searchNearestHandler}
-                clearSearchNearestResultHandler={clearSearchNearestResultHandler}
-                from={searchAreaInputStore.from}
-                to={searchAreaInputStore.to}
-                searchOptions={searchAreaInputStore.searchOptions}
-                searchInputOrders={searchAreaInputStore.searchInputOrders}
-                setSearchAreaInputHandler={setSearchAreaInputHandler}
-                floorStore={floorStore}
-                linkTo={linkTo}
-              />
+              <SearchArea displayAdvancedSearch={displayAdvancedSearch} linkTo={linkTo} />
 
               {children.map(({ id, PrimaryPanelPlugin }) => {
                 if (!PrimaryPanelPlugin) {
@@ -191,26 +148,11 @@ class PrimaryPanel extends Component {
 
 export default connect(
   state => ({
-    autoCompleteStore: state.autoComplete,
+    overlayStore: state.overlay,
   }),
   dispatch => ({
-    getAutoCompleteAction: keyword => {
-      dispatch(getAutoCompleteAction(keyword));
-    },
-    searchShortestPathHandler: (from, to) => {
-      dispatch(searchShortestPathAction(from, to));
-    },
-    clearSearchShortestPathResultHandler: () => {
-      dispatch(clearSearchShortestPathResultAction());
-    },
-    searchNearestHandler: (floor, name, nearestType, sameFloor, id) => {
-      dispatch(searchNearestAction(floor, name, nearestType, sameFloor, id));
-    },
-    updateSearchShortestPathSettingHandler: (noStairCase, noEscalator, searchMode) => {
-      dispatch(updateSearchShortestPathSettingAction(noStairCase, noEscalator, searchMode));
-    },
-    clearSearchNearestResultHandler: () => {
-      dispatch(clearSearchNearestResultAction());
+    closeOverlayHandler: () => {
+      dispatch(closeOverlayAction());
     },
   }),
 )(PrimaryPanel);
