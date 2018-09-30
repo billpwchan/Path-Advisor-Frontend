@@ -27,6 +27,13 @@ const DEVICE_PIXEL_RATIO = window.devicePixelRatio || 1;
  * @property {number} width
  */
 /**
+ * @typedef Rect
+ * @property {number} width
+ * @property {number} height
+ * @property {string} color
+ * @property {string} borderColor
+ */
+/**
  * @typedef CanvasItem
  * @property {string} id
  * @property {number} x
@@ -49,6 +56,7 @@ const DEVICE_PIXEL_RATIO = window.devicePixelRatio || 1;
  * @property {mapItemListener} [onMouseOver]
  * @property {mapItemListener} [onMouseOut]
  * @property {Circle} [circle]
+ * @property {Rect} [rect]
  * @property {Object} [others] - additional data for plugins to attach
  */
 
@@ -564,6 +572,7 @@ class CanvasHandler {
         image = getDefault(id, 'image', null),
         textElement = getDefault(id, 'textElement', null),
         circle = getDefault(id, 'circle', null),
+        rect = getDefault(id, 'rect', null),
         line = getDefault(id, 'line', null),
         others = getDefault(id, 'others', {}),
         center = getDefault(id, 'center', false),
@@ -599,6 +608,7 @@ class CanvasHandler {
           textElement,
           line,
           circle,
+          rect,
           others,
           center,
           hidden,
@@ -710,6 +720,11 @@ class CanvasHandler {
             mapItem.height = circle.radius * 2;
             break;
           }
+          case Boolean(rect): {
+            mapItem.width = rect.width;
+            mapItem.height = rect.height;
+            break;
+          }
           default:
         }
 
@@ -792,6 +807,7 @@ class CanvasHandler {
           line,
           hidden,
           circle,
+          rect,
           width,
           height,
         }) => {
@@ -823,6 +839,19 @@ class CanvasHandler {
               if (borderColor) {
                 ctx.strokeStyle = borderColor;
                 ctx.stroke();
+              }
+              break;
+            }
+            case Boolean(rect): {
+              const { color, borderColor } = rect;
+              if (color) {
+                ctx.fillStyle = color;
+                ctx.fillRect(renderedX - leftX, renderedY - topY, width, height);
+              }
+
+              if (borderColor) {
+                ctx.strokeStyle = borderColor;
+                ctx.strokeRect(renderedX - leftX, renderedY - topY, width, height);
               }
               break;
             }
