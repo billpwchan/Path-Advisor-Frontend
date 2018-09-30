@@ -1,6 +1,8 @@
 import PropTypes from 'prop-types';
 import React, { Component, createRef } from 'react';
+import get from 'lodash.get';
 import pick from 'lodash.pick';
+import isNil from 'lodash.isnil';
 import { connect } from 'react-redux';
 import throttle from 'lodash.throttle';
 import CanvasHandler from './CanvasHandler';
@@ -23,13 +25,6 @@ class MapCanvas extends Component {
     linkTo: PropTypes.func.isRequired,
   };
 
-  static defaultProps = {
-    x: 2,
-    y: 2,
-    floor: 'G',
-    scale: 1,
-  };
-
   state = {
     width: null,
     height: null,
@@ -46,7 +41,10 @@ class MapCanvas extends Component {
 
     this.canvasHandler.addMouseUpListener(({ x, y, floor, scale }) => {
       // update position param if changed due to mouse event
-      linkTo({ floor, x, y, scale });
+      const isPositionReady = [x, y, scale, floor].every(v => !isNil(v));
+      if (isPositionReady) {
+        linkTo({ floor, x, y, scale });
+      }
     });
 
     const { x, y, floor, scale } = this.props;
@@ -65,7 +63,12 @@ class MapCanvas extends Component {
     this.canvasHandler.addPositionChangeListener(
       throttle(
         ({ floor: _floor, leftX, topY, width: _width, height: _height }) => {
-          getMapItemsHandler(_floor, [leftX, topY], _width, _height);
+          const isPositionReady =
+            [leftX, topY, _width, _height].every(v => !Number.isNaN(v)) && !isNil(_floor);
+
+          if (isPositionReady) {
+            getMapItemsHandler(_floor, [leftX, topY], _width, _height);
+          }
         },
         1000,
         { leading: false },
@@ -129,9 +132,10 @@ class MapCanvas extends Component {
     return (
       <div className={style.body}>
         <div className={style.title}>
-          <div className={style.floor}>{`Floor ${floors[floor].name} - ${
-            buildings[floors[floor].buildingId].name
-          }`}</div>
+          <div className={style.floor}>
+            {get(floors, `${floor}.name`) &&
+              `Floor ${floors[floor].name} - ${buildings[floors[floor].buildingId].name}`}
+          </div>
           <div className={style.buttons}>
             <a className={style.button} href="/suggestions.html">
               Suggestion
