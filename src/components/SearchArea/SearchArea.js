@@ -56,7 +56,7 @@ class SearchArea extends Component {
     }),
     searchShortestPathStore: PropTypes.shape({}),
     updateSearchShortestPathSettingHandler: PropTypes.func.isRequired,
-    displayAdvancedSearch: PropTypes.func.isRequired,
+    displayAdvancedSearch: PropTypes.bool.isRequired,
   };
 
   onKeywordChange = fieldName => keyword => {

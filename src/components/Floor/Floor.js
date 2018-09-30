@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import get from 'lodash.get';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { connect } from 'react-redux';
@@ -24,14 +25,14 @@ class Floor extends Component {
       buildings: PropTypes.objectOf(
         PropTypes.shape({
           name: PropTypes.string.isRequired,
-          floors: PropTypes.arrayOf(PropTypes.string).isRequired,
+          floorIds: PropTypes.arrayOf(PropTypes.string).isRequired,
         }),
       ),
     }),
-    x: PropTypes.number.isRequired,
-    y: PropTypes.number.isRequired,
-    scale: PropTypes.number.isRequired,
-    currentFloor: PropTypes.string.isRequired,
+    x: PropTypes.number,
+    y: PropTypes.number,
+    scale: PropTypes.number,
+    currentFloor: PropTypes.string,
     selectedBuilding: PropTypes.string.isRequired,
     linkTo: PropTypes.func.isRequired,
     selectBuildingAction: PropTypes.func.isRequired,
@@ -42,7 +43,7 @@ class Floor extends Component {
   }
 
   getFloorBuilding(floor) {
-    return this.props.floorStore.floors[floor].buildingId;
+    return get(this.props.floorStore, `floors.${floor}.buildingId`);
   }
 
   selectFloor = floor => () => {
