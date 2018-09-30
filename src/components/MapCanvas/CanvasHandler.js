@@ -430,8 +430,13 @@ class CanvasHandler {
       const y = clientY - canvasCoordinate.top + this.getTopY();
 
       this.mapItemIds.forEach(id => {
+        const mapItem = this.mapItems[id];
+        if (mapItem.floor !== this.floor) {
+          return;
+        }
+
         let mapItemEvent;
-        const itemHit = hitTest(x, y, this.mapItems[id]);
+        const itemHit = hitTest(x, y, mapItem);
 
         switch (event) {
           case 'click':
