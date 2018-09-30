@@ -162,9 +162,9 @@ class MapCanvas extends Component {
               return (
                 <PluginComponent
                   key={id}
-                  {...urlParams}
                   {...pick(
                     {
+                      ...urlParams,
                       ...this.state,
                       ...this.canvasHandler.getProps(),
                       linkTo,
