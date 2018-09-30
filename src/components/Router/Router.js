@@ -1,12 +1,12 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { BrowserRouter , Route, Switch } from 'react-router-dom';
 import Main from '../Main/Main';
 import NotFoundPage from '../NotFoundPage/NotFoundPage';
 
 const position = ':floorPath(floor/[^/]+)?/:coordinatePath(at/[^/]+)?';
 
-const RouterManager = () => (
-  <Router>
+const Router = () => (
+  <BrowserRouter>
     <Switch>
       <Route path="/" component={Main} exact />
       <Route path={`/${position}`} component={Main} exact />
@@ -19,7 +19,7 @@ const RouterManager = () => (
       />
       <Route component={NotFoundPage} />
     </Switch>
-  </Router>
+  </BrowserRouter>
 );
 
-export default RouterManager;
+export default Router;

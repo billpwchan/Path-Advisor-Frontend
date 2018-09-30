@@ -9,7 +9,7 @@ import getConnectedComponent from '../ConnectedComponent/getConnectedComponent';
 
 import style from './PrimaryPanel.module.css';
 import { closeOverlayAction } from '../../reducers/overlay';
-import { propTypes as urlPropTypes } from '../RouterManager/Url';
+import { propTypes as urlPropTypes } from '../Router/Url';
 
 class PrimaryPanel extends Component {
   static propTypes = {

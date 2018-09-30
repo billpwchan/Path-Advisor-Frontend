@@ -5,7 +5,7 @@ import isNil from 'lodash.isnil';
 import PrimaryPanel from '../PrimaryPanel/PrimaryPanel';
 import plugins from '../../plugins';
 import MapCanvas from '../MapCanvas/MapCanvas';
-import { parseParams, build as buildUrl } from '../RouterManager/Url';
+import { parseParams, build as buildUrl } from '../Router/Url';
 import style from './Main.module.css';
 
 class Main extends Component {

@@ -4,7 +4,7 @@ import { createStore, applyMiddleware, compose } from 'redux';
 import createSagaMiddleware from 'redux-saga';
 
 import rootReducer from './reducers';
-import RouterManager from './components/RouterManager/RouterManager';
+import Router from './components/Router/Router';
 import rootSaga from './sagas/rootSaga';
 
 /* eslint-disable no-underscore-dangle */
@@ -18,7 +18,7 @@ sagaMiddleware.run(rootSaga);
 
 const App = () => (
   <Provider store={store}>
-    <RouterManager />
+    <Router />
   </Provider>
 );
 

@@ -8,7 +8,7 @@ import throttle from 'lodash.throttle';
 import CanvasHandler from './CanvasHandler';
 import { APIEndpoint } from '../../config/config';
 import style from './MapCanvas.module.css';
-import { propTypes as urlPropTypes } from '../RouterManager/Url';
+import { propTypes as urlPropTypes } from '../Router/Url';
 import getConnectedComponent from '../ConnectedComponent/getConnectedComponent';
 import { getMapItemsAction } from '../../reducers/mapItems';
 
