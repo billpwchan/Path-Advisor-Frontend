@@ -12,7 +12,6 @@ import { searchMapItemAction } from '../../reducers/searchMapItem';
 import {
   searchShortestPathAction,
   clearSearchShortestPathResultAction,
-  updateSearchShortestPathSettingAction,
 } from '../../reducers/searchShortestPath';
 import { searchNearestAction, clearSearchNearestResultAction } from '../../reducers/searchNearest';
 import { setSearchAreaInputAction } from '../../reducers/searchAreaInput';
@@ -51,11 +50,12 @@ class SearchArea extends Component {
       }),
       searchOptions: PropTypes.shape({
         sameFloor: PropTypes.bool,
+        noStairCase: PropTypes.bool,
+        noEscalator: PropTypes.bool,
+        searchMode: PropTypes.string,
       }),
       searchInputOrders: PropTypes.arrayOf(PropTypes.string),
     }),
-    searchShortestPathStore: PropTypes.shape({}),
-    updateSearchShortestPathSettingHandler: PropTypes.func.isRequired,
     displayAdvancedSearch: PropTypes.bool.isRequired,
   };
 
@@ -82,14 +82,21 @@ class SearchArea extends Component {
   };
 
   updateSameFloor = e => {
+    this.updateSearchOptions({
+      sameFloor: e.target.checked,
+    });
+  };
+
+  updateSearchOptions = newSearchOptions => {
     const {
       searchAreaInputStore: { searchOptions },
       setSearchAreaInputHandler,
     } = this.props;
+
     setSearchAreaInputHandler({
       searchOptions: {
         ...searchOptions,
-        sameFloor: e.target.checked,
+        ...newSearchOptions,
       },
     });
   };
@@ -152,8 +159,7 @@ class SearchArea extends Component {
         searchOptions: { sameFloor },
         searchInputOrders,
       },
-      searchShortestPathStore,
-      updateSearchShortestPathSettingHandler,
+      searchAreaInputStore,
       displayAdvancedSearch,
     } = this.props;
     const suggestions = get(searchMapItemStore, 'suggestions', []);
@@ -233,8 +239,8 @@ class SearchArea extends Component {
         </div>
         {displayAdvancedSearch && (
           <AdvancedSearch
-            searchShortestPathStore={searchShortestPathStore}
-            updateSearchShortestPathSettingHandler={updateSearchShortestPathSettingHandler}
+            searchAreaInputStore={searchAreaInputStore}
+            updateSearchOptions={this.updateSearchOptions}
             search={this.search}
           />
         )}
@@ -246,7 +252,6 @@ class SearchArea extends Component {
 export default connect(
   state => ({
     searchMapItemStore: state.searchMapItem,
-    searchShortestPathStore: state.searchShortestPath,
     searchAreaInputStore: state.searchAreaInput,
     floorStore: state.floors,
   }),
@@ -262,9 +267,6 @@ export default connect(
     },
     searchNearestHandler: (floor, name, nearestType, sameFloor, id) => {
       dispatch(searchNearestAction(floor, name, nearestType, sameFloor, id));
-    },
-    updateSearchShortestPathSettingHandler: (noStairCase, noEscalator, searchMode) => {
-      dispatch(updateSearchShortestPathSettingAction(noStairCase, noEscalator, searchMode));
     },
     clearSearchNearestResultHandler: () => {
       dispatch(clearSearchNearestResultAction());

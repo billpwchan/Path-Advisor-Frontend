@@ -1,29 +1,24 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import style from './AdvancedSearch.module.css';
-import { SEARCH_MODES } from '../../reducers/searchShortestPath';
+import { SEARCH_MODES } from '../../reducers/searchAreaInput';
 
-function AdvancedSearch({
-  searchShortestPathStore,
-  updateSearchShortestPathSettingHandler,
-  search,
-}) {
+function AdvancedSearch({ searchAreaInputStore, updateSearchOptions, search }) {
   const {
-    settings: { noStairCase, noEscalator, searchMode },
-  } = searchShortestPathStore;
+    searchOptions: { noStairCase, noEscalator, searchMode },
+  } = searchAreaInputStore;
 
   const updateSetting = setting => ({ target }) => {
     const updatedSettings = {
-      ...searchShortestPathStore.settings,
+      noStairCase,
+      noEscalator,
+      searchMode,
     };
 
     updatedSettings[setting] = target.type === 'checkbox' ? target.checked : target.value;
 
-    updateSearchShortestPathSettingHandler(
-      updatedSettings.noStairCase,
-      updatedSettings.noEscalator,
-      updatedSettings.searchMode,
-    );
+    updateSearchOptions(updatedSettings);
 
     search();
   };
@@ -88,5 +83,11 @@ function AdvancedSearch({
     </div>
   );
 }
+
+AdvancedSearch.propTypes = {
+  searchAreaInputStore: PropTypes.shape({}).isRequired,
+  updateSearchOptions: PropTypes.func.isRequired,
+  search: PropTypes.func.isRequired,
+};
 
 export default AdvancedSearch;

@@ -5,7 +5,7 @@ import searchMapItemRequest from './searchMapItemRequest';
 import fetchIdToNodeIdRequest from './fetchIdToNodeIdRequest';
 import fetchNodeIdsToMapItemsRequest from './fetchNodeIdsToMapItemsRequest';
 import { SearchAPIEndpoint } from '../../config/config';
-import { SEARCH_MODES } from '../../reducers/searchShortestPath';
+import { SEARCH_MODES } from '../../reducers/searchAreaInput';
 /*
   DEBUG: start_id1350
   DEBUG: end_id3830

@@ -13,13 +13,15 @@ function* searchShortestPathRequestWorker({
   },
 }) {
   try {
-    const { settings } = yield select(state => state.searchShortestPath);
+    const {
+      searchOptions: { noStairCase, noEscalator, searchMode },
+    } = yield select(state => state.searchAreaInput);
 
     const { data } = yield call(
       searchShortestPathRequest,
       { keyword: fromKeyword, nodeId: fromNodeId, floor: fromFloor, id: fromId },
       { keyword: toKeyword, nodeId: toNodeId, floor: toFloor, id: toId },
-      settings,
+      { noStairCase, noEscalator, searchMode },
     );
     yield put(searchShortestPathSuccessAction(data));
   } catch (error) {
