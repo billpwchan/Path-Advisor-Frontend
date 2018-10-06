@@ -481,23 +481,6 @@ class CanvasHandler {
     return this.y - this.getHeight() / 2;
   }
 
-  updateLayers(layers) {
-    Object.keys(layers).forEach(layerId => {
-      const { id, hidden } = layers[layerId];
-      this.layers[layerId] = { id, hidden };
-    });
-
-    this.render();
-  }
-
-  updateMapTiles(mapTiles) {
-    Object.keys(mapTiles).forEach(id => {
-      this.mapTiles[id] = mapTiles[id];
-    });
-
-    this.render();
-  }
-
   /**
    * @param {CanvasItem[]} mapTiles
    */
@@ -924,9 +907,6 @@ class CanvasHandler {
     addMapTiles: args => this.addMapTiles(args),
     setMapItems: args => this.setMapItems(args),
     removeMapItem: args => this.removeMapItem(args),
-    updateMapTiles: (...args) => this.updateMapTiles(...args),
-    updateLayers: (...args) => this.updateLayers(...args),
-    updatePosition: (...args) => this.updatePosition(...args),
     updateDimension: (...args) => this.updateDimension(...args),
     addMapItemClickListener: (id, mapItemId, listener, isPrepend) =>
       this.addMapItemListener('click', id, mapItemId, listener, isPrepend),
