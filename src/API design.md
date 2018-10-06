@@ -1,6 +1,6 @@
 null values are the type missing for now. It will be there after backend revamp task.
 
-## Autocomplete API, Node Ids to object API:
+## searchMapItem API, Node Ids to object API:
 
 ```javascript
 [{ name: "Cafe", floor: "1", coordinates: [1, 1], id: "p12", type: null }];

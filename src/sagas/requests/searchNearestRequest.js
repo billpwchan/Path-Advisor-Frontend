@@ -2,7 +2,7 @@ import axios from 'axios';
 import get from 'lodash.get';
 
 import { APIEndpoint } from '../../config/config';
-import fetchAutoCompleteRequest from './fetchAutoCompleteRequest';
+import searchMapItemRequest from './searchMapItemRequest';
 
 // TO-DO: remove wrapper after backend api updated
 async function searchNearestResponseWrapper(name, data) {
@@ -23,7 +23,7 @@ async function searchNearestResponseWrapper(name, data) {
 
   const {
     data: [mapItem],
-  } = await fetchAutoCompleteRequest(name);
+  } = await searchMapItemRequest(name);
 
   const { coordinates: fromCoordinates, type: fromType } = mapItem || {
     coordinates: null,

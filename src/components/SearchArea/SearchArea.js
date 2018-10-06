@@ -8,7 +8,7 @@ import switchImage from './switch.png';
 import SearchInput from '../SearchInput/SearchInput';
 import SearchNearest from '../SearchNearest/SearchNearest';
 import AdvancedSearch from '../AdvancedSearch/AdvancedSearch';
-import { getAutoCompleteAction } from '../../reducers/autoComplete';
+import { searchMapItemAction } from '../../reducers/searchMapItem';
 import {
   searchShortestPathAction,
   clearSearchShortestPathResultAction,
@@ -19,12 +19,12 @@ import { setSearchAreaInputAction } from '../../reducers/searchAreaInput';
 
 class SearchArea extends Component {
   static propTypes = {
-    getAutoCompleteHandler: PropTypes.func.isRequired,
+    searchMapItemHandler: PropTypes.func.isRequired,
     searchShortestPathHandler: PropTypes.func.isRequired,
     clearSearchShortestPathResultHandler: PropTypes.func.isRequired,
     searchNearestHandler: PropTypes.func.isRequired,
     clearSearchNearestResultHandler: PropTypes.func.isRequired,
-    autoCompleteStore: PropTypes.shape({}),
+    searchMapItemStore: PropTypes.shape({}),
     floorStore: PropTypes.shape({}),
     linkTo: PropTypes.func.isRequired,
     setSearchAreaInputHandler: PropTypes.func.isRequired,
@@ -60,11 +60,11 @@ class SearchArea extends Component {
   };
 
   onKeywordChange = fieldName => keyword => {
-    const { getAutoCompleteHandler, setSearchAreaInputHandler } = this.props;
+    const { searchMapItemHandler, setSearchAreaInputHandler } = this.props;
     setSearchAreaInputHandler({
       [fieldName]: { name: keyword, data: { type: 'keyword', value: keyword } },
     });
-    getAutoCompleteHandler(keyword);
+    searchMapItemHandler(keyword);
   };
 
   onAutoCompleteItemClick = fieldName => ({ name, coordinates: [x, y], floor, id }) => {
@@ -147,7 +147,7 @@ class SearchArea extends Component {
   render() {
     const {
       floorStore,
-      autoCompleteStore,
+      searchMapItemStore,
       searchAreaInputStore: {
         searchOptions: { sameFloor },
         searchInputOrders,
@@ -156,14 +156,14 @@ class SearchArea extends Component {
       updateSearchShortestPathSettingHandler,
       displayAdvancedSearch,
     } = this.props;
-    const suggestions = get(autoCompleteStore, 'suggestions', []);
+    const suggestions = get(searchMapItemStore, 'suggestions', []);
 
     const searchInputs = {
       SearchInput: direction => (
         <SearchInput
           suggestions={suggestions}
           onKeywordChange={this.onKeywordChange(direction)}
-          loading={autoCompleteStore.loading}
+          loading={searchMapItemStore.loading}
           onAutoCompleteItemClick={this.onAutoCompleteItemClick(direction)}
           value={this.props.searchAreaInputStore[direction].name}
           floorStore={floorStore}
@@ -178,7 +178,7 @@ class SearchArea extends Component {
           <SearchInput
             suggestions={suggestions}
             onKeywordChange={this.onKeywordChange(direction)}
-            loading={autoCompleteStore.loading}
+            loading={searchMapItemStore.loading}
             onAutoCompleteItemClick={this.onAutoCompleteItemClick(direction)}
             placeholder="Room number/ name"
             floorStore={floorStore}
@@ -245,14 +245,14 @@ class SearchArea extends Component {
 
 export default connect(
   state => ({
-    autoCompleteStore: state.autoComplete,
+    searchMapItemStore: state.searchMapItem,
     searchShortestPathStore: state.searchShortestPath,
     searchAreaInputStore: state.searchAreaInput,
     floorStore: state.floors,
   }),
   dispatch => ({
-    getAutoCompleteHandler: keyword => {
-      dispatch(getAutoCompleteAction(keyword));
+    searchMapItemHandler: keyword => {
+      dispatch(searchMapItemAction(keyword));
     },
     searchShortestPathHandler: (from, to) => {
       dispatch(searchShortestPathAction(from, to));

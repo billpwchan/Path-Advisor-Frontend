@@ -1,7 +1,7 @@
 import axios from 'axios';
 import get from 'lodash.get';
 import compact from 'lodash.compact';
-import fetchAutoCompleteRequest from './fetchAutoCompleteRequest';
+import searchMapItemRequest from './searchMapItemRequest';
 import fetchIdToNodeIdRequest from './fetchIdToNodeIdRequest';
 import fetchNodeIdsToMapItemsRequest from './fetchNodeIdsToMapItemsRequest';
 import { SearchAPIEndpoint } from '../../config/config';
@@ -68,7 +68,7 @@ async function searchShortestPathResponseWrapper(data) {
  * Helper to get processed node id and floor from keyword
  */
 async function getNodeIdFloorfromKeyword(keyword) {
-  const { data } = await fetchAutoCompleteRequest(keyword);
+  const { data } = await searchMapItemRequest(keyword);
   const { id, floor } = get(data, 0, {});
   const {
     data: { nodeId },

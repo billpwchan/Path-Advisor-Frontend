@@ -4,7 +4,7 @@ import get from 'lodash.get';
 import { APIEndpoint } from '../../config/config';
 
 // TO-DO: remove wrapper after backend api updated
-function fetchAutoCompleteResponseWrapper(data) {
+function searchMapItemResponseWrapper(data) {
   if (typeof data !== 'string') {
     return [];
   }
@@ -25,7 +25,7 @@ function fetchAutoCompleteResponseWrapper(data) {
   });
 }
 
-export default function fetchAutoCompleteRequest(keyword) {
+export default function searchMapItemRequest(keyword) {
   return axios
     .get(
       `${APIEndpoint()}/phplib/keyword_suggestion.php?keyword=${encodeURIComponent(
@@ -34,6 +34,6 @@ export default function fetchAutoCompleteRequest(keyword) {
     )
     .then(response => ({
       ...response,
-      data: fetchAutoCompleteResponseWrapper(response.data),
+      data: searchMapItemResponseWrapper(response.data),
     }));
 }

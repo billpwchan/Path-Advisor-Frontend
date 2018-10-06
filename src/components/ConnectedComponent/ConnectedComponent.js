@@ -11,7 +11,7 @@ const paramStateMap = {
   searchAreaInputStore: 'searchAreaInput',
   appSettingStore: 'appSettings',
   overlayStore: 'overlay',
-  autoCompleteStore: 'autoComplete',
+  searchMapItemStore: 'searchMapItem',
 };
 
 const urlParams = ['place', 'fromPlace', 'toPlace', 'mapItemType', 'x', 'y', 'scale', 'floor'];

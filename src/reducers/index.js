@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux';
-import autoComplete from './autoComplete';
+import searchMapItem from './searchMapItem';
 import mapItems from './mapItems';
 import searchNearest from './searchNearest';
 import searchShortestPath from './searchShortestPath';
@@ -11,7 +11,7 @@ import appSettings from './appSettings';
 
 export default combineReducers({
   appSettings,
-  autoComplete,
+  searchMapItem,
   mapItems,
   searchNearest,
   searchShortestPath,

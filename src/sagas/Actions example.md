@@ -1,6 +1,6 @@
 ```javascript
 {
-  type: 'GET_AUTOCOMPLETE',
+  type: 'SEARCH_MAP_ITEM',
   payload: { keyword: '35' }
 }
 ```
