@@ -64,7 +64,7 @@ class MapCanvas extends Component {
       throttle(
         ({ floor: _floor, leftX, topY, width: _width, height: _height }) => {
           const isPositionReady =
-            [leftX, topY, _width, _height].every(v => !Number.isNaN(v)) && !isNil(_floor);
+            [leftX, topY, _width, _height].every(v => !isNaN(v)) && !isNil(_floor);
 
           if (isPositionReady) {
             getMapItemsHandler(_floor, [leftX, topY], _width, _height);

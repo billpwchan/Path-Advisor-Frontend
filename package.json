@@ -5,6 +5,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "classnames": "^2.2.6",
+    "core-js": "^2.5.7",
     "lodash.compact": "^3.0.1",
     "lodash.get": "^4.4.2",
     "lodash.isnil": "^4.0.0",
@@ -28,6 +29,7 @@
   },
   "devDependencies": {
     "babel-eslint": "^8.2.6",
+    "docsify-cli": "^4.2.1",
     "eslint": "^5.2.0",
     "eslint-config-airbnb": "^17.0.0",
     "eslint-config-prettier": "^2.9.0",
@@ -46,7 +48,7 @@
     "production": [
       ">0.25%",
       "not op_mini all",
-      "ie 11"
+      "ie 9"
     ]
   }
 }
