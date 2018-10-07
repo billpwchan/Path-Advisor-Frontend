@@ -10,4 +10,7 @@ MapItemOverlayHeader.propTypes = {
   name: PropTypes.string.isRequired,
 };
 
-export default MapItemOverlayHeader;
+export default {
+  connect: [],
+  Component: MapItemOverlayHeader,
+};

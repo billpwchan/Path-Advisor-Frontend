@@ -56,31 +56,33 @@ class PrimaryPanel extends Component {
             <PanelOverlay
               closeOverlayHandler={closeOverlayHandler}
               headerElements={children.map(({ id, OverlayHeaderPlugin }) => {
+                if (!OverlayHeaderPlugin || !OverlayHeaderPlugin.Component) {
+                  return null;
+                }
                 const { photo, name, url, others } = overlayStore;
                 return (
-                  OverlayHeaderPlugin && (
-                    <OverlayHeaderPlugin
-                      key={`header_${id}`}
-                      name={name}
-                      photo={photo}
-                      url={url}
-                      others={others}
-                    />
-                  )
+                  <OverlayHeaderPlugin.Component
+                    key={`header_${id}`}
+                    name={name}
+                    photo={photo}
+                    url={url}
+                    others={others}
+                  />
                 );
               })}
               contentElements={children.map(({ id, OverlayContentPlugin }) => {
+                if (!OverlayContentPlugin || !OverlayContentPlugin.Component) {
+                  return null;
+                }
                 const { photo, name, url, others } = overlayStore;
                 return (
-                  OverlayContentPlugin && (
-                    <OverlayContentPlugin
-                      key={`content_${id}`}
-                      name={name}
-                      photo={photo}
-                      url={url}
-                      others={others}
-                    />
-                  )
+                  <OverlayContentPlugin.Component
+                    key={`content_${id}`}
+                    name={name}
+                    photo={photo}
+                    url={url}
+                    others={others}
+                  />
                 );
               })}
             />

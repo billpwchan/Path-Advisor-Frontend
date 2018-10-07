@@ -41,4 +41,7 @@ MapItemOverlayContent.propTypes = {
   others: PropTypes.shape({}),
 };
 
-export default MapItemOverlayContent;
+export default {
+  Component: MapItemOverlayContent,
+  connect: [],
+};
