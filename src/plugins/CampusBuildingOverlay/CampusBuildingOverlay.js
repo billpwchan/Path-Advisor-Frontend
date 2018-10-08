@@ -40,9 +40,9 @@ function CampusBuildingOverlay({ floorStore: { floors }, setMapItems, linkTo }) 
     },
     onClick: () => {
       const {
-        [floor]: { defaultScale, defaultX, defaultY },
+        [floor]: { defaultLevel, defaultX, defaultY },
       } = floors;
-      linkTo({ floor, x: defaultX, y: defaultY, scale: defaultScale });
+      linkTo({ floor, x: defaultX, y: defaultY, level: defaultLevel });
     },
   });
 

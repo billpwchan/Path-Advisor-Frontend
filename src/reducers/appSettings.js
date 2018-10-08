@@ -2,14 +2,14 @@ const initialState = {
   loading: false,
   failure: false,
   success: true,
-  scale: [1.0, 0.85, 0.6, 0.5, 0.4],
+  levelToScale: [1.0, 0.85, 0.6, 0.5, 0.4],
   meterPerPixel: 0.0455,
   minutesPerMeter: 0.015,
   defaultPosition: {
     floor: 'Overall',
     x: 936,
     y: 654,
-    scale: 1,
+    level: 1,
   },
 };
 

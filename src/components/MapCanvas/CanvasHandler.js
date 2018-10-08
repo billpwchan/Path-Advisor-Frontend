@@ -144,8 +144,10 @@ class CanvasHandler {
   /** @type {string} - current floor displaying */
   floor = null;
 
-  /** @type {number} - current scale  */
-  scale = 1;
+  /** @type {number} - current level  */
+  level = 1;
+
+  levelToScale = [];
 
   /** @type {function[]} - canvas mouse move listeners */
   mouseMoveListeners = [];
@@ -186,10 +188,11 @@ class CanvasHandler {
     }
   }
 
-  constructor(x, y, width, height, floor, scale) {
+  constructor(x, y, width, height, floor, level, levelToScale) {
     this.canvas = document.createElement('canvas');
+    this.levelToScale = levelToScale;
     this.updateDimension(width, height);
-    this.updatePosition(x, y, floor, scale);
+    this.updatePosition(x, y, floor, level);
     this.setUpDragAndDropListener();
     ['click', 'mousemove'].forEach(event => this.setUpListener(event));
   }
@@ -211,8 +214,8 @@ class CanvasHandler {
     this.render();
   }
 
-  updatePosition(x, y, floor = this.floor, scale = this.scale) {
-    if (this.x === x && this.y === y && this.floor === floor && this.scale === scale) {
+  updatePosition(x, y, floor = this.floor, level = this.level) {
+    if (this.x === x && this.y === y && this.floor === floor && this.level === level) {
       console.log('no op');
       return;
     }
@@ -220,7 +223,7 @@ class CanvasHandler {
     this.x = x;
     this.y = y;
     this.floor = floor;
-    this.scale = scale;
+    this.level = level;
 
     this.render();
 
@@ -237,7 +240,7 @@ class CanvasHandler {
    * @property {number} topY
    * @property {number} rightX
    * @property {number} bottomY
-   * @property {number} scale
+   * @property {number} level
    * @property {number} width
    * @property {number} height
    * @property {number} floor
@@ -375,7 +378,7 @@ class CanvasHandler {
 
   getListenerParamObject() {
     return {
-      scale: this.scale,
+      level: this.level,
       width: this.getWidth(),
       height: this.getHeight(),
       floor: this.floor,

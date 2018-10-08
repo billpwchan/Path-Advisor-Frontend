@@ -39,15 +39,15 @@ class MapCanvas extends Component {
 
     window.canvasHandler = this.canvasHandler;
 
-    this.canvasHandler.addMouseUpListener(({ x, y, floor, scale }) => {
+    this.canvasHandler.addMouseUpListener(({ x, y, floor, level }) => {
       // update position param if changed due to mouse event
-      const isPositionReady = [x, y, scale, floor].every(v => !isNil(v));
+      const isPositionReady = [x, y, level, floor].every(v => !isNil(v));
       if (isPositionReady) {
-        linkTo({ floor, x, y, scale });
+        linkTo({ floor, x, y, level });
       }
     });
 
-    const { x, y, floor, scale } = this.props;
+    const { x, y, floor, level } = this.props;
 
     this.canvasRootRef.current.appendChild(this.canvasHandler.getCanvas());
     this.canvasHandler.updateDimension(
@@ -82,20 +82,20 @@ class MapCanvas extends Component {
     );
 
     // init position param
-    linkTo({ floor, x, y, scale });
-    this.canvasHandler.updatePosition(x, y, floor, scale);
+    linkTo({ floor, x, y, level });
+    this.canvasHandler.updatePosition(x, y, floor, level);
   }
 
   componentDidUpdate(prevProps) {
     // sync react position to canvas if it is changed
-    const { x, y, floor, scale } = this.props;
+    const { x, y, floor, level } = this.props;
     if (
       x !== prevProps.x ||
       y !== prevProps.y ||
       floor !== prevProps.floor ||
-      scale !== prevProps.scale
+      level !== prevProps.level
     ) {
-      this.canvasHandler.updatePosition(x, y, floor, scale);
+      this.canvasHandler.updatePosition(x, y, floor, level);
     }
   }
 
@@ -109,7 +109,7 @@ class MapCanvas extends Component {
       x,
       y,
       floor,
-      scale,
+      level,
       linkTo,
       floorStore: { floors, buildings },
     } = this.props;
@@ -123,7 +123,7 @@ class MapCanvas extends Component {
       mapItemType,
       x,
       y,
-      scale,
+      level,
       floor,
     };
 

@@ -19,7 +19,7 @@ class Floor extends Component {
           ratio: PropTypes.number.isRequired,
           defaultX: PropTypes.number.isRequired,
           defaultY: PropTypes.number.isRequired,
-          defaultScale: PropTypes.number.isRequired,
+          defaultLevel: PropTypes.number.isRequired,
         }),
       ),
       buildings: PropTypes.objectOf(
@@ -31,7 +31,7 @@ class Floor extends Component {
     }),
     x: PropTypes.number,
     y: PropTypes.number,
-    scale: PropTypes.number,
+    level: PropTypes.number,
     currentFloor: PropTypes.string,
     selectedBuilding: PropTypes.string.isRequired,
     linkTo: PropTypes.func.isRequired,
@@ -50,7 +50,7 @@ class Floor extends Component {
     const {
       x,
       y,
-      scale,
+      level,
       linkTo,
       currentFloor,
       floorStore: { floors },
@@ -69,7 +69,7 @@ class Floor extends Component {
     };
 
     if (useSameCoordinates()) {
-      linkTo({ x, y, floor, scale });
+      linkTo({ x, y, floor, level });
       return;
     }
 
@@ -77,7 +77,7 @@ class Floor extends Component {
       x: floors[floor].defaultX,
       y: floors[floor].defaultY,
       floor,
-      scale: floors[floor].defaultScale,
+      level: floors[floor].defaultLevel,
     });
   };
 
@@ -95,7 +95,7 @@ class Floor extends Component {
         x: floors[floor].defaultX,
         y: floors[floor].defaultY,
         floor,
-        scale: floors[floor].defaultScale,
+        level: floors[floor].defaultLevel,
       });
       return;
     }

@@ -34,7 +34,7 @@ class PrimaryPanel extends Component {
   };
 
   render() {
-    const { children, overlayStore, closeOverlayHandler, x, y, scale, floor, linkTo } = this.props;
+    const { children, overlayStore, closeOverlayHandler, x, y, level, floor, linkTo } = this.props;
 
     const { selectedBuilding, displayAdvancedSearch } = this.state;
 
@@ -45,7 +45,7 @@ class PrimaryPanel extends Component {
       'mapItemType',
       'x',
       'y',
-      'scale',
+      'level',
       'floor',
     ]);
 
@@ -116,7 +116,7 @@ class PrimaryPanel extends Component {
                   x={x}
                   y={y}
                   currentFloor={floor}
-                  scale={scale}
+                  level={level}
                 />
               )}
               <SearchArea displayAdvancedSearch={displayAdvancedSearch} linkTo={linkTo} />

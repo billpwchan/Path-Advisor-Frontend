@@ -7,7 +7,7 @@ function parseParams(params) {
   const coordinateString =
     (typeof coordinatePath === 'string' && get(coordinatePath.split('/'), 1)) || null;
   const floor = (typeof floorPath === 'string' && get(floorPath.split('/'), 1)) || undefined;
-  const [x = undefined, y = undefined, scale = undefined] = coordinateString
+  const [x = undefined, y = undefined, level = undefined] = coordinateString
     ? coordinateString.split(',').map(v => parseInt(v, 10))
     : [];
 
@@ -18,7 +18,7 @@ function parseParams(params) {
     mapItemType,
     x,
     y,
-    scale,
+    level,
     floor,
   };
 }
@@ -30,12 +30,12 @@ const propTypes = {
   mapItemType: PropTypes.string,
   x: PropTypes.number,
   y: PropTypes.number,
-  scale: PropTypes.number,
+  level: PropTypes.number,
   floor: PropTypes.string,
 };
 
-function build({ floor, x, y, scale }) {
-  return `/floor/${floor}/at/${x},${y},${scale}`;
+function build({ floor, x, y, level }) {
+  return `/floor/${floor}/at/${x},${y},${level}`;
 }
 
 export { parseParams, propTypes, build };

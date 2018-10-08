@@ -23,8 +23,8 @@ function getMapTileNumber(x, y) {
   };
 }
 
-function getMapTileId(x, y, floor) {
-  return `default_${floor}_${x}_${y}`;
+function getMapTileId(x, y, floor, level) {
+  return `default_${floor}_${x}_${y}_${level}`;
 }
 
 /**
@@ -37,11 +37,11 @@ function createImage(src) {
   return img;
 }
 
-function getMapTileUrl(APIEndpoint, x, y, floor, scale) {
-  return `${APIEndpoint()}/map_pixel.php?x=${x}&y=${y}&floor=${floor}&level=${scale}`;
+function getMapTileUrl(APIEndpoint, x, y, floor, level) {
+  return `${APIEndpoint()}/map_pixel.php?x=${x}&y=${y}&floor=${floor}&level=${level}`;
 }
 
-function generateMapTiles(APIEndpoint, canvasOffsetX, canvasOffsetY, width, height, floor, scale) {
+function generateMapTiles(APIEndpoint, canvasOffsetX, canvasOffsetY, width, height, floor, level) {
   const mapTiles = [];
   const { x, y } = getMapTileNumber(canvasOffsetX, canvasOffsetY);
 
@@ -49,11 +49,11 @@ function generateMapTiles(APIEndpoint, canvasOffsetX, canvasOffsetY, width, heig
 
   do {
     mapTiles.push({
-      id: getMapTileId(nextTileX, y, floor),
+      id: getMapTileId(nextTileX, y, floor, level),
       floor,
       x: nextTileX,
       y,
-      image: createImage(getMapTileUrl(APIEndpoint, nextTileX, y, floor, scale)),
+      image: createImage(getMapTileUrl(APIEndpoint, nextTileX, y, floor, level)),
     });
 
     let nextTileY = y;
@@ -65,7 +65,7 @@ function generateMapTiles(APIEndpoint, canvasOffsetX, canvasOffsetY, width, heig
         floor,
         x: nextTileX,
         y: nextTileY,
-        image: createImage(getMapTileUrl(APIEndpoint, nextTileX, nextTileY, floor, scale)),
+        image: createImage(getMapTileUrl(APIEndpoint, nextTileX, nextTileY, floor, level)),
       });
     } while (nextTileY - y < height + MAP_TILE_HEIGHT);
 
@@ -83,7 +83,7 @@ const MapTile = ({
   width,
   height,
   floor,
-  scale,
+  level,
   movingLeftX,
   movingTopY,
 }) => {
@@ -93,7 +93,7 @@ const MapTile = ({
     }, 100);
   }
   // Add map tiles while mouse moving to provide a better UX, but need to throttle the number of times triggering this listener
-  throttledAddMapTiles(APIEndpoint, movingLeftX, movingTopY, width, height, floor, scale);
+  throttledAddMapTiles(APIEndpoint, movingLeftX, movingTopY, width, height, floor, level);
 
   return null;
 };
@@ -106,7 +106,7 @@ const MapCanvasPlugin = {
     'width',
     'height',
     'floor',
-    'scale',
+    'level',
     'movingLeftX',
     'movingTopY',
   ],

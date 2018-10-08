@@ -21,7 +21,7 @@ class Main extends Component {
         floor: PropTypes.string.isRequired,
         x: PropTypes.number.isRequired,
         y: PropTypes.number.isRequired,
-        scale: PropTypes.number.isRequired,
+        level: PropTypes.number.isRequired,
       }).isRequired,
     }),
   };
@@ -47,31 +47,31 @@ class Main extends Component {
     return parseParams(this.props.match.params);
   }
 
-  linkTo = ({ floor, x, y, scale = this.urlParams.scale }) => {
-    const { scale: currentScale, x: currentX, y: currentY, floor: currentFloor } = this.urlParams;
+  linkTo = ({ floor, x, y, level = this.urlParams.level }) => {
+    const { level: currentLevel, x: currentX, y: currentY, floor: currentFloor } = this.urlParams;
 
     const isNewPosition =
-      floor !== currentFloor || x !== currentX || y !== currentY || scale !== currentScale;
+      floor !== currentFloor || x !== currentX || y !== currentY || level !== currentLevel;
 
     if (isNewPosition) {
-      this.props.history.push(buildUrl({ floor, x, y, scale }));
+      this.props.history.push(buildUrl({ floor, x, y, level }));
     }
   };
 
   initPosition() {
     // init position from app settings if current position is not set
     if (
-      [this.urlParams.scale, this.urlParams.x, this.urlParams.y, this.urlParams.floor].some(v =>
+      [this.urlParams.level, this.urlParams.x, this.urlParams.y, this.urlParams.floor].some(v =>
         isNil(v),
       )
     ) {
       const {
         appSettingStore: {
-          defaultPosition: { floor, x, y, scale },
+          defaultPosition: { floor, x, y, level },
         },
       } = this.props;
-      if ([floor, x, y, scale].every(v => !isNil(v))) {
-        this.linkTo({ floor, x, y, scale });
+      if ([floor, x, y, level].every(v => !isNil(v))) {
+        this.linkTo({ floor, x, y, level });
       }
     }
   }
