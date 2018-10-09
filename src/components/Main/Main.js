@@ -17,6 +17,7 @@ class Main extends Component {
       push: PropTypes.func.isRequired,
     }).isRequired,
     appSettingStore: PropTypes.shape({
+      success: PropTypes.bool.isRequired,
       defaultPosition: PropTypes.shape({
         floor: PropTypes.string.isRequired,
         x: PropTypes.number.isRequired,
@@ -88,12 +89,14 @@ class Main extends Component {
             OverlayContentPlugin,
           }))}
         </PrimaryPanel>
-        <MapCanvas {...this.urlParams} linkTo={this.linkTo}>
-          {plugins.map(({ id, MapCanvasPlugin }) => ({
-            id,
-            MapCanvasPlugin,
-          }))}
-        </MapCanvas>
+        {this.props.appSettingStore.success && (
+          <MapCanvas {...this.urlParams} linkTo={this.linkTo}>
+            {plugins.map(({ id, MapCanvasPlugin }) => ({
+              id,
+              MapCanvasPlugin,
+            }))}
+          </MapCanvas>
+        )}
       </div>
     );
   }

@@ -9,7 +9,7 @@ const initialState = {
     floor: 'Overall',
     x: 936,
     y: 654,
-    level: 1,
+    level: 0,
   },
 };
 

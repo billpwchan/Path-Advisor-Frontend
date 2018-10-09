@@ -38,7 +38,7 @@ function createImage(src) {
 }
 
 function getMapTileUrl(APIEndpoint, x, y, floor, level) {
-  return `${APIEndpoint()}/map_pixel.php?x=${x}&y=${y}&floor=${floor}&level=${level}`;
+  return `${APIEndpoint()}/map_pixel.php?x=${x}&y=${y}&floor=${floor}&level=${level + 1}`;
 }
 
 function generateMapTiles(APIEndpoint, canvasOffsetX, canvasOffsetY, width, height, floor, level) {
@@ -61,7 +61,7 @@ function generateMapTiles(APIEndpoint, canvasOffsetX, canvasOffsetY, width, heig
     do {
       nextTileY += MAP_TILE_HEIGHT;
       mapTiles.push({
-        id: getMapTileId(nextTileX, nextTileY, floor),
+        id: getMapTileId(nextTileX, nextTileY, floor, level),
         floor,
         x: nextTileX,
         y: nextTileY,
@@ -77,23 +77,41 @@ function generateMapTiles(APIEndpoint, canvasOffsetX, canvasOffsetY, width, heig
 
 let throttledAddMapTiles;
 
+let prevLevel = null;
+
 const MapTile = ({
   APIEndpoint,
   addMapTiles,
+  removeAllMapTiles,
   width,
   height,
   floor,
   level,
-  movingLeftX,
-  movingTopY,
+  movingScreenLeftX,
+  movingScreenTopY,
 }) => {
   if (!throttledAddMapTiles) {
     throttledAddMapTiles = throttle((...args) => {
+      const currentLevel = args[args.length - 1];
+      if (prevLevel !== currentLevel) {
+        removeAllMapTiles();
+      }
+
+      prevLevel = currentLevel;
+
       addMapTiles(generateMapTiles(...args));
     }, 100);
   }
   // Add map tiles while mouse moving to provide a better UX, but need to throttle the number of times triggering this listener
-  throttledAddMapTiles(APIEndpoint, movingLeftX, movingTopY, width, height, floor, level);
+  throttledAddMapTiles(
+    APIEndpoint,
+    movingScreenLeftX,
+    movingScreenTopY,
+    width,
+    height,
+    floor,
+    level,
+  );
 
   return null;
 };
@@ -103,12 +121,13 @@ const MapCanvasPlugin = {
   connect: [
     'APIEndpoint',
     'addMapTiles',
+    'removeAllMapTiles',
     'width',
     'height',
     'floor',
     'level',
-    'movingLeftX',
-    'movingTopY',
+    'movingScreenLeftX',
+    'movingScreenTopY',
   ],
 };
 const id = 'maptile';

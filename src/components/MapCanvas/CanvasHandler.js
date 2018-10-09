@@ -47,6 +47,8 @@ const DEVICE_PIXEL_RATIO = window.devicePixelRatio || 1;
  * @property {number} hitWidth
  * @property {number} hitHeight
  * @property {string} floor
+ * @property {boolean} [scalePosition]
+ * @property {boolean} [scaleDimension]
  * @property {boolean} [center]
  * @property {boolean} [hidden]
  * @property {HTMLImageElement} [image]
@@ -81,12 +83,13 @@ async function createImageLoadPromise(img) {
  * Test a point inside a rect or not
  * @param {number} x - point coordinate x
  * @param {number} y - point coordinate y
- * @param {CanvasItem} canvasItem
+ * @param {number} hitX - object coordinate x
+ * @param {number} hitY - object coordinate y
+ * @param {number} hitWidth - object width
+ * @param {number} hitHeight - object height
  * @return {boolean}
  */
-function hitTest(x, y, canvasItem) {
-  const { hitX, hitY, hitWidth, hitHeight } = canvasItem;
-
+function hitTest(x, y, hitX, hitY, hitWidth, hitHeight) {
   const xInRange = x >= hitX && x <= hitX + hitWidth;
   const yInRange = y >= hitY && y <= hitY + hitHeight;
 
@@ -145,7 +148,7 @@ class CanvasHandler {
   floor = null;
 
   /** @type {number} - current level  */
-  level = 1;
+  level = 0;
 
   levelToScale = [];
 
@@ -154,6 +157,9 @@ class CanvasHandler {
 
   /** @type {function[]} - canvas mouse up listeners */
   mouseUpListeners = [];
+
+  /** @type {function[]} - canvas wheel listeners */
+  wheelListeners = [];
 
   /** @type {function[]} - canvas position changed listeners */
   positionChangeListeners = [];
@@ -188,20 +194,18 @@ class CanvasHandler {
     }
   }
 
-  constructor(x, y, width, height, floor, level, levelToScale) {
+  constructor() {
     this.canvas = document.createElement('canvas');
-    this.levelToScale = levelToScale;
-    this.updateDimension(width, height);
-    this.updatePosition(x, y, floor, level);
-    this.setUpDragAndDropListener();
+    this.setUpCanvasListeners();
     ['click', 'mousemove'].forEach(event => this.setUpListener(event));
   }
 
-  updateDimension(width, height) {
+  updateDimension(width, height, levelToScale) {
     this.canvas.width = width * DEVICE_PIXEL_RATIO;
     this.canvas.height = height * DEVICE_PIXEL_RATIO;
     this.width = width;
     this.height = height;
+    this.levelToScale = levelToScale;
     this.canvas.style.width = `${width}px`;
     this.canvas.style.height = `${height}px`;
     const ctx = this.canvas.getContext('2d');
@@ -244,6 +248,17 @@ class CanvasHandler {
    * @property {number} width
    * @property {number} height
    * @property {number} floor
+   * @property {number} scaledX
+   * @property {number} scaledY
+   * @property {number} scaledWidth
+   * @property {number} scaledHeight
+   * @property {number} screenLeftX
+   * @property {number} screenTopY
+   * @property {number} screenRightX
+   * @property {number} screenBottomY
+   * @property {number} wheelDelta
+   * @property {number} nextLevel
+   * @property {number} previousLevel
    */
 
   /**
@@ -295,6 +310,28 @@ class CanvasHandler {
     const listenerIndex = this.mouseUpListeners.indexOf(listener);
     if (listenerIndex !== -1) {
       this.mouseUpListeners.splice(listenerIndex, 1);
+    }
+
+    return listenerIndex !== -1;
+  }
+
+  /**
+   * add user defined wheel listeners
+   * @param {canvasListener} listener
+   */
+  addWheelListener(listener) {
+    this.wheelListeners.push(listener);
+  }
+
+  /**
+   * remove a user defined wheel listeners
+   * @param {function} listener
+   * @return {boolean} True is removed otherwise false
+   */
+  removeWheelListener(listener) {
+    const listenerIndex = this.wheelListeners.indexOf(listener);
+    if (listenerIndex !== -1) {
+      this.wheelListeners.splice(listenerIndex, 1);
     }
 
     return listenerIndex !== -1;
@@ -376,22 +413,31 @@ class CanvasHandler {
     return false;
   }
 
-  getListenerParamObject() {
+  getListenerParamObject(props = {}) {
     return {
+      nextLevel: this.getNextLevel(),
+      previousLevel: this.getPreviousLevel(),
       level: this.level,
       width: this.getWidth(),
       height: this.getHeight(),
+      scaledWidth: this.getScaledWidth(),
+      scaledHeight: this.getScaledHeight(),
       floor: this.floor,
       x: this.x,
       y: this.y,
       leftX: this.getLeftX(),
       topY: this.getTopY(),
-      rightX: this.getLeftX() + this.getWidth(),
-      bottomY: this.getTopY() + this.getHeight(),
+      rightX: this.getRightX(),
+      bottomY: this.getBottomY(),
+      screenLeftX: this.getScreenLeftX(),
+      screenRightX: this.getScreenRightX(),
+      screenTopY: this.getScreenTopY(),
+      screenBottomY: this.getScreenBottomY(),
+      ...props,
     };
   }
 
-  setUpDragAndDropListener() {
+  setUpCanvasListeners() {
     document.addEventListener('mousedown', e => {
       const { clientX: downX, clientY: downY, target } = e;
 
@@ -403,8 +449,8 @@ class CanvasHandler {
 
       const mouseMoveListener = mouseDownEvent => {
         const { clientX: currentX, clientY: currentY } = mouseDownEvent;
-        const newX = prevX + downX - currentX;
-        const newY = prevY + downY - currentY;
+        const newX = prevX + this.normalizeCoordinate(downX - currentX);
+        const newY = prevY + this.normalizeCoordinate(downY - currentY);
         this.updatePosition(newX, newY);
 
         this.mouseMoveListeners.forEach(listener => {
@@ -423,14 +469,33 @@ class CanvasHandler {
       document.addEventListener('mousemove', mouseMoveListener);
       document.addEventListener('mouseup', mouseUpListener);
     });
+
+    this.canvas.addEventListener('wheel', e => {
+      this.wheelListeners.forEach(listener => {
+        const wheelDelta = Math.sign(e.wheelDelta);
+        listener(this.getListenerParamObject({ wheelDelta }));
+      });
+    });
+  }
+
+  getNextLevel() {
+    const previousLevel = this.level - 1;
+    const minLevel = 0;
+    return previousLevel > minLevel ? previousLevel : minLevel;
+  }
+
+  getPreviousLevel() {
+    const nextLevel = this.level + 1;
+    const maxLevel = this.levelToScale.length - 1;
+    return nextLevel > maxLevel ? maxLevel : nextLevel;
   }
 
   setUpListener(event) {
     this.getCanvas().addEventListener(event, e => {
       const { clientX, clientY } = e;
       const canvasCoordinate = this.canvas.getBoundingClientRect();
-      const x = clientX - canvasCoordinate.left + this.getLeftX();
-      const y = clientY - canvasCoordinate.top + this.getTopY();
+      const x = clientX - canvasCoordinate.left + this.getScreenLeftX();
+      const y = clientY - canvasCoordinate.top + this.getScreenTopY();
 
       this.mapItemIds.forEach(id => {
         const mapItem = this.mapItems[id];
@@ -439,7 +504,16 @@ class CanvasHandler {
         }
 
         let mapItemEvent;
-        const itemHit = hitTest(x, y, mapItem);
+        const { hitX, hitY, hitWidth, hitHeight, scaleDimension, scalePosition } = mapItem;
+
+        const itemHit = hitTest(
+          x,
+          y,
+          scalePosition ? this.scaleCoordinate(hitX) : hitX,
+          scalePosition ? this.scaleCoordinate(hitY) : hitY,
+          scaleDimension ? this.scaleCoordinate(hitWidth) : hitWidth,
+          scaleDimension ? this.scaleCoordinate(hitHeight) : hitHeight,
+        );
 
         switch (event) {
           case 'click':
@@ -468,6 +542,15 @@ class CanvasHandler {
     });
   }
 
+  scaleCoordinate(v) {
+    return Math.round(v * this.levelToScale[this.level]);
+  }
+
+  // get coordinate value in zoom level=1 coordinate space
+  normalizeCoordinate(v) {
+    return Math.round(v / this.levelToScale[this.level]);
+  }
+
   getWidth() {
     return this.width;
   }
@@ -476,12 +559,52 @@ class CanvasHandler {
     return this.height;
   }
 
+  getScaledWidth() {
+    return this.normalizeCoordinate(this.width);
+  }
+
+  getScaledHeight() {
+    return this.normalizeCoordinate(this.height);
+  }
+
+  getScaledX() {
+    return this.scaleCoordinate(this.x);
+  }
+
+  getScaledY() {
+    return this.scaleCoordinate(this.y);
+  }
+
   getLeftX() {
-    return this.x - this.getWidth() / 2;
+    return this.x - this.getScaledWidth() / 2;
   }
 
   getTopY() {
-    return this.y - this.getHeight() / 2;
+    return this.y - this.getScaledHeight() / 2;
+  }
+
+  getRightX() {
+    return this.x + this.getScaledWidth() / 2;
+  }
+
+  getBottomY() {
+    return this.y + this.getScaledHeight() / 2;
+  }
+
+  getScreenLeftX() {
+    return this.getScaledX() - this.getWidth() / 2;
+  }
+
+  getScreenTopY() {
+    return this.getScaledY() - this.getHeight() / 2;
+  }
+
+  getScreenRightX() {
+    return this.getScaledX() + this.getWidth() / 2;
+  }
+
+  getScreenBottomY() {
+    return this.getScaledY() + this.getHeight() / 2;
   }
 
   /**
@@ -490,58 +613,78 @@ class CanvasHandler {
   async addMapTiles(mapTiles) {
     const asyncMapTiles = [];
 
-    mapTiles.forEach(({ id, floor, x, y, image, width = null, height = null, hidden = false }) => {
-      if (!id) {
-        throw new Error('id is required for canvas item');
-      } else if (this.mapTiles[id]) {
-        return;
-      }
-
-      const mapTile = {
+    mapTiles.forEach(
+      ({
         id,
         floor,
         x,
         y,
-        renderedX: x,
-        renderedY: y,
-        width,
-        height,
-        hitX: x,
-        hitY: y,
-        hitWidth: null,
-        hitHeight: null,
-        hidden,
         image,
-        others: {},
-      };
+        width = null,
+        height = null,
+        hidden = false,
+        scalePosition = false,
+        scaleDimension = false,
+      }) => {
+        if (!id) {
+          throw new Error('id is required for canvas item');
+        } else if (this.mapTiles[id]) {
+          return;
+        }
 
-      this.mapTiles[id] = mapTile;
-      this.mapTileIds.push(id);
+        const mapTile = {
+          id,
+          floor,
+          x,
+          y,
+          renderedX: x,
+          renderedY: y,
+          width,
+          height,
+          hitX: x,
+          hitY: y,
+          hitWidth: null,
+          hitHeight: null,
+          hidden,
+          image,
+          scaleDimension,
+          scalePosition,
+          others: {},
+        };
 
-      if (imageNotLoaded(image)) {
-        asyncMapTiles.push(
-          createImageLoadPromise(image)
-            .then(() => {
-              mapTile.width = image.width;
-              mapTile.height = image.height;
-              setCanvasItemHitArea(mapTile);
-              this.render();
-            })
-            .catch(err => {
-              console.log(err);
-            }),
-        );
-      } else {
-        mapTile.width = image.width;
-        mapTile.height = image.height;
-        setCanvasItemHitArea(mapTile);
-      }
+        this.mapTiles[id] = mapTile;
+        this.mapTileIds.push(id);
 
-      this.render();
-    });
+        if (imageNotLoaded(image)) {
+          asyncMapTiles.push(
+            createImageLoadPromise(image)
+              .then(() => {
+                mapTile.width = image.width;
+                mapTile.height = image.height;
+                setCanvasItemHitArea(mapTile);
+                this.render();
+              })
+              .catch(err => {
+                console.log(err);
+              }),
+          );
+        } else {
+          mapTile.width = image.width;
+          mapTile.height = image.height;
+          setCanvasItemHitArea(mapTile);
+        }
+
+        this.render();
+      },
+    );
 
     await Promise.all(asyncMapTiles);
     return mapTiles;
+  }
+
+  removeAllMapTiles() {
+    this.mapTileIds = [];
+    this.mapTiles = {};
   }
 
   /**
@@ -575,6 +718,8 @@ class CanvasHandler {
         hitY = getDefault(id, 'hitY', null),
         hitWidth = getDefault(id, 'hitWidth', null),
         hitHeight = getDefault(id, 'hitHeight', null),
+        scalePosition = getDefault(id, 'scalePosition', true),
+        scaleDimension = getDefault(id, 'scaleDimension', false),
       }) => {
         if (!id) {
           throw new Error('id is required for canvas item');
@@ -593,6 +738,8 @@ class CanvasHandler {
           hitY,
           hitWidth,
           hitHeight,
+          scalePosition,
+          scaleDimension,
           width,
           height,
           image,
@@ -760,18 +907,18 @@ class CanvasHandler {
     const rightX = leftX + width;
     const bottomY = topY + height;
 
-    const canvasLeftX = this.getLeftX();
-    const canvasRightX = canvasLeftX + this.getWidth();
-    const canvasTopY = this.getTopY();
-    const canvasBottomY = canvasTopY + this.getHeight();
+    const screenLeftX = this.getScreenLeftX();
+    const screenRightX = this.getScreenRightX();
+    const screenTopY = this.getScreenTopY();
+    const screenBottomY = this.getScreenBottomY();
 
     const xInRange =
-      [leftX, rightX].some(x => canvasLeftX <= x && x <= canvasRightX) ||
-      (leftX < canvasLeftX && canvasRightX < rightX);
+      [leftX, rightX].some(x => screenLeftX <= x && x <= screenRightX) ||
+      (leftX < screenLeftX && screenRightX < rightX);
 
     const yInRange =
-      [topY, bottomY].some(y => canvasTopY <= y && y <= canvasBottomY) ||
-      (topY < canvasTopY && canvasBottomY < bottomY);
+      [topY, bottomY].some(y => screenTopY <= y && y <= screenBottomY) ||
+      (topY < screenTopY && screenBottomY < bottomY);
 
     return xInRange && yInRange;
   }
@@ -780,8 +927,8 @@ class CanvasHandler {
     const ctx = this.canvas.getContext('2d');
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    const leftX = this.getLeftX();
-    const topY = this.getTopY();
+    const screenLeftX = this.getScreenLeftX();
+    const screenTopY = this.getScreenTopY();
 
     this.layerIds.forEach(key => {
       if (this.layers[key].hidden) {
@@ -801,11 +948,17 @@ class CanvasHandler {
           rect,
           width,
           height,
+          scalePosition,
+          scaleDimension,
         }) => {
+          const scaledRenderedX = scalePosition ? this.scaleCoordinate(renderedX) : renderedX;
+          const scaledRenderedY = scalePosition ? this.scaleCoordinate(renderedY) : renderedY;
+          const scaledWidth = scaleDimension ? this.scaleCoordinate(width) : width;
+          const scaledHeight = scaleDimension ? this.scaleCoordinate(height) : height;
           if (
             hidden ||
             floor !== this.floor ||
-            !this.inViewport(renderedX, renderedY, width, height)
+            !this.inViewport(scaledRenderedX, scaledRenderedY, scaledWidth, scaledHeight)
           ) {
             return;
           }
@@ -815,8 +968,8 @@ class CanvasHandler {
               const { radius, color, borderColor } = circle;
               ctx.beginPath();
               ctx.arc(
-                renderedX - leftX + width / 2,
-                renderedY - topY + height / 2,
+                scaledRenderedX - screenLeftX + scaledWidth / 2,
+                scaledRenderedY - screenTopY + scaledHeight / 2,
                 radius,
                 0,
                 Math.PI * 2,
@@ -837,17 +990,27 @@ class CanvasHandler {
               const { color, borderColor } = rect;
               if (color) {
                 ctx.fillStyle = color;
-                ctx.fillRect(renderedX - leftX, renderedY - topY, width, height);
+                ctx.fillRect(
+                  scaledRenderedX - screenLeftX,
+                  scaledRenderedY - screenTopY,
+                  scaledWidth,
+                  scaledHeight,
+                );
               }
 
               if (borderColor) {
                 ctx.strokeStyle = borderColor;
-                ctx.strokeRect(renderedX - leftX, renderedY - topY, width, height);
+                ctx.strokeRect(
+                  scaledRenderedX - screenLeftX,
+                  scaledRenderedY - screenTopY,
+                  scaledWidth,
+                  scaledHeight,
+                );
               }
               break;
             }
             case Boolean(image):
-              ctx.drawImage(image, renderedX - leftX, renderedY - topY);
+              ctx.drawImage(image, scaledRenderedX - screenLeftX, scaledRenderedY - screenTopY);
               break;
             case Boolean(textElement): {
               const { size, color, family, text, lines, lineHeight } = textElement;
@@ -858,12 +1021,12 @@ class CanvasHandler {
                 lines.forEach((textLine, i) => {
                   ctx.fillText(
                     textLine.join(' '),
-                    renderedX - leftX,
-                    renderedY + lineHeight * i - topY,
+                    scaledRenderedX - screenLeftX,
+                    scaledRenderedY + lineHeight * i - screenTopY,
                   );
                 });
               } else {
-                ctx.fillText(text, renderedX - leftX, renderedY - topY);
+                ctx.fillText(text, scaledRenderedX - screenLeftX, scaledRenderedY - screenTopY);
               }
 
               break;
@@ -875,11 +1038,10 @@ class CanvasHandler {
                 ctx.beginPath();
 
                 coordinates.forEach(([x, y], i) => {
-                  if (i === 0) {
-                    ctx.moveTo(x - leftX, y - topY);
-                    return;
-                  }
-                  ctx.lineTo(x - leftX, y - topY);
+                  const op = i === 0 ? ctx.moveTo : ctx.lineTo;
+                  const scaledX = scalePosition ? this.scaleCoordinate(x) : x;
+                  const scaledY = scalePosition ? this.scaleCoordinate(y) : y;
+                  op(scaledX - screenLeftX, scaledY - screenTopY);
                 });
 
                 ctx.strokeStyle = color;
@@ -910,7 +1072,9 @@ class CanvasHandler {
     addMapTiles: args => this.addMapTiles(args),
     setMapItems: args => this.setMapItems(args),
     removeMapItem: args => this.removeMapItem(args),
+    removeAllMapTiles: () => this.removeAllMapTiles(),
     updateDimension: (...args) => this.updateDimension(...args),
+    // map item listeners
     addMapItemClickListener: (id, mapItemId, listener, isPrepend) =>
       this.addMapItemListener('click', id, mapItemId, listener, isPrepend),
     addMapItemMouseOverListener: (id, mapItemId, listener, isPrepend) =>

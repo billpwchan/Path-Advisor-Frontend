@@ -72,7 +72,7 @@ class SearchArea extends Component {
     setSearchAreaInputHandler({
       [fieldName]: { name, data: { id, floor, value: name, type: 'id', coordinates: [x, y] } },
     });
-    linkTo({ floor, x, y, level: 1 });
+    linkTo({ floor, x, y, level: 0 });
   };
 
   onNearestItemClick = fieldName => ({ name, data }) => {

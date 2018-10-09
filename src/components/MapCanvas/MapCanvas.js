@@ -22,20 +22,27 @@ class MapCanvas extends Component {
     ...urlPropTypes,
     getMapItemsHandler: PropTypes.func.isRequired,
     floorStore: PropTypes.shape({}).isRequired,
+    appSettingsStore: PropTypes.shape({}).isRequired,
     linkTo: PropTypes.func.isRequired,
   };
 
   state = {
     width: null,
     height: null,
+    scaledWidth: null,
+    scaledHeight: null,
     movingX: null,
     movingY: null,
+    movingScaledX: null,
+    movingScaledY: null,
     movingLeftX: null,
     movingTopY: null,
+    movingScreenLeftX: null,
+    movingScreenTopY: null,
   };
 
   componentDidMount() {
-    const { linkTo, getMapItemsHandler } = this.props;
+    const { linkTo, getMapItemsHandler, appSettingsStore } = this.props;
 
     window.canvasHandler = this.canvasHandler;
 
@@ -47,12 +54,27 @@ class MapCanvas extends Component {
       }
     });
 
+    this.canvasHandler.addWheelListener(({ wheelDelta, x, y, floor, nextLevel, previousLevel }) => {
+      if (wheelDelta > 0) {
+        linkTo({ floor, x, y, level: nextLevel });
+      } else {
+        linkTo({ floor, x, y, level: previousLevel });
+      }
+    });
+
     const { x, y, floor, level } = this.props;
 
     this.canvasRootRef.current.appendChild(this.canvasHandler.getCanvas());
+    console.log(
+      'updateDimension',
+      this.canvasRootRef.current.offsetWidth,
+      this.canvasRootRef.current.offsetHeight,
+      appSettingsStore.levelToScale,
+    );
     this.canvasHandler.updateDimension(
       this.canvasRootRef.current.offsetWidth,
       this.canvasRootRef.current.offsetHeight,
+      appSettingsStore.levelToScale,
     );
 
     this.setState({
@@ -62,7 +84,7 @@ class MapCanvas extends Component {
 
     this.canvasHandler.addPositionChangeListener(
       throttle(
-        ({ floor: _floor, leftX, topY, width: _width, height: _height }) => {
+        ({ floor: _floor, leftX, topY, scaledWidth: _width, scaledHeight: _height }) => {
           const isPositionReady =
             [leftX, topY, _width, _height].every(v => !isNaN(v)) && !isNil(_floor);
 
@@ -76,8 +98,34 @@ class MapCanvas extends Component {
     );
 
     this.canvasHandler.addPositionChangeListener(
-      ({ x: movingX, y: movingY, leftX: movingLeftX, topY: movingTopY }) => {
-        this.setState({ movingX, movingY, movingLeftX, movingTopY });
+      ({
+        width,
+        height,
+        scaledWidth,
+        scaledHeight,
+        x: movingX,
+        y: movingY,
+        scaledX: movingScaledX,
+        scaledY: movingScaledY,
+        leftX: movingLeftX,
+        topY: movingTopY,
+        screenLeftX: movingScreenLeftX,
+        screenTopY: movingScreenTopY,
+      }) => {
+        this.setState({
+          width,
+          height,
+          scaledWidth,
+          scaledHeight,
+          movingX,
+          movingY,
+          movingScaledX,
+          movingScaledY,
+          movingLeftX,
+          movingTopY,
+          movingScreenLeftX,
+          movingScreenTopY,
+        });
       },
     );
 
@@ -184,6 +232,7 @@ class MapCanvas extends Component {
 
 export default connect(
   state => ({
+    appSettingsStore: state.appSettings,
     floorStore: state.floors,
   }),
   dispatch => ({

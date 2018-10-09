@@ -15,7 +15,20 @@ const paramStateMap = {
 };
 
 const urlParams = ['place', 'fromPlace', 'toPlace', 'mapItemType', 'x', 'y', 'level', 'floor'];
-const canvasParams = ['width', 'height', 'movingLeftX', 'movingTopY'];
+const canvasParams = [
+  'width',
+  'height',
+  'scaledWidth',
+  'scaledHeight',
+  'movingLeftX',
+  'movingTopY',
+  'movingScreenLeftX',
+  'movingScreenTopY',
+  'movingX',
+  'movingY',
+  'movingScaledX',
+  'movingScaledY',
+];
 
 const paramDispatchMap = {
   openOverlayHandler: dispatch => (photo, url, name, others) => {

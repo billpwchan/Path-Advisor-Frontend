@@ -7,6 +7,7 @@ function CampusBuildingOverlay({ floorStore: { floors }, setMapItems, linkTo }) 
     x,
     y,
     floor: 'Overall',
+    scaleDimension: true,
     rect: {
       width,
       height,
