@@ -24,6 +24,8 @@ mapItem object:
   height:number|null, /* Height of the map item or if null is given, it will be determined automatically */
   center: boolean, /* The x,y coordinates will be set as a center of the object if set to true */
   hidden: boolean, /* Wether the map tile is hidden */
+  scalePosition: boolean, /* Should the map item scale it's position when the map scale change */
+  scaleDimension: boolean, /* Should the map item scale it's dimension when the map scale change */
   onClick: function|null, /* callback function to be called when the map item is clicked */
   onMouseOver: function|null, /* callback function to be called when the cursor is over the map item */
   onMouseOut: function|null, /* callback function to be called when the cursor was over the map item and now is out side the map item */

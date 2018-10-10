@@ -14,13 +14,13 @@ There are four types of plugin for this project. They are `PrimaryPanelPlugin`, 
 #### x
 `x` - number
 
-Current x coordinate.
+Current x coordinate of the center of the map canvas.
 
 <!-- [y](properties/y.md ':include') -->
 #### y
 `y` - number
 
-Current y coordinate.
+Current y coordinate of the center of the map canvas.
 
 <!-- [level](properties/level.md ':include') -->
 #### level
@@ -335,23 +335,43 @@ Current map canvas width.
 
 Current map canvas height.
 
+#### scaledWidth
+`scaledWidth` - number
+
+`width` multiply by current level's scale.
+
+#### scaledHeight
+`scaledHeight` - number
+
+`height` multiply by current level's scale.
+
 <!-- [movingX](properties/movingX.md ':include') -->
 #### movingX
 `movingX` - number
 
-x coordinate while the user is doing drag and drop action.
+x coordinate of the center of the map canvas while the user is doing drag and drop action.
 
 <!-- [movingY](properties/movingY.md ':include') -->
 #### movingY
 `movingY` - number
 
-y coordinate while the user is doing drag and drop action.
+y coordinate of the center of the map canvas while the user is doing drag and drop action.
+
+#### movingScaledX
+`movingScaledX` - number
+
+`movingX` multiply by current level's scale.
+
+#### movingScaledY
+`movingScaledY` - number
+
+`movingY` multiply by current level's scale.
 
 <!-- [movingLeftX](properties/movingLeftX.md ':include') -->
 #### movingLeftX
 `movingLeftX` - number
 
-x coordinate offset on the left of the map canvas while the user is doing drag and drop action.
+x coordinate offset on the left of the map canvas reference to `movingX` while the user is doing drag and drop action.
 
 <!-- [movingTopY](properties/movingTopY.md ':include') -->
 #### movingTopY
@@ -359,6 +379,17 @@ x coordinate offset on the left of the map canvas while the user is doing drag a
 
 y coordinate offset at the top of the map canvas while the user is doing drag and drop action.
 
+#### movingScreenLeftX
+`movingScreenLeftX` - number
+
+Similar to `movingLeftX`, but use `movingScaledX` as reference point.
+
+#### movingScreenLeftY
+`movingScreenLeftY` - number
+
+Similar to `movingLeftY`, but use `movingScaledY` as reference point.
+
+####
 <!-- [APIEndpoint](properties/APIEndpoint.md ':include') -->
 
 #### APIEndpoint
@@ -385,7 +416,9 @@ mapTile object
   image: HTMLImageElement, /* Image of the map tile */,
   width:number|null, /* Width of the image or if null is given it will be determined automatically when the image is loaded */
   height:number|null, /* Height of the image or if null is given it will be determined automatically when the image is loaded */
-  hidden:boolean /* Wether the map tile is hidden */
+  hidden:boolean, /* Wether the map tile is hidden */
+  scalePosition: boolean, /* Should the map item scale it's position when the map scale change */
+  scaleDimension: boolean, /* Should the map item scale it's dimension when the map scale change */
 }
 ```
 
@@ -416,6 +449,8 @@ mapItem object:
   height:number|null, /* Height of the map item or if null is given, it will be determined automatically */
   center: boolean, /* The x,y coordinates will be set as a center of the object if set to true */
   hidden: boolean, /* Wether the map tile is hidden */
+  scalePosition: boolean, /* Should the map item scale it's position when the map scale change */
+  scaleDimension: boolean, /* Should the map item scale it's dimension when the map scale change */
   onClick: function|null, /* callback function to be called when the map item is clicked */
   onMouseOver: function|null, /* callback function to be called when the cursor is over the map item */
   onMouseOut: function|null, /* callback function to be called when the cursor was over the map item and now is out side the map item */

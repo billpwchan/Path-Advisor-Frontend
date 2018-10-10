@@ -16,6 +16,8 @@ mapTile object
   image: HTMLImageElement, /* Image of the map tile */,
   width:number|null, /* Width of the image or if null is given it will be determined automatically when the image is loaded */
   height:number|null, /* Height of the image or if null is given it will be determined automatically when the image is loaded */
-  hidden:boolean /* Wether the map tile is hidden */
+  hidden:boolean, /* Wether the map tile is hidden */
+  scalePosition: boolean, /* Should the map item scale it's position when the map scale change */
+  scaleDimension: boolean, /* Should the map item scale it's dimension when the map scale change */
 }
 ```
