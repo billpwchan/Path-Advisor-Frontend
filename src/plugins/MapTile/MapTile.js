@@ -2,14 +2,15 @@ import throttle from 'lodash.throttle';
 
 const MAP_TILE_WIDTH = 200;
 const MAP_TILE_HEIGHT = 200;
+const imageCaches = {};
 
 /**
  * @typedef MapTileNumber
- * @property {number} x - coordinate x of the top left concer of this map tile number
- * @property {number} y - coordinate y of the top left concer of this map tile number
+ * @property {number} x - coordinate x of the top left of this map tile number
+ * @property {number} y - coordinate y of the top left of this map tile number
  */
 /**
- * Given an coordindate, return the number of the map tile containing this coordinate
+ * Given an coordinate, return the number of the map tile containing this coordinate
  * @param {number} x
  * @param {number} y
  * @return {MapTileNumber}
@@ -28,13 +29,17 @@ function getMapTileId(x, y, floor, level) {
 }
 
 /**
+ * @param {string} id
  * @param {string} src
- * @return {HTMLImageElement} Loaded image element
  */
-function createImage(src) {
-  const img = new Image();
-  img.src = src;
-  return img;
+function createImage(id, src) {
+  if (!imageCaches[id]) {
+    const img = new Image();
+    img.src = src;
+    imageCaches[id] = img;
+  }
+
+  return imageCaches[id];
 }
 
 function getMapTileUrl(APIEndpoint, x, y, floor, level) {
@@ -48,24 +53,26 @@ function generateMapTiles(APIEndpoint, canvasOffsetX, canvasOffsetY, width, heig
   let nextTileX = x;
 
   do {
+    const xId = getMapTileId(nextTileX, y, floor, level);
     mapTiles.push({
-      id: getMapTileId(nextTileX, y, floor, level),
+      id: xId,
       floor,
       x: nextTileX,
       y,
-      image: createImage(getMapTileUrl(APIEndpoint, nextTileX, y, floor, level)),
+      image: createImage(xId, getMapTileUrl(APIEndpoint, nextTileX, y, floor, level)),
     });
 
     let nextTileY = y;
 
     do {
       nextTileY += MAP_TILE_HEIGHT;
+      const yId = getMapTileId(nextTileX, nextTileY, floor, level);
       mapTiles.push({
-        id: getMapTileId(nextTileX, nextTileY, floor, level),
+        id: yId,
         floor,
         x: nextTileX,
         y: nextTileY,
-        image: createImage(getMapTileUrl(APIEndpoint, nextTileX, nextTileY, floor, level)),
+        image: createImage(yId, getMapTileUrl(APIEndpoint, nextTileX, nextTileY, floor, level)),
       });
     } while (nextTileY - y < height + MAP_TILE_HEIGHT);
 
@@ -130,5 +137,5 @@ const MapCanvasPlugin = {
     'movingScreenTopY',
   ],
 };
-const id = 'maptile';
+const id = 'MAP_TILE';
 export { id, MapCanvasPlugin };
