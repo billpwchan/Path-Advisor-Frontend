@@ -48,8 +48,9 @@ class Main extends Component {
     return parseParams(this.props.match.params);
   }
 
-  linkTo = ({ floor, x, y, level = this.urlParams.level }) => {
+  linkTo = position => {
     const { level: currentLevel, x: currentX, y: currentY, floor: currentFloor } = this.urlParams;
+    const { floor = currentFloor, x = currentX, y = currentY, level = currentLevel } = position;
 
     const isNewPosition =
       floor !== currentFloor || x !== currentX || y !== currentY || level !== currentLevel;

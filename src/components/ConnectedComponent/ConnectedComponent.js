@@ -28,6 +28,8 @@ const canvasParams = [
   'movingY',
   'movingScaledX',
   'movingScaledY',
+  'nextLevel',
+  'previousLevel',
 ];
 
 const paramDispatchMap = {

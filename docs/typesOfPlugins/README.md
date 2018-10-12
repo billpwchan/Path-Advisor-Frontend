@@ -26,7 +26,7 @@ Current y coordinate of the center of the map canvas.
 #### level
 `level` - number
 
-Current level.
+Current zoom level. 0 is the default zoom level at largest scale.
 
 <!-- [floor](properties/floor.md ':include') -->
 #### floor
@@ -38,7 +38,7 @@ Current floor ID.
 #### linkTo
 `linkTo` - function
 
-A function that takes a `{x, y, floor, level}` object argument and it position the map canvas to this position.
+A function that takes a `{x, y, floor, level}` object argument and it reposition the map canvas to this position. All four properties in the object are optional, if they are missing in the supplied object, they will be assigned with current position value. For example, you can call `linkTo` with `{level: 2}` to indicate that you don't want to change the current `x`, `y`, `floor` value but to change only the zoom level and keep the map canvas at the same position.
 
 
 <!-- [legendStore](properties/legendStore.md ':include') -->
@@ -388,6 +388,16 @@ Similar to `movingLeftX`, but use `movingScaledX` as reference point.
 `movingScreenLeftY` - number
 
 Similar to `movingLeftY`, but use `movingScaledY` as reference point.
+
+#### nextLevel
+`nextLevel` - number
+
+Next possible zoom level value that represents a larger scale value. Value Will be the same as `level` if there is no possible next zoom level.
+
+#### previousLevel
+`previousLevel` - number
+
+Previous zoom level that represents a smaller scale value. Value will be the same as `level` if there is no possible previous zoom level.
 
 ####
 <!-- [APIEndpoint](properties/APIEndpoint.md ':include') -->

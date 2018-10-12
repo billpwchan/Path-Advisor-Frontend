@@ -39,6 +39,8 @@ class MapCanvas extends Component {
     movingTopY: null,
     movingScreenLeftX: null,
     movingScreenTopY: null,
+    nextLevel: null,
+    previousLevel: null,
   };
 
   componentDidMount() {
@@ -65,12 +67,6 @@ class MapCanvas extends Component {
     const { x, y, floor, level } = this.props;
 
     this.canvasRootRef.current.appendChild(this.canvasHandler.getCanvas());
-    console.log(
-      'updateDimension',
-      this.canvasRootRef.current.offsetWidth,
-      this.canvasRootRef.current.offsetHeight,
-      appSettingsStore.levelToScale,
-    );
     this.canvasHandler.updateDimension(
       this.canvasRootRef.current.offsetWidth,
       this.canvasRootRef.current.offsetHeight,
@@ -111,6 +107,8 @@ class MapCanvas extends Component {
         topY: movingTopY,
         screenLeftX: movingScreenLeftX,
         screenTopY: movingScreenTopY,
+        nextLevel,
+        previousLevel,
       }) => {
         this.setState({
           width,
@@ -125,6 +123,8 @@ class MapCanvas extends Component {
           movingTopY,
           movingScreenLeftX,
           movingScreenTopY,
+          nextLevel,
+          previousLevel,
         });
       },
     );
@@ -193,10 +193,9 @@ class MapCanvas extends Component {
             </button>
           </div>
         </div>
-        <div className={style.canvasRoot} ref={this.canvasRootRef} />
-        {isDimensionReady && (
-          <div className={style.canvasPlugins}>
-            {children.map(({ id, MapCanvasPlugin }) => {
+        <div className={style.canvasRoot} ref={this.canvasRootRef}>
+          {isDimensionReady &&
+            children.map(({ id, MapCanvasPlugin }) => {
               if (!MapCanvasPlugin) {
                 return null;
               }
@@ -223,8 +222,7 @@ class MapCanvas extends Component {
                 />
               );
             })}
-          </div>
-        )}
+        </div>
       </div>
     );
   }
