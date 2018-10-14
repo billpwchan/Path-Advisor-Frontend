@@ -2,3 +2,4 @@
 * [Getting started](gettingStarted/README.md)
 * [Types of plugins](typesOfPlugins/README.md)
 * [Advanced](advanced/README.md)
+* [Things to avoid](thingsToAvoid/README.md)

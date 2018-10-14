@@ -147,7 +147,7 @@ For each plugin type you can connect different types of properties, they are des
 
 Each time the properties connecting to the plugin component are updated, the plugin function, or the render method of the plugin if you define your plugin as a class, will be called.
 
-Also if your plugin only exists to call some functions and do not render anything, you must return `null`. An error will be thrown if a plugin does not return anything.
+Also if your plugin only exists to call some functions and do not render any HTML DOM elements and therefore there is nothing to return then you must return `null`. An error will be thrown if a plugin does not return anything.
 
 ** function plugin **
 
@@ -168,3 +168,7 @@ class HelloWorld extends React.Component {
   }
 }
 ```
+
+For `MapCanvasPlugin`, the items added to map canvas by calling `setMapItems`, they are not HTML DOM elements as these map items are drawn to map canvas directly. For those plugins you should return null as well unless your are returning some extra HTML DOM elements to be rendered on top of the map canvas.
+
+The rule of thumb is your plugin should always have a return statement returning something.
