@@ -28,7 +28,6 @@
 
 .canvasRoot {
   height: calc(100% - 30px);
+  position: relative;
 }
-.canvasPlugins{
 
-}
