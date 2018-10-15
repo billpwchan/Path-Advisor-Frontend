@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import classnames from 'classnames';
 import React, { Component, createRef } from 'react';
 import get from 'lodash.get';
 import pick from 'lodash.pick';
@@ -24,6 +25,7 @@ class MapCanvas extends Component {
     floorStore: PropTypes.shape({}).isRequired,
     appSettingsStore: PropTypes.shape({}).isRequired,
     linkTo: PropTypes.func.isRequired,
+    isMobile: PropTypes.bool.isRequired,
   };
 
   state = {
@@ -160,6 +162,7 @@ class MapCanvas extends Component {
       level,
       linkTo,
       floorStore: { floors, buildings },
+      isMobile,
     } = this.props;
 
     const { width, height } = this.state;
@@ -179,21 +182,26 @@ class MapCanvas extends Component {
 
     return (
       <div className={style.body}>
-        <div className={style.title}>
-          <div className={style.floor}>
-            {get(floors, `${floor}.name`) &&
-              `Floor ${floors[floor].name} - ${buildings[floors[floor].buildingId].name}`}
+        {!isMobile ? (
+          <div className={style.title}>
+            <div className={style.floor}>
+              {get(floors, `${floor}.name`) &&
+                `Floor ${floors[floor].name} - ${buildings[floors[floor].buildingId].name}`}
+            </div>
+            <div className={style.buttons}>
+              <a className={style.button} href="/suggestions.html">
+                Suggestion
+              </a>
+              <button className={style.button} type="button">
+                Print
+              </button>
+            </div>
           </div>
-          <div className={style.buttons}>
-            <a className={style.button} href="/suggestions.html">
-              Suggestion
-            </a>
-            <button className={style.button} type="button">
-              Print
-            </button>
-          </div>
-        </div>
-        <div className={style.canvasRoot} ref={this.canvasRootRef}>
+        ) : null}
+        <div
+          className={classnames(style.canvasRoot, { [style['canvasRoot--mobile']]: isMobile })}
+          ref={this.canvasRootRef}
+        >
           {isDimensionReady &&
             children.map(({ id, MapCanvasPlugin }) => {
               if (!MapCanvasPlugin) {

@@ -31,3 +31,6 @@
   position: relative;
 }
 
+.canvasRoot--mobile {
+  height: 100%;
+}

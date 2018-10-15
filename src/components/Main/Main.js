@@ -1,12 +1,15 @@
 import React, { Component } from 'react';
+import classnames from 'classnames';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import isNil from 'lodash.isnil';
 import PrimaryPanel from '../PrimaryPanel/PrimaryPanel';
+import TopPanel from '../TopPanel/TopPanel';
 import plugins from '../../plugins';
 import MapCanvas from '../MapCanvas/MapCanvas';
 import { parseParams, build as buildUrl } from '../Router/Url';
 import style from './Main.module.css';
+import detectIsMobile from './detectIsMobile';
 
 class Main extends Component {
   static propTypes = {
@@ -79,26 +82,36 @@ class Main extends Component {
   }
 
   render() {
+    const isMobile = detectIsMobile();
+
     return (
-      <div className={style.body}>
-        <div className={style.header}>HKUST Path Advisor</div>
-        <PrimaryPanel {...this.urlParams} linkTo={this.linkTo}>
-          {plugins.map(({ id, PrimaryPanelPlugin, OverlayHeaderPlugin, OverlayContentPlugin }) => ({
-            id,
-            PrimaryPanelPlugin,
-            OverlayHeaderPlugin,
-            OverlayContentPlugin,
-          }))}
-        </PrimaryPanel>
-        {this.props.appSettingStore.success && (
-          <MapCanvas {...this.urlParams} linkTo={this.linkTo}>
-            {plugins.map(({ id, MapCanvasPlugin }) => ({
-              id,
-              MapCanvasPlugin,
-            }))}
-          </MapCanvas>
-        )}
-      </div>
+      <>
+        {!isMobile ? <div className={style.header}>HKUST Path Advisor</div> : null}
+        <div className={classnames(style.body, { [style['body--mobile']]: isMobile })}>
+          {!isMobile ? (
+            <PrimaryPanel {...this.urlParams} linkTo={this.linkTo}>
+              {plugins.map(
+                ({ id, PrimaryPanelPlugin, OverlayHeaderPlugin, OverlayContentPlugin }) => ({
+                  id,
+                  PrimaryPanelPlugin,
+                  OverlayHeaderPlugin,
+                  OverlayContentPlugin,
+                }),
+              )}
+            </PrimaryPanel>
+          ) : (
+            <TopPanel />
+          )}
+          {this.props.appSettingStore.success && (
+            <MapCanvas {...this.urlParams} linkTo={this.linkTo} isMobile={isMobile}>
+              {plugins.map(({ id, MapCanvasPlugin }) => ({
+                id,
+                MapCanvasPlugin,
+              }))}
+            </MapCanvas>
+          )}
+        </div>
+      </>
     );
   }
 }

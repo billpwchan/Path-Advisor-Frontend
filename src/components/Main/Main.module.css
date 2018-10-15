@@ -2,6 +2,10 @@
   height: calc(100% - 43px);
 }
 
+.body--mobile {
+  height: 100%;
+}
+
 .header {
   font-family: Verdana;
   font-size: 14pt;
