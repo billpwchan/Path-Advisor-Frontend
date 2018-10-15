@@ -829,8 +829,8 @@ class CanvasHandler {
               asyncMapItems.push(
                 createImageLoadPromise(image)
                   .then(() => {
-                    mapItem.width = image.width;
-                    mapItem.height = image.height;
+                    mapItem.width = mapItem.width ? mapItem.width : image.width;
+                    mapItem.height = mapItem.height ? mapItem.height : image.height;
 
                     if (center) {
                       mapItem.renderedX = x - mapItem.width / 2;
@@ -848,8 +848,8 @@ class CanvasHandler {
               break;
             }
 
-            mapItem.width = image.width;
-            mapItem.height = image.height;
+            mapItem.width = mapItem.width ? mapItem.width : image.width;
+            mapItem.height = mapItem.height ? mapItem.height : image.height;
 
             break;
           }
@@ -1010,7 +1010,13 @@ class CanvasHandler {
               break;
             }
             case Boolean(image):
-              ctx.drawImage(image, scaledRenderedX - screenLeftX, scaledRenderedY - screenTopY);
+              ctx.drawImage(
+                image,
+                scaledRenderedX - screenLeftX,
+                scaledRenderedY - screenTopY,
+                width,
+                height,
+              );
               break;
             case Boolean(textElement): {
               const { size, color, family, text, lines, lineHeight } = textElement;

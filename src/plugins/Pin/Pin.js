@@ -21,6 +21,8 @@ function Pin({ setMapItems, removeMapItem, searchAreaInputStore }) {
         floor,
         x: x - pinImageWidth / 2,
         y: y - pinImageHeight,
+        width: pinImageWidth,
+        height: pinImageHeight,
         image,
       },
     ]);
