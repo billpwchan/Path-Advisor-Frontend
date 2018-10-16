@@ -1044,10 +1044,10 @@ class CanvasHandler {
                 ctx.beginPath();
 
                 coordinates.forEach(([x, y], i) => {
-                  const op = i === 0 ? ctx.moveTo : ctx.lineTo;
+                  const op = i === 0 ? 'moveTo' : 'lineTo';
                   const scaledX = scalePosition ? this.scaleCoordinate(x) : x;
                   const scaledY = scalePosition ? this.scaleCoordinate(y) : y;
-                  op(scaledX - screenLeftX, scaledY - screenTopY);
+                  ctx[op](scaledX - screenLeftX, scaledY - screenTopY);
                 });
 
                 ctx.strokeStyle = color;
