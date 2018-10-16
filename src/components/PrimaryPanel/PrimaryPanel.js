@@ -3,6 +3,7 @@ import pick from 'lodash.pick';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import SearchArea from '../SearchArea/SearchArea';
+import SearchPrimaryPanelView from '../SearchPrimaryPanelView/SearchPrimaryPanelView';
 import PanelOverlay from '../PanelOverlay/PanelOverlay';
 import Floor from '../Floor/Floor';
 import getConnectedComponent from '../ConnectedComponent/getConnectedComponent';
@@ -119,7 +120,11 @@ class PrimaryPanel extends Component {
                   level={level}
                 />
               )}
-              <SearchArea displayAdvancedSearch={displayAdvancedSearch} linkTo={linkTo} />
+              <SearchArea
+                displayAdvancedSearch={displayAdvancedSearch}
+                linkTo={linkTo}
+                SearchView={SearchPrimaryPanelView}
+              />
 
               {children.map(({ id, PrimaryPanelPlugin }) => {
                 if (!PrimaryPanelPlugin) {

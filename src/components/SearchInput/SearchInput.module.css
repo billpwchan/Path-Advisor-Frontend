@@ -12,6 +12,7 @@
   border: 1px solid #cccccc;
   background-color: white;
   position: absolute;
+  z-index: 1;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;

@@ -1,20 +1,13 @@
-import classnames from 'classnames';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import get from 'lodash.get';
 import PropTypes from 'prop-types';
-import style from './SearchArea.module.css';
-import switchImage from './switch.png';
-import SearchInput from '../SearchInput/SearchInput';
-import SearchNearest from '../SearchNearest/SearchNearest';
-import AdvancedSearch from '../AdvancedSearch/AdvancedSearch';
 import { searchMapItemAction } from '../../reducers/searchMapItem';
 import {
   searchShortestPathAction,
   clearSearchShortestPathResultAction,
 } from '../../reducers/searchShortestPath';
 import { searchNearestAction, clearSearchNearestResultAction } from '../../reducers/searchNearest';
-import { setSearchAreaInputAction } from '../../reducers/searchAreaInput';
+import { setSearchAreaInputAction, searchAreaInputPropTypes } from '../../reducers/searchAreaInput';
 
 class SearchArea extends Component {
   static propTypes = {
@@ -25,37 +18,10 @@ class SearchArea extends Component {
     clearSearchNearestResultHandler: PropTypes.func.isRequired,
     searchMapItemStore: PropTypes.shape({}),
     floorStore: PropTypes.shape({}),
+    SearchView: PropTypes.node.isRequired,
     linkTo: PropTypes.func.isRequired,
     setSearchAreaInputHandler: PropTypes.func.isRequired,
-    searchAreaInputStore: PropTypes.shape({
-      from: PropTypes.shape({
-        name: PropTypes.string,
-        data: PropTypes.shape({
-          type: PropTypes.string,
-          id: PropTypes.string,
-          floor: PropTypes.string,
-          value: PropTypes.string,
-          coordinates: PropTypes.arrayOf(PropTypes.number),
-        }),
-      }),
-      to: PropTypes.shape({
-        name: PropTypes.string,
-        data: PropTypes.shape({
-          type: PropTypes.string,
-          id: PropTypes.string,
-          floor: PropTypes.string,
-          value: PropTypes.string,
-          coordinates: PropTypes.arrayOf(PropTypes.number),
-        }),
-      }),
-      searchOptions: PropTypes.shape({
-        sameFloor: PropTypes.bool,
-        noStairCase: PropTypes.bool,
-        noEscalator: PropTypes.bool,
-        searchMode: PropTypes.string,
-      }),
-      searchInputOrders: PropTypes.arrayOf(PropTypes.string),
-    }),
+    searchAreaInputStore: searchAreaInputPropTypes,
     displayAdvancedSearch: PropTypes.bool.isRequired,
   };
 
@@ -155,96 +121,25 @@ class SearchArea extends Component {
     const {
       floorStore,
       searchMapItemStore,
-      searchAreaInputStore: {
-        searchOptions: { sameFloor },
-        searchInputOrders,
-      },
       searchAreaInputStore,
       displayAdvancedSearch,
+      SearchView,
     } = this.props;
-    const suggestions = get(searchMapItemStore, 'suggestions', []);
-
-    const searchInputs = {
-      SearchInput: direction => (
-        <SearchInput
-          suggestions={suggestions}
-          onKeywordChange={this.onKeywordChange(direction)}
-          loading={searchMapItemStore.loading}
-          onAutoCompleteItemClick={this.onAutoCompleteItemClick(direction)}
-          value={this.props.searchAreaInputStore[direction].name}
-          floorStore={floorStore}
-        />
-      ),
-      SearchNearest: direction => (
-        <SearchNearest
-          direction={direction}
-          onNearestItemClick={this.onNearestItemClick(direction)}
-          value={this.props.searchAreaInputStore[direction].name}
-        >
-          <SearchInput
-            suggestions={suggestions}
-            onKeywordChange={this.onKeywordChange(direction)}
-            loading={searchMapItemStore.loading}
-            onAutoCompleteItemClick={this.onAutoCompleteItemClick(direction)}
-            placeholder="Room number/ name"
-            floorStore={floorStore}
-          />
-        </SearchNearest>
-      ),
-    };
 
     return (
-      <div className={style.body}>
-        <div className={style.head}>Search</div>
-        <div className={style.contentContainer}>
-          <div className={style.content}>
-            <div className={style.searchColumn}>
-              <div className={style.searchRow}>
-                <div className={style.inputTitle}>From</div>
-                <div className={style.inputField}>{searchInputs[searchInputOrders[0]]('from')}</div>
-              </div>
-              <div className={style.searchRow}>
-                <div className={style.inputTitle}>To</div>
-                <div className={style.inputField}> {searchInputs[searchInputOrders[1]]('to')} </div>
-              </div>
-            </div>
-
-            <button
-              className={classnames(style.searchColumn, style.switch)}
-              type="button"
-              onClick={this.switchInputOrder}
-            >
-              <img src={switchImage} alt="switch" />
-            </button>
-
-            <div className={style.checkBoxRow}>
-              <input
-                className={style.checkBoxColumn}
-                type="checkbox"
-                onChange={this.updateSameFloor}
-                checked={sameFloor}
-              />
-              <div className={style.checkBoxColumn}>On the same floor</div>
-            </div>
-
-            <div className={style.searchButtonContainer}>
-              <input
-                type="button"
-                className={style.searchButton}
-                value="GO"
-                onClick={this.search}
-              />
-            </div>
-          </div>
-        </div>
-        {displayAdvancedSearch && (
-          <AdvancedSearch
-            searchAreaInputStore={searchAreaInputStore}
-            updateSearchOptions={this.updateSearchOptions}
-            search={this.search}
-          />
-        )}
-      </div>
+      <SearchView
+        floorStore={floorStore}
+        searchMapItemStore={searchMapItemStore}
+        searchAreaInputStore={searchAreaInputStore}
+        onKeywordChange={this.onKeywordChange}
+        onAutoCompleteItemClick={this.onAutoCompleteItemClick}
+        onNearestItemClick={this.onNearestItemClick}
+        switchInputOrder={this.switchInputOrder}
+        updateSameFloor={this.updateSameFloor}
+        search={this.search}
+        displayAdvancedSearch={displayAdvancedSearch}
+        updateSearchOptions={this.updateSearchOptions}
+      />
     );
   }
 }
