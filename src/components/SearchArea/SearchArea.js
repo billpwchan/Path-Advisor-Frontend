@@ -22,7 +22,7 @@ class SearchArea extends Component {
     linkTo: PropTypes.func.isRequired,
     setSearchAreaInputHandler: PropTypes.func.isRequired,
     searchAreaInputStore: searchAreaInputPropTypes,
-    displayAdvancedSearch: PropTypes.bool.isRequired,
+    displayAdvancedSearch: PropTypes.bool,
   };
 
   onKeywordChange = fieldName => keyword => {
