@@ -8,11 +8,13 @@ export const SEARCH_MODES = {
   MIN_NO_OF_LIFTS: 'MIN_NO_OF_LIFTS',
 };
 
+const TYPE_ENUM = ['id', 'keyword', 'nearest'];
+
 export const searchAreaInputPropTypes = PropTypes.shape({
   from: PropTypes.shape({
     name: PropTypes.string,
     data: PropTypes.shape({
-      type: PropTypes.string,
+      type: PropTypes.oneOf(TYPE_ENUM),
       id: PropTypes.string,
       floor: PropTypes.string,
       value: PropTypes.string,
@@ -22,7 +24,7 @@ export const searchAreaInputPropTypes = PropTypes.shape({
   to: PropTypes.shape({
     name: PropTypes.string,
     data: PropTypes.shape({
-      type: PropTypes.string,
+      type: PropTypes.oneOf(TYPE_ENUM),
       id: PropTypes.string,
       floor: PropTypes.string,
       value: PropTypes.string,
