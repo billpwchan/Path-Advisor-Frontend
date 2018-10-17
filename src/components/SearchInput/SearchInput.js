@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import style from './SearchInput.module.css';
 
 class SearchInput extends Component {
   static propTypes = {
@@ -13,7 +12,9 @@ class SearchInput extends Component {
         id: PropTypes.string,
       }),
     ).isRequired,
-    floorStore: PropTypes.shape({}),
+    floorStore: PropTypes.shape({}).isRequired,
+    inputClassName: PropTypes.string,
+    autoCompleteListClassName: PropTypes.string,
     onKeywordChange: PropTypes.func.isRequired,
     onAutoCompleteItemClick: PropTypes.func.isRequired,
     onClickHook: PropTypes.func,
@@ -52,6 +53,8 @@ class SearchInput extends Component {
   render() {
     const { hideAutoComplete } = this.state;
     const {
+      inputClassName = '',
+      autoCompleteListClassName = '',
       loading,
       suggestions,
       value,
@@ -63,23 +66,22 @@ class SearchInput extends Component {
       <div>
         <input
           type="text"
-          className={style.input}
+          className={inputClassName}
           onChange={this.onInputChange}
           value={value}
           placeholder={placeholder}
         />
         {!hideAutoComplete &&
           !loading && (
-            <ul className={style.autoCompleteList}>
+            <ul className={autoCompleteListClassName}>
               {suggestions.map(({ name, floor, coordinates, id }) => (
-                <li key={id} className={style.autoCompleteListItem}>
+                <li key={id}>
                   <button
                     type="button"
-                    className={style.autoCompleteListItemButton}
                     onClick={() => this.onClick({ name, floor, coordinates, id })}
                   >
-                    <span className={style.autoCompleteListItemName}>{name}</span>
-                    <span className={style.autoCompleteListItemLocation}>
+                    <span className="name">{name}</span>
+                    <span className="location">
                       , {buildings[floors[floor].buildingId].name}, floor {floors[floor].name}
                     </span>
                   </button>

@@ -32,6 +32,8 @@ function SearchPrimaryPanelView({
     SearchInput(direction) {
       return (
         <SearchInput
+          inputClassName={style.input}
+          autoCompleteListClassName={style.autoCompleteList}
           suggestions={suggestions}
           onKeywordChange={onKeywordChange(direction)}
           loading={searchMapItemStore.loading}
@@ -49,6 +51,8 @@ function SearchPrimaryPanelView({
           value={searchAreaInputStore[direction].name}
         >
           <SearchInput
+            inputClassName={style.input}
+            autoCompleteListClassName={style.autoCompleteList}
             suggestions={suggestions}
             onKeywordChange={onKeywordChange(direction)}
             loading={searchMapItemStore.loading}
