@@ -21,6 +21,11 @@ const DEFAULT_CIRCLE_STYLE = {
   color: 'lightblue',
 };
 
+const LEGEND_DIMENSION = {
+  width: 24,
+  height: 24,
+};
+
 function convertName(name) {
   if (name.startsWith('ROOM')) {
     return name.substr(4).trim();
@@ -83,6 +88,7 @@ class MapItem extends Component {
             accumulator.push({
               ...baseMapItem,
               image: createImage(legends[type].image),
+              ...LEGEND_DIMENSION,
             });
             break;
           case 'crossBuildingConnector':
@@ -90,6 +96,7 @@ class MapItem extends Component {
             accumulator.push({
               ...baseMapItem,
               image: createImage(legends[type].image),
+              ...LEGEND_DIMENSION,
               onMouseOver: () => {
                 document.body.style.cursor = 'pointer';
               },
@@ -197,6 +204,7 @@ class MapItem extends Component {
             id: `${floor}_${id}_restaurant`,
             x: x + marginLeft,
             image: createImage(legends[type].image),
+            ...LEGEND_DIMENSION,
           });
           marginTop += 20;
         }
@@ -208,6 +216,7 @@ class MapItem extends Component {
             x: x + marginLeft,
             y: y + marginTop,
             image: createImage(legends.photo.image),
+            ...LEGEND_DIMENSION,
             onClick: () => {
               openOverlayHandler(name, photo, url);
             },
