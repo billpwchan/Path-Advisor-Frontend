@@ -2,6 +2,7 @@ import * as MapTile from './MapTile/MapTile';
 import * as MapItem from './MapItem/MapItem';
 import * as Legend from './Legend/Legend';
 import * as NearestResult from './NearestResult/NearestResult';
+import * as NearestResultMobile from './NearestResultMobile/NearestResultMobile';
 import * as ShortestResult from './ShortestResult/ShortestResult';
 import * as Pin from './Pin/Pin';
 import * as CampusBuildingOverlay from './CampusBuildingOverlay/CampusBuildingOverlay';
@@ -16,4 +17,5 @@ export default [
   ShortestResult,
   Legend,
   ZoomButton,
+  NearestResultMobile,
 ];
