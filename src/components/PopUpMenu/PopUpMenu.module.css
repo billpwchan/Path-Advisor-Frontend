@@ -1,0 +1,44 @@
+.body {
+  min-width: 240px;
+}
+
+.header {
+  box-sizing: border-box;
+  border-top: 3px solid rgba(80, 80, 80, 0.95);
+  border-left: 3px solid rgba(58, 58, 58, 0.95);
+  border-bottom: 3px solid rgba(58, 58, 58, 0.95);
+  border-right: 3px solid rgba(58, 58, 58, 0.95);
+  background: linear-gradient(rgba(7,7,7,0.95),rgba(72,72,72,0.95) );
+  color: rgb(153, 153, 153);
+  font-size: 15pt;
+  padding-left: 5px;
+}
+
+.item {
+  background-color: rgba(0, 95, 140, 0.95);
+  box-sizing: border-box;
+  border-left: 3px solid rgba(0, 75, 111, 0.95);
+  border-right: 3px solid rgba(0, 75, 111, 0.95);
+  border-bottom: 3px solid rgba(0, 75, 111, 0.95);
+  border-top: 3px solid rgba(39, 119, 158, 0.95);
+  color: white;
+  font-size: 19px;
+}
+
+.button {
+  padding: 4px 0;
+  padding-left: 8px;
+  width: 100%;
+  text-align: left;
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+  vertical-align: middle;
+}
+
+.text {
+  vertical-align: middle;
+  margin-left: 10px;
+}
