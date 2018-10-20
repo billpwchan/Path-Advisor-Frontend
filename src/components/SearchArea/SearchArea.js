@@ -18,7 +18,7 @@ class SearchArea extends Component {
     clearSearchNearestResultHandler: PropTypes.func.isRequired,
     searchMapItemStore: PropTypes.shape({}),
     floorStore: PropTypes.shape({}),
-    SearchView: PropTypes.node.isRequired,
+    SearchView: PropTypes.func.isRequired,
     linkTo: PropTypes.func.isRequired,
     setSearchAreaInputHandler: PropTypes.func.isRequired,
     searchAreaInputStore: searchAreaInputPropTypes,
