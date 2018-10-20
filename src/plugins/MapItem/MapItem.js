@@ -7,8 +7,7 @@ import MapItemOverlayContent from './MapItemOverlayContent';
 const imgCached = {};
 
 const DEFAULT_TEXT_STYLE = {
-  size: '12 px',
-  family: 'Verdana',
+  style: '10px Verdana',
   color: 'black',
   maxLineWidth: 35,
 };

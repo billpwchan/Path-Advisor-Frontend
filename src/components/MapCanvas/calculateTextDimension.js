@@ -22,13 +22,12 @@ function calculateApproximateTextHeight(fontStyle) {
 
 /**
  * Approximate the rendered text width and height
- * @param {string} family
- * @param {string} size
+ * @param {string} style
  * @param {string} text
  * @return {Dimension} Text width and height
  */
-function calculateTextDimension(family, size, text) {
-  ctx.font = `${size} ${family}`;
+function calculateTextDimension(style, text) {
+  ctx.font = style;
   const width = Math.round(ctx.measureText(text).width);
   return { width, height: calculateApproximateTextHeight(ctx.font) };
 }

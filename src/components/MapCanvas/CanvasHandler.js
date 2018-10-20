@@ -5,8 +5,9 @@ const DEFAULT_LISTENER_ID = 'default';
 const DEVICE_PIXEL_RATIO = window.devicePixelRatio || 1;
 /**
  * @typedef TextElement
- * @property {string} size
- * @property {string} family
+ * @property {string} style
+ * @property {number} [strokeWidth]
+ * @property {string} [strokeStyle]
  * @property {string} color
  * @property {string} text
  * @property {number} maxLineWidth
@@ -22,9 +23,17 @@ const DEVICE_PIXEL_RATIO = window.devicePixelRatio || 1;
 /**
  * @typedef Line
  * @property {array} coordinates
- * @property {string} color
- * @property {string} cap
- * @property {number} width
+ * @property {string} [strokeStyle]
+ * @property {string} [cap]
+ * @property {number} [width]
+ */
+/**
+ * @typedef Shape
+ * @property {array} coordinates
+ * @property {string} [fillStyle]
+ * @property {string} [strokeStyle]
+ * @property {string} [cap]
+ * @property {number} [width]
  */
 /**
  * @typedef Rect
@@ -54,6 +63,7 @@ const DEVICE_PIXEL_RATIO = window.devicePixelRatio || 1;
  * @property {HTMLImageElement} [image]
  * @property {TextElement} [textElement]
  * @property {Line} [line]
+ * @property {Shape} [shape]
  * @property {mapItemListener} [onClick]
  * @property {mapItemListener} [onMouseOver]
  * @property {mapItemListener} [onMouseOut]
@@ -708,6 +718,7 @@ class CanvasHandler {
         circle = getDefault(id, 'circle', null),
         rect = getDefault(id, 'rect', null),
         line = getDefault(id, 'line', null),
+        shape = getDefault(id, 'shape', null),
         others = getDefault(id, 'others', {}),
         center = getDefault(id, 'center', false),
         hidden = getDefault(id, 'hidden', false),
@@ -745,6 +756,7 @@ class CanvasHandler {
           image,
           textElement,
           line,
+          shape,
           circle,
           rect,
           others,
@@ -768,8 +780,8 @@ class CanvasHandler {
 
         switch (true) {
           case Boolean(textElement): {
-            const { family, size, text, maxLineWidth } = textElement;
-            const dimension = calculateTextDimension(family, size, text);
+            const { style, text, maxLineWidth } = textElement;
+            const dimension = calculateTextDimension(style, text);
             mapItem.width = dimension.width;
             mapItem.height = dimension.height;
             mapItem.textElement.lineHeight = dimension.height;
@@ -783,8 +795,8 @@ class CanvasHandler {
               textElement.text.split(' ').forEach(word => {
                 if (
                   currentLine &&
-                  calculateTextDimension(family, size, currentLine.join(' ')).width +
-                    calculateTextDimension(family, size, `${word} `).width <
+                  calculateTextDimension(style, currentLine.join(' ')).width +
+                    calculateTextDimension(style, `${word} `).width <
                     maxLineWidth
                 ) {
                   currentLine.push(word);
@@ -795,7 +807,7 @@ class CanvasHandler {
 
                 computedMaxLineWidth = Math.max(
                   computedMaxLineWidth,
-                  calculateTextDimension(family, size, currentLine.join(' ')).width,
+                  calculateTextDimension(style, currentLine.join(' ')).width,
                 );
               });
 
@@ -819,7 +831,18 @@ class CanvasHandler {
             mapItem.renderedY = minY;
             mapItem.width = maxX - minX + line.width;
             mapItem.height = maxY - minY + line.width;
-
+            break;
+          }
+          case Boolean(shape): {
+            const { coordinates } = shape;
+            const coorXs = coordinates.map(([v]) => v);
+            const coorYs = coordinates.map(([, v]) => v);
+            const minX = Math.min(...coorXs);
+            const minY = Math.min(...coorYs);
+            const maxX = Math.max(...coorXs);
+            const maxY = Math.max(...coorYs);
+            mapItem.width = maxX - minX + (shape.width || 0);
+            mapItem.height = maxY - minY + (shape.width || 0);
             break;
           }
           case Boolean(image): {
@@ -867,8 +890,8 @@ class CanvasHandler {
         }
 
         if (center) {
-          mapItem.renderedX = x - mapItem.width / 2;
-          mapItem.renderedY = y - mapItem.height / 2;
+          mapItem.renderedX = mapItem.x - mapItem.width / 2;
+          mapItem.renderedY = mapItem.y - mapItem.height / 2;
         }
 
         setCanvasItemHitArea(mapItem);
@@ -937,12 +960,15 @@ class CanvasHandler {
       // Render each canvas items in this layer
       this.getCanvasItems(key).forEach(
         ({
+          x,
+          y,
           floor,
           renderedX,
           renderedY,
           image,
           textElement,
           line,
+          shape,
           hidden,
           circle,
           rect,
@@ -1019,9 +1045,17 @@ class CanvasHandler {
               );
               break;
             case Boolean(textElement): {
-              const { size, color, family, text, lines, lineHeight } = textElement;
+              const {
+                style,
+                color,
+                text,
+                lines,
+                lineHeight,
+                strokeWidth,
+                strokeStyle,
+              } = textElement;
               ctx.fillStyle = color;
-              ctx.font = `${size} ${family}`;
+              ctx.font = style;
               ctx.textBaseline = 'top';
               if (lines) {
                 lines.forEach((textLine, i) => {
@@ -1035,28 +1069,64 @@ class CanvasHandler {
                 ctx.fillText(text, scaledRenderedX - screenLeftX, scaledRenderedY - screenTopY);
               }
 
+              if (strokeWidth && strokeStyle) {
+                ctx.strokeStyle = strokeStyle;
+                ctx.lineWidth = strokeWidth;
+                ctx.strokeText(text, scaledRenderedX - screenLeftX, scaledRenderedY - screenTopY);
+              }
+
               break;
             }
             case Boolean(line):
               {
-                const { color, width: lineWidth, cap, coordinates } = line;
+                const { strokeStyle, width: lineWidth, cap, coordinates } = line;
 
                 ctx.beginPath();
 
-                coordinates.forEach(([x, y], i) => {
+                coordinates.forEach(([lineX, lineY], i) => {
                   const op = i === 0 ? 'moveTo' : 'lineTo';
-                  const scaledX = scalePosition ? this.scaleCoordinate(x) : x;
-                  const scaledY = scalePosition ? this.scaleCoordinate(y) : y;
+                  const scaledX = scalePosition ? this.scaleCoordinate(lineX) : lineX;
+                  const scaledY = scalePosition ? this.scaleCoordinate(lineY) : lineY;
                   ctx[op](scaledX - screenLeftX, scaledY - screenTopY);
                 });
 
-                ctx.strokeStyle = color;
-                ctx.lineCap = cap;
-                ctx.lineWidth = lineWidth;
-                ctx.stroke();
+                if (strokeStyle) {
+                  ctx.lineCap = cap;
+                  ctx.lineWidth = lineWidth;
+                  ctx.strokeStyle = strokeStyle;
+                  ctx.stroke();
+                }
               }
               break;
+            case Boolean(shape):
+              {
+                const { strokeStyle, fillStyle, width: lineWidth, cap, coordinates } = shape;
 
+                ctx.beginPath();
+
+                coordinates.forEach(([lineX, lineY], i) => {
+                  const op = i === 0 ? 'moveTo' : 'lineTo';
+                  const scaledX = scaleDimension ? this.scaleCoordinate(lineX) : lineX;
+                  const scaledY = scaleDimension ? this.scaleCoordinate(lineY) : lineY;
+                  ctx[op](
+                    scaledX - screenLeftX + scaledRenderedX,
+                    scaledY - screenTopY + scaledRenderedY,
+                  );
+                });
+
+                if (fillStyle) {
+                  ctx.fillStyle = fillStyle;
+                  ctx.fill();
+                }
+
+                if (strokeStyle) {
+                  ctx.lineCap = cap;
+                  ctx.lineWidth = lineWidth;
+                  ctx.strokeStyle = strokeStyle;
+                  ctx.stroke();
+                }
+              }
+              break;
             default:
           }
         },
@@ -1080,6 +1150,7 @@ class CanvasHandler {
     removeMapItem: args => this.removeMapItem(args),
     removeAllMapTiles: () => this.removeAllMapTiles(),
     updateDimension: (...args) => this.updateDimension(...args),
+    calculateTextDimension,
     // map item listeners
     addMapItemClickListener: (id, mapItemId, listener, isPrepend) =>
       this.addMapItemListener('click', id, mapItemId, listener, isPrepend),

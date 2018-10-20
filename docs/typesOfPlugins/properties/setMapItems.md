@@ -35,8 +35,7 @@ mapItem object:
   hitHeight: number|null, /* The custom height of the map item used in calculating hit test, will use default height of the map item if this is not specified */
   others: {}, /* Any other custom data to be attached to this map item */
   textElement: {
-    family: string, /* Font family of the text */
-    size: string, /* Size of the text in CSS format */
+    style: string, /* Font style of the text in CSS font format*/
     color: string, /* Color the text in CSS format */
     text: string, /* The text message */
     maxLineWidth: number /* The max line width allowed in pixel, the text will be wrapped into multiple lines if the width exceeds this number */
@@ -53,8 +52,15 @@ mapItem object:
     borderColor: string /* Border color of the rect in CSS format */
   },
   line: {
-    coordinates: [[]], /* An array of coordinates [x, y] array which defines the line */
-    color: string, /* Color of the line in CSS format */
+    coordinates: [[]], /* An array of absolute coordinates [x, y] array which defines the line, center and scaleDimension options will be forced to false if line is given */
+    strokeStyle: string, /* Color of the line in CSS format */
+    cap: "butt"|"round"|"square", /* Determines how the end points of every line are drawn */
+    width: number /* Width of the line */
+  },
+  shape: {
+    coordinates: [[]], /* An array of relative coordinates [x, y] array which defines a shape, the first coordinate should always be [0,0] */
+    strokeStyle: string, /* Color of the line in CSS format */
+    fillStyle: string, /* Color of the background in CSS format */
     cap: "butt"|"round"|"square", /* Determines how the end points of every line are drawn */
     width: number /* Width of the line */
   }

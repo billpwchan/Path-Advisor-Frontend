@@ -176,7 +176,7 @@ function ShortestResultMapCanvas({
   const { paths = [] } = searchShortestPathStore;
   const lineStyle = {
     cap: 'round',
-    color: 'red',
+    strokeStyle: 'red',
     width: 3,
   };
 
