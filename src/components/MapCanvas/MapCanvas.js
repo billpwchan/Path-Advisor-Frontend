@@ -12,6 +12,7 @@ import style from './MapCanvas.module.css';
 import { propTypes as urlPropTypes } from '../Router/Url';
 import getConnectedComponent from '../ConnectedComponent/getConnectedComponent';
 import { getMapItemsAction } from '../../reducers/mapItems';
+import { PLATFORM } from '../Main/detectPlatform';
 
 class MapCanvas extends Component {
   canvasRootRef = createRef();
@@ -25,7 +26,7 @@ class MapCanvas extends Component {
     floorStore: PropTypes.shape({}).isRequired,
     appSettingsStore: PropTypes.shape({}).isRequired,
     linkTo: PropTypes.func.isRequired,
-    isMobile: PropTypes.bool.isRequired,
+    platform: PropTypes.oneOf(Object.values(PLATFORM)),
   };
 
   state = {
@@ -162,7 +163,7 @@ class MapCanvas extends Component {
       level,
       linkTo,
       floorStore: { floors, buildings },
-      isMobile,
+      platform,
     } = this.props;
 
     const { width, height } = this.state;
@@ -179,6 +180,8 @@ class MapCanvas extends Component {
     };
 
     const isDimensionReady = width && height;
+
+    const isMobile = platform === PLATFORM.MOBILE;
 
     return (
       <div className={style.body}>
@@ -205,6 +208,10 @@ class MapCanvas extends Component {
           {isDimensionReady &&
             children.map(({ id, MapCanvasPlugin }) => {
               if (!MapCanvasPlugin) {
+                return null;
+              }
+
+              if (MapCanvasPlugin.platform && !MapCanvasPlugin.platform.includes(platform)) {
                 return null;
               }
 

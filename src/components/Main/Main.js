@@ -9,7 +9,7 @@ import plugins from '../../plugins';
 import MapCanvas from '../MapCanvas/MapCanvas';
 import { parseParams, build as buildUrl } from '../Router/Url';
 import style from './Main.module.css';
-import detectIsMobile from './detectIsMobile';
+import detectPlatform, { PLATFORM } from './detectPlatform';
 
 class Main extends Component {
   static propTypes = {
@@ -82,7 +82,7 @@ class Main extends Component {
   }
 
   render() {
-    const isMobile = detectIsMobile();
+    const isMobile = detectPlatform() === PLATFORM.MOBILE;
 
     return (
       <>
@@ -100,10 +100,10 @@ class Main extends Component {
               )}
             </PrimaryPanel>
           ) : (
-            <TopPanel />
+            <TopPanel {...this.urlParams} linkTo={this.linkTo} />
           )}
           {this.props.appSettingStore.success && (
-            <MapCanvas {...this.urlParams} linkTo={this.linkTo} isMobile={isMobile}>
+            <MapCanvas {...this.urlParams} linkTo={this.linkTo} platform={detectPlatform()}>
               {plugins.map(({ id, MapCanvasPlugin }) => ({
                 id,
                 MapCanvasPlugin,
