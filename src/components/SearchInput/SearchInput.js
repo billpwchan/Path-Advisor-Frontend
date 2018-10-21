@@ -22,6 +22,7 @@ class SearchInput extends Component {
     placeholder: PropTypes.string,
     shouldAutoCompleteDisplay: PropTypes.bool,
     setAutoCompleteDisplay: PropTypes.func.isRequired,
+    onFocus: PropTypes.func,
   };
 
   onInputChange = e => {
@@ -54,6 +55,7 @@ class SearchInput extends Component {
       placeholder = '',
       floorStore: { floors, buildings },
       shouldAutoCompleteDisplay,
+      onFocus,
     } = this.props;
 
     return (
@@ -64,6 +66,7 @@ class SearchInput extends Component {
           onChange={this.onInputChange}
           value={value}
           placeholder={placeholder}
+          onFocus={onFocus}
         />
         {shouldAutoCompleteDisplay &&
           !loading && (
