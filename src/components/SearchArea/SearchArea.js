@@ -36,10 +36,19 @@ class SearchArea extends Component {
     }
   };
 
-  onAutoCompleteItemClick = fieldName => ({ name, coordinates: [x, y], floor, id }) => {
+  onAutoCompleteItemClick = fieldName => ({
+    name,
+    coordinates: [x, y],
+    floor,
+    id,
+    displayName,
+  }) => {
     const { setSearchAreaInputHandler, linkTo } = this.props;
     setSearchAreaInputHandler({
-      [fieldName]: { name, data: { id, floor, value: name, type: 'id', coordinates: [x, y] } },
+      [fieldName]: {
+        name: displayName || name,
+        data: { id, floor, value: name, type: 'id', coordinates: [x, y] },
+      },
     });
     linkTo({ floor, x, y, level: 0 });
   };
