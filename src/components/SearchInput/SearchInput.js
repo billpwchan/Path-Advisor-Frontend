@@ -20,28 +20,22 @@ class SearchInput extends Component {
     onClickHook: PropTypes.func,
     value: PropTypes.string,
     placeholder: PropTypes.string,
-  };
-
-  state = {
-    hideAutoComplete: true,
+    shouldAutoCompleteDisplay: PropTypes.bool,
+    setAutoCompleteDisplay: PropTypes.func.isRequired,
   };
 
   onInputChange = e => {
-    const { onKeywordChange } = this.props;
+    const { onKeywordChange, setAutoCompleteDisplay } = this.props;
     const keyword = e.target.value;
 
     onKeywordChange(keyword);
 
-    this.setState({
-      hideAutoComplete: false,
-    });
+    setAutoCompleteDisplay(true);
   };
 
   onClick = autoCompleteItem => {
-    const { onAutoCompleteItemClick, onClickHook } = this.props;
-    this.setState({
-      hideAutoComplete: true,
-    });
+    const { onAutoCompleteItemClick, onClickHook, setAutoCompleteDisplay } = this.props;
+    setAutoCompleteDisplay(false);
 
     onAutoCompleteItemClick(autoCompleteItem);
 
@@ -51,7 +45,6 @@ class SearchInput extends Component {
   };
 
   render() {
-    const { hideAutoComplete } = this.state;
     const {
       inputClassName = '',
       autoCompleteListClassName = '',
@@ -60,6 +53,7 @@ class SearchInput extends Component {
       value,
       placeholder = '',
       floorStore: { floors, buildings },
+      shouldAutoCompleteDisplay,
     } = this.props;
 
     return (
@@ -71,7 +65,7 @@ class SearchInput extends Component {
           value={value}
           placeholder={placeholder}
         />
-        {!hideAutoComplete &&
+        {shouldAutoCompleteDisplay &&
           !loading && (
             <ul className={autoCompleteListClassName}>
               {suggestions.map(({ name, floor, coordinates, id }) => (
