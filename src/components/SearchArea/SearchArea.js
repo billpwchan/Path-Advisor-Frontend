@@ -30,7 +30,10 @@ class SearchArea extends Component {
     setSearchAreaInputHandler({
       [fieldName]: { name: keyword, data: { type: 'keyword', value: keyword } },
     });
-    searchMapItemHandler(keyword);
+
+    if (keyword.length) {
+      searchMapItemHandler(keyword);
+    }
   };
 
   onAutoCompleteItemClick = fieldName => ({ name, coordinates: [x, y], floor, id }) => {
