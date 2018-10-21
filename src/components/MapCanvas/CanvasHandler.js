@@ -47,8 +47,6 @@ const DEVICE_PIXEL_RATIO = window.devicePixelRatio || 1;
  * @property {string} id
  * @property {number} x
  * @property {number} y
- * @property {number} renderedX
- * @property {number} renderedY
  * @property {number} width
  * @property {number} height
  * @property {number} hitX
@@ -113,7 +111,8 @@ function imageNotLoaded(image) {
   );
 }
 
-function setCanvasItemHitArea(canvasItem) {
+function setCanvasItemHitArea(canvasItem, renderedX, renderedY, width, height) {
+  const hitArea = { renderedX, renderedY, width, height };
   [
     { target: 'hitX', replace: 'renderedX' },
     { target: 'hitY', replace: 'renderedY' },
@@ -122,7 +121,7 @@ function setCanvasItemHitArea(canvasItem) {
   ].forEach(({ target, replace }) => {
     if (canvasItem[target] === null) {
       /* eslint no-param-reassign: [0] */
-      canvasItem[target] = canvasItem[replace];
+      canvasItem[target] = hitArea[replace];
     }
   });
 }
@@ -623,70 +622,55 @@ class CanvasHandler {
   async addMapTiles(mapTiles) {
     const asyncMapTiles = [];
 
-    mapTiles.forEach(
-      ({
+    mapTiles.forEach(({ id, floor, x, y, image, width = null, height = null, hidden = false }) => {
+      if (!id) {
+        throw new Error('id is required for canvas item');
+      } else if (this.mapTiles[id]) {
+        return;
+      }
+
+      const mapTile = {
         id,
         floor,
         x,
         y,
+        width,
+        height,
+        hitX: x,
+        hitY: y,
+        hitWidth: null,
+        hitHeight: null,
+        hidden,
         image,
-        width = null,
-        height = null,
-        hidden = false,
-        scalePosition = false,
-        scaleDimension = false,
-      }) => {
-        if (!id) {
-          throw new Error('id is required for canvas item');
-        } else if (this.mapTiles[id]) {
-          return;
-        }
+        scaleDimension: false,
+        scalePosition: false,
+        others: {},
+      };
 
-        const mapTile = {
-          id,
-          floor,
-          x,
-          y,
-          renderedX: x,
-          renderedY: y,
-          width,
-          height,
-          hitX: x,
-          hitY: y,
-          hitWidth: null,
-          hitHeight: null,
-          hidden,
-          image,
-          scaleDimension,
-          scalePosition,
-          others: {},
-        };
+      this.mapTiles[id] = mapTile;
+      this.mapTileIds.push(id);
 
-        this.mapTiles[id] = mapTile;
-        this.mapTileIds.push(id);
+      if (imageNotLoaded(image)) {
+        asyncMapTiles.push(
+          createImageLoadPromise(image)
+            .then(() => {
+              mapTile.width = image.width;
+              mapTile.height = image.height;
+              setCanvasItemHitArea(mapTile, x, y, mapTile.width, mapTile.height);
+              this.render();
+            })
+            .catch(err => {
+              console.log(err);
+            }),
+        );
+      } else {
+        mapTile.width = image.width;
+        mapTile.height = image.height;
+        setCanvasItemHitArea(mapTile, x, y, mapTile.width, mapTile.height);
+      }
 
-        if (imageNotLoaded(image)) {
-          asyncMapTiles.push(
-            createImageLoadPromise(image)
-              .then(() => {
-                mapTile.width = image.width;
-                mapTile.height = image.height;
-                setCanvasItemHitArea(mapTile);
-                this.render();
-              })
-              .catch(err => {
-                console.log(err);
-              }),
-          );
-        } else {
-          mapTile.width = image.width;
-          mapTile.height = image.height;
-          setCanvasItemHitArea(mapTile);
-        }
-
-        this.render();
-      },
-    );
+      this.render();
+    });
 
     await Promise.all(asyncMapTiles);
     return mapTiles;
@@ -743,8 +727,6 @@ class CanvasHandler {
           floor,
           x,
           y,
-          renderedX: x,
-          renderedY: y,
           hitX,
           hitY,
           hitWidth,
@@ -826,9 +808,7 @@ class CanvasHandler {
             const maxX = Math.max(...coorXs);
             const maxY = Math.max(...coorYs);
             mapItem.x = minX;
-            mapItem.renderedX = minX;
             mapItem.y = minY;
-            mapItem.renderedY = minY;
             mapItem.width = maxX - minX + line.width;
             mapItem.height = maxY - minY + line.width;
             break;
@@ -854,14 +834,6 @@ class CanvasHandler {
                   .then(() => {
                     mapItem.width = mapItem.width ? mapItem.width : image.width;
                     mapItem.height = mapItem.height ? mapItem.height : image.height;
-
-                    if (center) {
-                      mapItem.renderedX = x - mapItem.width / 2;
-                      mapItem.renderedY = y - mapItem.height / 2;
-                    }
-
-                    setCanvasItemHitArea(mapItem);
-
                     this.render();
                   })
                   .catch(err => {
@@ -888,13 +860,6 @@ class CanvasHandler {
           }
           default:
         }
-
-        if (center) {
-          mapItem.renderedX = mapItem.x - mapItem.width / 2;
-          mapItem.renderedY = mapItem.y - mapItem.height / 2;
-        }
-
-        setCanvasItemHitArea(mapItem);
       },
     );
 
@@ -958,13 +923,11 @@ class CanvasHandler {
         return;
       }
       // Render each canvas items in this layer
-      this.getCanvasItems(key).forEach(
-        ({
+      this.getCanvasItems(key).forEach(mapItem => {
+        const {
           x,
           y,
           floor,
-          renderedX,
-          renderedY,
           image,
           textElement,
           line,
@@ -976,161 +939,153 @@ class CanvasHandler {
           height,
           scalePosition,
           scaleDimension,
-        }) => {
-          const scaledRenderedX = scalePosition ? this.scaleCoordinate(renderedX) : renderedX;
-          const scaledRenderedY = scalePosition ? this.scaleCoordinate(renderedY) : renderedY;
-          const scaledWidth = scaleDimension ? this.scaleCoordinate(width) : width;
-          const scaledHeight = scaleDimension ? this.scaleCoordinate(height) : height;
-          if (
-            hidden ||
-            floor !== this.floor ||
-            !this.inViewport(scaledRenderedX, scaledRenderedY, scaledWidth, scaledHeight)
-          ) {
-            return;
-          }
+          center,
+        } = mapItem;
 
-          switch (true) {
-            case Boolean(circle): {
-              const { radius, color, borderColor } = circle;
-              ctx.beginPath();
-              ctx.arc(
-                scaledRenderedX - screenLeftX + scaledWidth / 2,
-                scaledRenderedY - screenTopY + scaledHeight / 2,
-                radius,
-                0,
-                Math.PI * 2,
+        let renderedX = scalePosition ? this.scaleCoordinate(x) : x;
+        let renderedY = scalePosition ? this.scaleCoordinate(y) : y;
+        const scaledWidth = scaleDimension ? this.scaleCoordinate(width) : width;
+        const scaledHeight = scaleDimension ? this.scaleCoordinate(height) : height;
+
+        if (center) {
+          renderedX -= scaledWidth / 2;
+          renderedY -= scaledHeight / 2;
+        }
+
+        setCanvasItemHitArea(mapItem, renderedX, renderedY, scaledWidth, scaledHeight);
+
+        if (
+          hidden ||
+          floor !== this.floor ||
+          !this.inViewport(renderedX, renderedY, scaledWidth, scaledHeight)
+        ) {
+          return;
+        }
+
+        switch (true) {
+          case Boolean(circle): {
+            const { radius, color, borderColor } = circle;
+            ctx.beginPath();
+            ctx.arc(
+              renderedX - screenLeftX + scaledWidth / 2,
+              renderedY - screenTopY + scaledHeight / 2,
+              radius,
+              0,
+              Math.PI * 2,
+            );
+            ctx.lineWidth = 1;
+            if (color) {
+              ctx.fillStyle = color;
+              ctx.fill();
+            }
+
+            if (borderColor) {
+              ctx.strokeStyle = borderColor;
+              ctx.stroke();
+            }
+            break;
+          }
+          case Boolean(rect): {
+            const { color, borderColor } = rect;
+            if (color) {
+              ctx.fillStyle = color;
+              ctx.fillRect(
+                renderedX - screenLeftX,
+                renderedY - screenTopY,
+                scaledWidth,
+                scaledHeight,
               );
-              ctx.lineWidth = 1;
-              if (color) {
-                ctx.fillStyle = color;
+            }
+
+            if (borderColor) {
+              ctx.strokeStyle = borderColor;
+              ctx.strokeRect(
+                renderedX - screenLeftX,
+                renderedY - screenTopY,
+                scaledWidth,
+                scaledHeight,
+              );
+            }
+            break;
+          }
+          case Boolean(image):
+            ctx.drawImage(image, renderedX - screenLeftX, renderedY - screenTopY, width, height);
+            break;
+          case Boolean(textElement): {
+            const { style, color, text, lines, lineHeight, strokeWidth, strokeStyle } = textElement;
+            ctx.fillStyle = color;
+            ctx.font = style;
+            ctx.textBaseline = 'top';
+            if (lines) {
+              lines.forEach((textLine, i) => {
+                ctx.fillText(
+                  textLine.join(' '),
+                  renderedX - screenLeftX,
+                  renderedY + lineHeight * i - screenTopY,
+                );
+              });
+            } else {
+              ctx.fillText(text, renderedX - screenLeftX, renderedY - screenTopY);
+            }
+
+            if (strokeWidth && strokeStyle) {
+              ctx.strokeStyle = strokeStyle;
+              ctx.lineWidth = strokeWidth;
+              ctx.strokeText(text, renderedX - screenLeftX, renderedY - screenTopY);
+            }
+
+            break;
+          }
+          case Boolean(line):
+            {
+              const { strokeStyle, width: lineWidth, cap, coordinates } = line;
+
+              ctx.beginPath();
+
+              coordinates.forEach(([lineX, lineY], i) => {
+                const op = i === 0 ? 'moveTo' : 'lineTo';
+                const scaledX = scalePosition ? this.scaleCoordinate(lineX) : lineX;
+                const scaledY = scalePosition ? this.scaleCoordinate(lineY) : lineY;
+                ctx[op](scaledX - screenLeftX, scaledY - screenTopY);
+              });
+
+              if (strokeStyle) {
+                ctx.lineCap = cap;
+                ctx.lineWidth = lineWidth;
+                ctx.strokeStyle = strokeStyle;
+                ctx.stroke();
+              }
+            }
+            break;
+          case Boolean(shape):
+            {
+              const { strokeStyle, fillStyle, width: lineWidth, cap, coordinates } = shape;
+
+              ctx.beginPath();
+
+              coordinates.forEach(([lineX, lineY], i) => {
+                const op = i === 0 ? 'moveTo' : 'lineTo';
+                const scaledX = scaleDimension ? this.scaleCoordinate(lineX) : lineX;
+                const scaledY = scaleDimension ? this.scaleCoordinate(lineY) : lineY;
+                ctx[op](scaledX - screenLeftX + renderedX, scaledY - screenTopY + renderedY);
+              });
+
+              if (fillStyle) {
+                ctx.fillStyle = fillStyle;
                 ctx.fill();
               }
 
-              if (borderColor) {
-                ctx.strokeStyle = borderColor;
+              if (strokeStyle) {
+                ctx.lineCap = cap;
+                ctx.lineWidth = lineWidth;
+                ctx.strokeStyle = strokeStyle;
                 ctx.stroke();
               }
-              break;
             }
-            case Boolean(rect): {
-              const { color, borderColor } = rect;
-              if (color) {
-                ctx.fillStyle = color;
-                ctx.fillRect(
-                  scaledRenderedX - screenLeftX,
-                  scaledRenderedY - screenTopY,
-                  scaledWidth,
-                  scaledHeight,
-                );
-              }
-
-              if (borderColor) {
-                ctx.strokeStyle = borderColor;
-                ctx.strokeRect(
-                  scaledRenderedX - screenLeftX,
-                  scaledRenderedY - screenTopY,
-                  scaledWidth,
-                  scaledHeight,
-                );
-              }
-              break;
-            }
-            case Boolean(image):
-              ctx.drawImage(
-                image,
-                scaledRenderedX - screenLeftX,
-                scaledRenderedY - screenTopY,
-                width,
-                height,
-              );
-              break;
-            case Boolean(textElement): {
-              const {
-                style,
-                color,
-                text,
-                lines,
-                lineHeight,
-                strokeWidth,
-                strokeStyle,
-              } = textElement;
-              ctx.fillStyle = color;
-              ctx.font = style;
-              ctx.textBaseline = 'top';
-              if (lines) {
-                lines.forEach((textLine, i) => {
-                  ctx.fillText(
-                    textLine.join(' '),
-                    scaledRenderedX - screenLeftX,
-                    scaledRenderedY + lineHeight * i - screenTopY,
-                  );
-                });
-              } else {
-                ctx.fillText(text, scaledRenderedX - screenLeftX, scaledRenderedY - screenTopY);
-              }
-
-              if (strokeWidth && strokeStyle) {
-                ctx.strokeStyle = strokeStyle;
-                ctx.lineWidth = strokeWidth;
-                ctx.strokeText(text, scaledRenderedX - screenLeftX, scaledRenderedY - screenTopY);
-              }
-
-              break;
-            }
-            case Boolean(line):
-              {
-                const { strokeStyle, width: lineWidth, cap, coordinates } = line;
-
-                ctx.beginPath();
-
-                coordinates.forEach(([lineX, lineY], i) => {
-                  const op = i === 0 ? 'moveTo' : 'lineTo';
-                  const scaledX = scalePosition ? this.scaleCoordinate(lineX) : lineX;
-                  const scaledY = scalePosition ? this.scaleCoordinate(lineY) : lineY;
-                  ctx[op](scaledX - screenLeftX, scaledY - screenTopY);
-                });
-
-                if (strokeStyle) {
-                  ctx.lineCap = cap;
-                  ctx.lineWidth = lineWidth;
-                  ctx.strokeStyle = strokeStyle;
-                  ctx.stroke();
-                }
-              }
-              break;
-            case Boolean(shape):
-              {
-                const { strokeStyle, fillStyle, width: lineWidth, cap, coordinates } = shape;
-
-                ctx.beginPath();
-
-                coordinates.forEach(([lineX, lineY], i) => {
-                  const op = i === 0 ? 'moveTo' : 'lineTo';
-                  const scaledX = scaleDimension ? this.scaleCoordinate(lineX) : lineX;
-                  const scaledY = scaleDimension ? this.scaleCoordinate(lineY) : lineY;
-                  ctx[op](
-                    scaledX - screenLeftX + scaledRenderedX,
-                    scaledY - screenTopY + scaledRenderedY,
-                  );
-                });
-
-                if (fillStyle) {
-                  ctx.fillStyle = fillStyle;
-                  ctx.fill();
-                }
-
-                if (strokeStyle) {
-                  ctx.lineCap = cap;
-                  ctx.lineWidth = lineWidth;
-                  ctx.strokeStyle = strokeStyle;
-                  ctx.stroke();
-                }
-              }
-              break;
-            default:
-          }
-        },
-      );
+            break;
+          default:
+        }
+      });
     });
   };
 
