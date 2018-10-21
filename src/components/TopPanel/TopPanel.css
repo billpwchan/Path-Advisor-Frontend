@@ -1,0 +1,24 @@
+.topPanel__tabLeft {
+  display: inline-block;
+  width: 7px;
+  background-size: 65px 47px;
+  background-image: url(/images/mobile/path.png);
+  height: 47px;
+}
+
+.topPanel__tabRight {
+  display: inline-block;
+  width: 7px;
+  background-size: 65px 47px;
+  background-position: right top;
+  background-image: url(/images/mobile/path.png);
+  height: 47px;
+}
+
+.topPanel__tabSpace {
+  display: inline-block;
+  height: 47px;
+  background-repeat: repeat-x;
+  background-size: 1px 47px;
+  background-image: url(/images/mobile/top-bg-rpt.png);
+}
