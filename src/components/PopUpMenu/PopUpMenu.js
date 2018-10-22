@@ -1,34 +1,34 @@
 import React from 'react';
+import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import FullScreenOverlay from '../FullScreenOverlay/FullScreenOverlay';
 import style from './PopUpMenu.module.css';
 
-const PopUpMenu = ({ title, items, onClose }) => (
+const PopUpMenu = ({ title, items, onClose, selectedIndex = undefined, className = undefined }) => (
   <FullScreenOverlay onClick={onClose} center>
-    <ul className={style.body}>
-      <li className={style.header}>{title}</li>
-      {items.map(({ image, label, onClick }) => (
-        <li key={label} className={style.item}>
-          <button type="button" className={style.button} onClick={onClick}>
-            <img className={style.icon} src={image} alt={label} />
-            <span className={style.text}>{label}</span>
-          </button>
-        </li>
-      ))}
-    </ul>
+    <div className={classnames(style.body, className)}>
+      <div className={style.header}>{title}</div>
+      <ul>
+        {items.map((item, i) => (
+          /* eslint react/no-array-index-key: [0] */
+          <li
+            key={i}
+            className={classnames(style.item, { [style.itemSelected]: selectedIndex === i })}
+          >
+            {item}
+          </li>
+        ))}
+      </ul>
+    </div>
   </FullScreenOverlay>
 );
 
 PopUpMenu.propTypes = {
   title: PropTypes.string.isRequired,
-  items: PropTypes.arrayOf(
-    PropTypes.shape({
-      label: PropTypes.string.isRequired,
-      image: PropTypes.string.isRequired,
-      onClick: PropTypes.func.isRequired,
-    }),
-  ).isRequired,
+  items: PropTypes.arrayOf(PropTypes.node).isRequired,
   onClose: PropTypes.func.isRequired,
+  className: PropTypes.string,
+  selectedIndex: PropTypes.number,
 };
 
 export default PopUpMenu;

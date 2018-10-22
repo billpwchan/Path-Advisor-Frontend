@@ -16,29 +16,19 @@
 
 .item {
   background-color: rgba(0, 95, 140, 0.95);
-  box-sizing: border-box;
   border-left: 3px solid rgba(0, 75, 111, 0.95);
-  border-right: 3px solid rgba(0, 75, 111, 0.95);
+  border-right: 3px solid rgba(39, 119, 158, 0.95);
   border-bottom: 3px solid rgba(0, 75, 111, 0.95);
   border-top: 3px solid rgba(39, 119, 158, 0.95);
   color: white;
   font-size: 19px;
 }
 
-.button {
-  padding: 4px 0;
-  padding-left: 8px;
-  width: 100%;
-  text-align: left;
-}
-
-.icon {
-  width: 24px;
-  height: 24px;
-  vertical-align: middle;
-}
-
-.text {
-  vertical-align: middle;
-  margin-left: 10px;
+.itemSelected {
+  background-color: rgba(154, 222, 255, 0.95);
+  border-left: 3px solid rgba(206, 239, 255, 0.95);
+  border-right: 3px solid rgba(204, 238, 255, 0.95);
+  border-bottom: 3px solid rgba(173, 228, 255, 0.95);
+  border-top: 3px solid rgba(220, 244, 255, 0.95);
+  color: #333333;
 }
