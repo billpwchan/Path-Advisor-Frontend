@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import style from './SearchTopPanelView.module.css';
 import '../TopPanel/TopPanel.css';
@@ -8,6 +9,21 @@ import OverlayMessageBox from '../OverlayMessageBox/OverlayMessageBox';
 
 const INPUT_DIRECTION = 'from';
 const NEAREST_DIRECTION = 'to';
+
+function makeButton({ image, onClick, label }) {
+  return (
+    <button type="button" className={style.button} onClick={onClick}>
+      <img className={style.icon} src={image} alt={label} />
+      <span className={style.text}>{label}</span>
+    </button>
+  );
+}
+
+makeButton.propTypes = {
+  image: PropTypes.string.isRequired,
+  onClick: PropTypes.func.isRequired,
+  label: PropTypes.string.isRequired,
+};
 
 class SearchTopPanelView extends Component {
   state = {
@@ -142,26 +158,26 @@ class SearchTopPanelView extends Component {
           <PopUpMenu
             title="Nearest Facility"
             items={[
-              {
+              makeButton({
                 image: '/images/legends/lift.png',
                 label: 'Lift',
                 onClick: () => this.searchNearest('lift'),
-              },
-              {
+              }),
+              makeButton({
                 image: '/images/legends/malewc.png',
                 label: 'Male Toilet',
                 onClick: () => this.searchNearest('male toilet'),
-              },
-              {
+              }),
+              makeButton({
                 image: '/images/legends/femalewc.png',
                 label: 'Female Toilet',
                 onClick: () => this.searchNearest('female toilet'),
-              },
-              {
+              }),
+              makeButton({
                 image: '/images/legends/fountain.png',
                 label: 'Drinking Fountain',
                 onClick: () => this.searchNearest('drinking fountain'),
-              },
+              }),
             ]}
             onClose={() => this.setNearestPopUpDisplay(false)}
           />
@@ -170,31 +186,31 @@ class SearchTopPanelView extends Component {
           <PopUpMenu
             title="Campus Facility"
             items={[
-              {
+              makeButton({
                 image: '/images/legends/atm.png',
                 label: 'ATM',
                 onClick: () => this.fillInputField('ATM'),
-              },
-              {
+              }),
+              makeButton({
                 image: '/images/legends/express.png',
                 label: 'Express Station',
                 onClick: () => this.fillInputField('Express Station'),
-              },
-              {
+              }),
+              makeButton({
                 image: '/images/legends/lec.png',
                 label: 'Lecture Theater',
                 onClick: () => this.fillInputField('Lecture'),
-              },
-              {
+              }),
+              makeButton({
                 image: '/images/legends/mail.png',
                 label: 'Mailbox',
                 onClick: () => this.fillInputField('Mailbox'),
-              },
-              {
+              }),
+              makeButton({
                 image: '/images/legends/res.png',
                 label: 'Restaurant',
                 onClick: () => this.fillInputField('Restaurant'),
-              },
+              }),
             ]}
             onClose={() => this.setFacilityPopUpDisplay(false)}
           />

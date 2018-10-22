@@ -81,3 +81,21 @@
 .inputErrorMessage {
   padding: 50px;
 }
+
+.button {
+  padding: 4px 0;
+  padding-left: 8px;
+  width: 100%;
+  text-align: left;
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+  vertical-align: middle;
+}
+
+.text {
+  vertical-align: middle;
+  margin-left: 10px;
+}
