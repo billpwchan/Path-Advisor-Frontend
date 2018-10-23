@@ -3,21 +3,34 @@ import React from 'react';
 import style from './TopPanel.module.css';
 import SearchArea from '../SearchArea/SearchArea';
 import SearchTopPanelView from '../SearchTopPanelView/SearchTopPanelView';
-import FloorButton from '../FloorButton/FloorButton';
+import Floor from '../Floor/Floor';
+import FloorTopPanelView from '../FloorTopPanelView/FloorTopPanelView';
+import { propTypes as urlPropTypes } from '../Router/Url';
 
 import './TopPanel.css';
 
-function TopPanel({ linkTo }) {
+function TopPanel({ linkTo, x, y, floor, level }) {
   return (
     <div className={style.body}>
       <SearchArea linkTo={linkTo} SearchView={SearchTopPanelView} />
-      <FloorButton />
+      {floor && (
+        <Floor
+          selectedBuilding="academicBuilding"
+          linkTo={linkTo}
+          x={x}
+          y={y}
+          currentFloorId={floor}
+          level={level}
+          FloorView={FloorTopPanelView}
+        />
+      )}
     </div>
   );
 }
 
 TopPanel.propTypes = {
   linkTo: PropTypes.func.isRequired,
+  ...urlPropTypes,
 };
 
 export default TopPanel;

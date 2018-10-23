@@ -47,9 +47,10 @@
 .menu > ul {
   display: flex;
   flex-wrap: wrap;
+  width: 240px;
 }
 
 .menu > ul > li {
   display: inline-block;
-  width: 33%;
+  width: 33.333%
 }
