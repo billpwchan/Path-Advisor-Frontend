@@ -12,6 +12,12 @@ const initialState = {
     y: 654,
     level: 2,
   },
+  mobileDefaultPosition: {
+    floor: 'G',
+    x: 2182,
+    y: 2343,
+    level: 0,
+  },
 };
 
 const appSettings = (state = initialState, { type, payload }) => {

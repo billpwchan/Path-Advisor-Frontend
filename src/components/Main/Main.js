@@ -71,10 +71,12 @@ class Main extends Component {
       )
     ) {
       const {
-        appSettingStore: {
-          defaultPosition: { floor, x, y, level },
-        },
+        appSettingStore: { defaultPosition, mobileDefaultPosition },
       } = this.props;
+
+      const { floor, x, y, level } =
+        detectPlatform() === PLATFORM.MOBILE ? mobileDefaultPosition : defaultPosition;
+
       if ([floor, x, y, level].every(v => !isNil(v))) {
         this.linkTo({ floor, x, y, level });
       }
