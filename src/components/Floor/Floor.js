@@ -10,15 +10,15 @@ class Floor extends Component {
     x: PropTypes.number,
     y: PropTypes.number,
     level: PropTypes.number,
-    currentFloor: PropTypes.string,
+    currentFloorId: PropTypes.string,
     FloorView: PropTypes.func.isRequired,
     selectedBuilding: PropTypes.string.isRequired,
     linkTo: PropTypes.func.isRequired,
-    selectBuildingAction: PropTypes.func.isRequired,
+    selectBuildingAction: PropTypes.func,
   };
 
   get currentBuilding() {
-    return this.getFloorBuilding(this.props.currentFloor);
+    return this.getFloorBuilding(this.props.currentFloorId);
   }
 
   getFloorBuilding(floor) {
@@ -31,7 +31,7 @@ class Floor extends Component {
       y,
       level,
       linkTo,
-      currentFloor,
+      currentFloorId,
       floorStore: { floors },
     } = this.props;
 
@@ -40,7 +40,7 @@ class Floor extends Component {
         // TO-DO: move this after db position normalized.
         case 'academicBuilding': {
           const mappableFloors = ['1', '2', '3', '4', '5', '6', '7'];
-          return mappableFloors.includes(currentFloor) && mappableFloors.includes(floor);
+          return mappableFloors.includes(currentFloorId) && mappableFloors.includes(floor);
         }
         default:
           return this.currentBuilding === this.getFloorBuilding(floor);
@@ -79,17 +79,20 @@ class Floor extends Component {
       return;
     }
 
-    selectBuildingAction(buildingId);
+    if (selectBuildingAction) {
+      selectBuildingAction(buildingId);
+    }
   };
 
   render() {
-    const { floorStore, selectedBuilding, FloorView } = this.props;
+    const { floorStore, selectedBuilding, currentFloorId, FloorView } = this.props;
     return (
       <FloorView
         floorStore={floorStore}
         selectedBuilding={selectedBuilding}
         selectBuilding={this.selectBuilding}
         selectFloor={this.selectFloor}
+        currentFloorId={currentFloorId}
       />
     );
   }

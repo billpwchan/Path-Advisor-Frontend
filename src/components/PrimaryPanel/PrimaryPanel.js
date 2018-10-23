@@ -117,7 +117,7 @@ class PrimaryPanel extends Component {
                   linkTo={linkTo}
                   x={x}
                   y={y}
-                  currentFloor={floor}
+                  currentFloorId={floor}
                   level={level}
                   FloorView={FloorPrimaryPanelView}
                 />
