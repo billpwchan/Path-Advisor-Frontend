@@ -1,0 +1,55 @@
+.button {
+  display: flex;
+  align-items: flex-start;
+}
+
+.content {
+  width: 37px;
+}
+
+.text {
+  color: white;
+  font-size: 19px;
+  text-shadow: 1px 1px black;
+  text-align: center;
+  line-height: 37px;
+  position: relative;
+}
+
+.text::after {
+  border-color: #CC0000 transparent transparent transparent;
+  height: 0;
+  width: 0;
+  border-style: solid;
+  content: "";
+  border-width: 6px 6px 0 6px;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-top: -3px;
+  margin-left: -6px;
+
+}
+
+.noFloor:after {
+  border-width: 10px 10px 0 10px;
+  top: 0;
+  margin-top: 20px;
+  margin-left: -10px;
+}
+
+.selectFloorButton {
+  padding: 4px 0;
+  width: 100%;
+  text-align: center;
+}
+
+.menu > ul {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.menu > ul > li {
+  display: inline-block;
+  width: 33%;
+}
