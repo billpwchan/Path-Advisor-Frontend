@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import SearchArea from '../SearchArea/SearchArea';
 import SearchPrimaryPanelView from '../SearchPrimaryPanelView/SearchPrimaryPanelView';
+import FloorPrimaryPanelView from '../FloorPrimaryPanelView/FloorPrimaryPanelView';
 import PanelOverlay from '../PanelOverlay/PanelOverlay';
 import Floor from '../Floor/Floor';
 import getConnectedComponent from '../ConnectedComponent/getConnectedComponent';
@@ -118,6 +119,7 @@ class PrimaryPanel extends Component {
                   y={y}
                   currentFloor={floor}
                   level={level}
+                  FloorView={FloorPrimaryPanelView}
                 />
               )}
               <SearchArea

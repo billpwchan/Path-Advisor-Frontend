@@ -1,3 +1,5 @@
+import PropTypes from 'prop-types';
+
 export const GET_FLOORS = 'GET_FLOORS';
 export const GET_FLOORS_SUCCESS = 'GET_FLOORS_SUCCESS';
 export const GET_FLOORS_FAILURE = 'GET_FLOORS_FAILURE';
@@ -478,6 +480,32 @@ const initialState = {
     },
   },
 };
+
+export const floorsPropTypes = PropTypes.shape({
+  loading: PropTypes.bool.isRequired,
+  failure: PropTypes.bool.isRequired,
+  success: PropTypes.bool.isRequired,
+  buildingIds: PropTypes.arrayOf(PropTypes.string).isRequired,
+  floors: PropTypes.objectOf(
+    PropTypes.shape({
+      name: PropTypes.string.isRequired,
+      buildingId: PropTypes.string.isRequired,
+      meterPerPixel: PropTypes.number.isRequired,
+      mapWidth: PropTypes.number.isRequired,
+      mapHeight: PropTypes.number.isRequired,
+      ratio: PropTypes.number.isRequired,
+      defaultX: PropTypes.number.isRequired,
+      defaultY: PropTypes.number.isRequired,
+      defaultLevel: PropTypes.number.isRequired,
+    }),
+  ).isRequired,
+  buildings: PropTypes.objectOf(
+    PropTypes.shape({
+      name: PropTypes.string.isRequired,
+      floorIds: PropTypes.arrayOf(PropTypes.string).isRequired,
+    }),
+  ).isRequired,
+});
 
 const floors = (state = initialState, { type, payload }) => {
   switch (type) {

@@ -1,38 +1,17 @@
 import React, { Component } from 'react';
 import get from 'lodash.get';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 import { connect } from 'react-redux';
-import style from './Floor.module.css';
+import { floorsPropTypes } from '../../reducers/floors';
 
 class Floor extends Component {
   static propTypes = {
-    floorStore: PropTypes.shape({
-      buildingIds: PropTypes.arrayOf(PropTypes.string),
-      floors: PropTypes.objectOf(
-        PropTypes.shape({
-          name: PropTypes.string.isRequired,
-          buildingId: PropTypes.string.isRequired,
-          meterPerPixel: PropTypes.number.isRequired,
-          mapWidth: PropTypes.number.isRequired,
-          mapHeight: PropTypes.number.isRequired,
-          ratio: PropTypes.number.isRequired,
-          defaultX: PropTypes.number.isRequired,
-          defaultY: PropTypes.number.isRequired,
-          defaultLevel: PropTypes.number.isRequired,
-        }),
-      ),
-      buildings: PropTypes.objectOf(
-        PropTypes.shape({
-          name: PropTypes.string.isRequired,
-          floorIds: PropTypes.arrayOf(PropTypes.string).isRequired,
-        }),
-      ),
-    }),
+    floorStore: floorsPropTypes,
     x: PropTypes.number,
     y: PropTypes.number,
     level: PropTypes.number,
     currentFloor: PropTypes.string,
+    FloorView: PropTypes.func.isRequired,
     selectedBuilding: PropTypes.string.isRequired,
     linkTo: PropTypes.func.isRequired,
     selectBuildingAction: PropTypes.func.isRequired,
@@ -104,42 +83,14 @@ class Floor extends Component {
   };
 
   render() {
-    const {
-      floorStore: { buildingIds, buildings, floors },
-      selectedBuilding,
-    } = this.props;
+    const { floorStore, selectedBuilding, FloorView } = this.props;
     return (
-      <div className={style.body}>
-        <ul className={style.buildingList}>
-          {buildingIds.map(buildingId => (
-            <li
-              key={buildingId}
-              className={classnames({ [style.selected]: buildingId === selectedBuilding })}
-            >
-              <button
-                type="button"
-                className={style.buildingButton}
-                onClick={this.selectBuilding(buildingId)}
-              >
-                {buildings[buildingId].name}
-              </button>
-            </li>
-          ))}
-        </ul>
-        <ul className={style.floorList}>
-          {buildings[selectedBuilding].floorIds.map(floorId => (
-            <li key={floorId}>
-              <button
-                type="button"
-                className={style.floorButton}
-                onClick={this.selectFloor(floorId)}
-              >
-                {floors[floorId].name}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <FloorView
+        floorStore={floorStore}
+        selectedBuilding={selectedBuilding}
+        selectBuilding={this.selectBuilding}
+        selectFloor={this.selectFloor}
+      />
     );
   }
 }
