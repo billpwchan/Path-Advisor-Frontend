@@ -1,0 +1,61 @@
+.button {
+  position: absolute;
+  bottom: 0px;
+  right: 10px;
+  display: block;
+}
+
+
+.buttonImage {
+  width: 36px;
+  height: 36px;
+}
+
+.body {
+  width: 270px;
+  margin-top: -47px;
+}
+
+.header {
+  box-sizing: border-box;
+  border-top: 3px solid rgba(80, 80, 80, 0.95);
+  border-left: 3px solid rgba(58, 58, 58, 0.95);
+  border-bottom: 3px solid rgba(58, 58, 58, 0.95);
+  border-right: 3px solid rgba(58, 58, 58, 0.95);
+  background: linear-gradient(rgba(7,7,7,0.95),rgba(72,72,72,0.95) );
+  color: rgb(153, 153, 153);
+  font-size: 15pt;
+  padding-left: 5px;
+}
+
+.title {
+  font-weight: bold;
+}
+
+.content {
+  padding: 10px;
+  font-size: 12px;
+  background: linear-gradient(#ffff66, #ffcc00);
+}
+
+.legendList li {
+  display: inline-block;
+  font-size: 12px;
+  width: 50%;
+  padding: 2px 0px;
+  vertical-align: middle;
+}
+
+.text {
+  display: inline-block;
+  vertical-align: middle;
+  padding-left: 5px;
+  width: calc(100% - 20px);
+}
+
+.image {
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  vertical-align: middle;
+}

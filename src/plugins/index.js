@@ -7,6 +7,7 @@ import * as ShortestResult from './ShortestResult/ShortestResult';
 import * as Pin from './Pin/Pin';
 import * as CampusBuildingOverlay from './CampusBuildingOverlay/CampusBuildingOverlay';
 import * as ZoomButton from './ZoomButton/ZoomButton';
+import * as LegendButton from './LegendButton/LegendButton';
 
 export default [
   MapTile,
@@ -18,4 +19,5 @@ export default [
   Legend,
   ZoomButton,
   NearestResultMobile,
+  LegendButton,
 ];
