@@ -13,6 +13,11 @@
   height: 24px;
 }
 
+.buttonImageMobile {
+  width: 36px;
+  height: 36px;
+}
+
 .disabled {
   opacity: 0.4;
   cursor: default;

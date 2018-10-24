@@ -229,6 +229,7 @@ class MapCanvas extends Component {
                       ...urlParams,
                       ...this.state,
                       ...this.canvasHandler.getProps(),
+                      platform,
                       linkTo,
                       APIEndpoint,
                     },

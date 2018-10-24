@@ -4,10 +4,15 @@ import plusImage from './plus.png';
 import minusImage from './minus.png';
 import style from './ZoomButton.module.css';
 
-function ZoomButton({ nextLevel, previousLevel, level: currentLevel, linkTo }) {
+function ZoomButton({ nextLevel, previousLevel, level: currentLevel, linkTo, platform }) {
   const zoom = level => () => {
     linkTo({ level });
   };
+
+  const buttonClassName = classnames({
+    [style.buttonImage]: platform !== 'MOBILE',
+    [style.buttonImageMobile]: platform === 'MOBILE',
+  });
 
   return (
     <div className={style.body}>
@@ -16,14 +21,14 @@ function ZoomButton({ nextLevel, previousLevel, level: currentLevel, linkTo }) {
         type="button"
         onClick={zoom(nextLevel)}
       >
-        <img className={style.buttonImage} src={plusImage} alt="Zoom In" />
+        <img className={buttonClassName} src={plusImage} alt="Zoom In" />
       </button>
       <button
         className={classnames(style.button, { [style.disabled]: currentLevel === previousLevel })}
         type="button"
         onClick={zoom(previousLevel)}
       >
-        <img className={style.buttonImage} src={minusImage} alt="Zoom Out" />
+        <img className={buttonClassName} src={minusImage} alt="Zoom Out" />
       </button>
     </div>
   );
@@ -31,7 +36,7 @@ function ZoomButton({ nextLevel, previousLevel, level: currentLevel, linkTo }) {
 
 const MapCanvasPlugin = {
   Component: ZoomButton,
-  connect: ['nextLevel', 'previousLevel', 'level', 'linkTo'],
+  connect: ['nextLevel', 'previousLevel', 'level', 'linkTo', 'platform'],
 };
 
 const id = 'zoomButton';
