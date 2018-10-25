@@ -10,6 +10,7 @@ import MapCanvas from '../MapCanvas/MapCanvas';
 import { parseParams, build as buildUrl } from '../Router/Url';
 import style from './Main.module.css';
 import detectPlatform, { PLATFORM } from './detectPlatform';
+import MobileOverlay from '../MobileOverlay/MobileOverlay';
 
 class Main extends Component {
   static propTypes = {
@@ -102,7 +103,16 @@ class Main extends Component {
               )}
             </PrimaryPanel>
           ) : (
-            <TopPanel {...this.urlParams} linkTo={this.linkTo} />
+            <>
+              <TopPanel {...this.urlParams} linkTo={this.linkTo} />
+              <MobileOverlay>
+                {plugins.map(({ id, MobileOverlayHeaderPlugin, MobileOverlayContentPlugin }) => ({
+                  id,
+                  MobileOverlayHeaderPlugin,
+                  MobileOverlayContentPlugin,
+                }))}
+              </MobileOverlay>
+            </>
           )}
           {this.props.appSettingStore.success && (
             <MapCanvas {...this.urlParams} linkTo={this.linkTo} platform={detectPlatform()}>
