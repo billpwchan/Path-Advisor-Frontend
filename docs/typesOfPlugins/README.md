@@ -1,6 +1,6 @@
 # Types of plugins
 
-There are four types of plugin for this project. They are `PrimaryPanelPlugin`, `MapCanvasPlugin`, `OverlayHeaderPlugin` and `OverlayContentPlugin`. In general, if you want to add new features in map canvas area (drag and drop floor plan area), you will need to build a `MapCanvasPlugin` type plugin. If you want to add features for showing details of a map item on the left UI panel, you will need to build `OverlayHeaderPlugin` and `OverlayContentPlugin`. If you want to add any other features in the left panel of the UI, you will need to build a `PrimaryPanelPlugin` type plugin. It is completely normal that you may need to build more than one of these plugins to complete your feature.
+There are six types of plugin for this project. They are `PrimaryPanelPlugin`, `MapCanvasPlugin`, `OverlayHeaderPlugin`, `OverlayContentPlugin`, `MobileOverlayHeaderPlugin`, `MobileOverlayContentPlugin`. In general, if you want to add new features in map canvas area (drag and drop floor plan area), you will need to build a `MapCanvasPlugin` type plugin. If you want to add features for showing details of a map item on the left UI panel or in the full screen overlay in mobile platform, you will need to build `OverlayHeaderPlugin` and `OverlayContentPlugin` or in mobile platform that would be `MobileOverlayHeaderPlugin` and `MobileOverlayContentPlugin`. If you want to add any other features in the left panel of the UI, you will need to build a `PrimaryPanelPlugin` type plugin. It is completely normal that you may need to build more than one of these plugins to complete your feature.
 
 ![plugin-indication-1](../images/pluginIndication1.jpg)
 
@@ -323,6 +323,11 @@ Parameters:
 
 ### Properties
 
+#### platform
+`platform` - string
+
+The platform of the user device currently using the app. Useful for UI positioning or future toggling for different platforms. The platform value is set to `DESKTOP` or `PLATFORM`.
+
 <!-- [width](properties/width.md ':include') -->
 #### width
 `width` - number
@@ -441,7 +446,7 @@ Add or update a map item on the map canvas.
 It takes an array of objects as an argument with the following format:
 Note that you can only define one of the following properties in the object
 
-`textElemenet`, `circle`, `rect`, `line`, `image`
+`textElemenet`, `circle`, `rect`, `line`, `image`, `shape`
 
 If you define more than one, only the first encountered one will be taken and the rest will be ignore.
 A map item doesn't support multiple types, you should define two map items with different types.
@@ -457,6 +462,7 @@ mapItem object:
   image: HTMLImageElement, /* Image of the map item */
   width:number|null, /* Width of the map item or if null is given, it will be determined automatically */
   height:number|null, /* Height of the map item or if null is given, it will be determined automatically */
+  zIndex:number|null, /* The depth of the map item, when map items overlap each other, the map item with higher zIndex will cover those with lower zIndex, default to 0 */
   center: boolean, /* The x,y coordinates will be set as a center of the object if set to true */
   hidden: boolean, /* Wether the map tile is hidden */
   scalePosition: boolean, /* Should the map item scale it's position when the map scale change */
@@ -627,6 +633,12 @@ Photo url of the map item.
 
 A object with any custom properties of the map item other than the the default `name`, `url` and `photo` It can be defined when other plugin calls `openOverlayHandler`
 
+## MobileOverlayHeaderPlugin
+
+### Inherited
+
+`MobileOverlayHeaderPlugin` gets all the properties `OverlayHeaderPlugin` gets
+
 ## OverlayContentPlugin
 
 ### Properties
@@ -654,3 +666,10 @@ Photo url of the map item.
 `others` - object
 
 A object with any custom properties of the map item other than the the default `name`, `url` and `photo` It can be defined when other plugin calls `openOverlayHandler`
+
+
+## MobileOverlayContentPlugin
+
+### Inherited
+
+`MobileOverlayContentPlugin` gets all the properties `OverlayContentPlugin` gets

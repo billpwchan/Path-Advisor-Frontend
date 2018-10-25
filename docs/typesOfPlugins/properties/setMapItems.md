@@ -6,7 +6,7 @@ Add or update a map item on the map canvas.
 It takes an array of objects as an argument with the following format:
 Note that you can only define one of the following properties in the object
 
-`textElemenet`, `circle`, `rect`, `line`, `image`
+`textElemenet`, `circle`, `rect`, `line`, `image`, `shape`
 
 If you define more than one, only the first encountered one will be taken and the rest will be ignore.
 A map item doesn't support multiple types, you should define two map items with different types.
@@ -22,6 +22,7 @@ mapItem object:
   image: HTMLImageElement, /* Image of the map item */
   width:number|null, /* Width of the map item or if null is given, it will be determined automatically */
   height:number|null, /* Height of the map item or if null is given, it will be determined automatically */
+  zIndex:number|null, /* The depth of the map item, when map items overlap each other, the map item with higher zIndex will cover those with lower zIndex, default to 0 */
   center: boolean, /* The x,y coordinates will be set as a center of the object if set to true */
   hidden: boolean, /* Wether the map tile is hidden */
   scalePosition: boolean, /* Should the map item scale it's position when the map scale change */
