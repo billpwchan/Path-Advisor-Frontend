@@ -1,8 +1,10 @@
 import { Component } from 'react';
 
-import fetchAccessibleFoorsRequest from '../../sagas/requests/fetchAccessibleFloorsRequest';
-import MapItemOverlayHeader from './MapItemOverlayHeader';
-import MapItemOverlayContent from './MapItemOverlayContent';
+import fetchAccessibleFloorsRequest from '../../sagas/requests/fetchAccessibleFloorsRequest';
+import MapItemDesktopOverlayHeader from './MapItemDesktopOverlayHeader';
+import MapItemDesktopOverlayContent from './MapItemDesktopOverlayContent';
+import MapItemMobileOverlayHeader from './MapItemMobileOverlayHeader';
+import MapItemMobileOverlayContent from './MapItemMobileOverlayContent';
 
 const imgCached = {};
 
@@ -155,7 +157,7 @@ class MapItem extends Component {
                 },
 
                 onClick: () => {
-                  fetchAccessibleFoorsRequest(floor, name).then(({ data: accessibleFloors }) => {
+                  fetchAccessibleFloorsRequest(floor, name).then(({ data: accessibleFloors }) => {
                     openOverlayHandler(name, photo, url, { accessibleFloors });
                   });
                 },
@@ -244,6 +246,8 @@ const id = 'mapItem';
 export {
   id,
   MapCanvasPlugin,
-  MapItemOverlayHeader as OverlayHeaderPlugin,
-  MapItemOverlayContent as OverlayContentPlugin,
+  MapItemDesktopOverlayHeader as OverlayHeaderPlugin,
+  MapItemDesktopOverlayContent as OverlayContentPlugin,
+  MapItemMobileOverlayHeader as MobileOverlayHeaderPlugin,
+  MapItemMobileOverlayContent as MobileOverlayContentPlugin,
 };

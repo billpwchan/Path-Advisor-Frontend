@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import style from './MapItemOverlayContent.module.css';
 
-function MapItemOverlayContent({ name, photo, url, others: { accessibleFloors } }) {
+function MapItemOverlayContent({ style, name, photo, url, others: { accessibleFloors } }) {
   return (
     <div className={style.body}>
       {photo && (
@@ -35,13 +34,17 @@ function MapItemOverlayContent({ name, photo, url, others: { accessibleFloors } 
 }
 
 MapItemOverlayContent.propTypes = {
+  style: PropTypes.shape({
+    body: PropTypes.string,
+    head: PropTypes.string,
+    photo: PropTypes.string,
+    url: PropTypes.string,
+    floorList: PropTypes.string,
+  }).isRequired,
   name: PropTypes.string.isRequired,
   photo: PropTypes.string,
   url: PropTypes.string,
   others: PropTypes.shape({}),
 };
 
-export default {
-  Component: MapItemOverlayContent,
-  connect: [],
-};
+export default MapItemOverlayContent;

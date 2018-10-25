@@ -1,0 +1,27 @@
+.body {
+  padding: 10px;
+  font-size: 16px;
+  color: white;
+}
+
+.head {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.photo {
+  margin-bottom: 15px;
+}
+
+.url {
+  margin-bottom: 15px;
+}
+
+.accessibleFloors{
+  margin-bottom: 15px;
+}
+
+.floorList li{
+  display: block;
+  padding: 2px 5px;
+}

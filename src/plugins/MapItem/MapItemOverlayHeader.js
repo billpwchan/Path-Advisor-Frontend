@@ -1,16 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import style from './MapItemOverlayHeader.module.css';
 
-function MapItemOverlayHeader({ name }) {
+function MapItemOverlayHeader({ style, name }) {
   return <h1 className={style.title}>{name}</h1>;
 }
 
 MapItemOverlayHeader.propTypes = {
+  style: PropTypes.shape({ title: PropTypes.string.isRequired }).isRequired,
   name: PropTypes.string.isRequired,
 };
 
-export default {
-  connect: [],
-  Component: MapItemOverlayHeader,
-};
+export default MapItemOverlayHeader;
