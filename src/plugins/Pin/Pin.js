@@ -24,6 +24,7 @@ function Pin({ setMapItems, removeMapItem, searchAreaInputStore }) {
         width: pinImageWidth,
         height: pinImageHeight,
         image,
+        zIndex: 2,
       },
     ]);
   } else {

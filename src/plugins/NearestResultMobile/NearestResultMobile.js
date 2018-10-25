@@ -59,6 +59,7 @@ class NearestResultMobile extends Component {
               [0, tagHeight],
             ],
           },
+          zIndex: 2,
           onClick: () => console.log('i am clicked'),
         },
         {
@@ -72,6 +73,7 @@ class NearestResultMobile extends Component {
             color: 'white',
             text: name,
           },
+          zIndex: 2,
         },
       ]);
     }

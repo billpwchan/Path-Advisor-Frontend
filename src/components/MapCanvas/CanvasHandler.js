@@ -49,6 +49,7 @@ const DEVICE_PIXEL_RATIO = window.devicePixelRatio || 1;
  * @property {number} y
  * @property {number} width
  * @property {number} height
+ * @property {number} zIndex
  * @property {number} hitX
  * @property {number} hitY
  * @property {number} hitWidth
@@ -697,6 +698,7 @@ class CanvasHandler {
         y = getDefault(id, 'y', null),
         width = getDefault(id, 'width', null),
         height = getDefault(id, 'height', null),
+        zIndex = getDefault(id, 'zIndex', 0),
         image = getDefault(id, 'image', null),
         textElement = getDefault(id, 'textElement', null),
         circle = getDefault(id, 'circle', null),
@@ -735,6 +737,7 @@ class CanvasHandler {
           scaleDimension,
           width,
           height,
+          zIndex,
           image,
           textElement,
           line,
@@ -863,6 +866,8 @@ class CanvasHandler {
       },
     );
 
+    // sort by zIndex
+    this.mapItemIds.sort((a, b) => this.mapItems[a].zIndex - this.mapItems[b].zIndex);
     // render all sync map items first
     this.render();
 

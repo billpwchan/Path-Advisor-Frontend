@@ -206,6 +206,7 @@ function ShortestResultMapCanvas({
           ...lineStyle,
           coordinates: [coordinates],
         },
+        zIndex: -1,
       };
     } else {
       mapItems[floor].line.coordinates.push(coordinates);
