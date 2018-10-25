@@ -14,10 +14,10 @@ const DEFAULT_TEXT_STYLE = {
   maxLineWidth: 35,
 };
 
-const CIRCLE_RADUIS = 15;
+const CIRCLE_RADIUS = 15;
 
 const DEFAULT_CIRCLE_STYLE = {
-  radius: CIRCLE_RADUIS,
+  radius: CIRCLE_RADIUS,
   borderColor: '#666666',
   color: 'lightblue',
 };
@@ -57,6 +57,7 @@ class MapItem extends Component {
       setMapItems,
       legendStore: { legends },
       openOverlayHandler,
+      platform,
     } = this.props;
 
     setMapItems(
@@ -106,9 +107,9 @@ class MapItem extends Component {
               },
             });
             break;
-          case 'lift':
-            accumulator.push(
-              {
+          case 'lift': {
+            if (platform !== 'MOBILE') {
+              accumulator.push({
                 ...baseMapItem,
                 id: `${floor}_${id}_circle`,
                 circle: {
@@ -135,35 +136,44 @@ class MapItem extends Component {
                     },
                   ]);
                 },
-              },
-              {
-                ...baseMapItem,
-                textElement: {
-                  ...DEFAULT_TEXT_STYLE,
-                  maxLineWidth: 30,
-                  text: name,
-                },
-                id: `${floor}_${id}`,
-                hitX: x - CIRCLE_RADUIS,
-                hitY: y - CIRCLE_RADUIS,
-                hitWidth: CIRCLE_RADUIS * 2,
-                hitHeight: CIRCLE_RADUIS * 2,
-                onMouseOver: () => {
-                  document.body.style.cursor = 'pointer';
-                },
+              });
+            }
 
-                onMouseOut: () => {
-                  document.body.style.cursor = 'auto';
-                },
+            const liftMapItem =
+              platform === 'MOBILE'
+                ? { image: createImage(legends[type].image), ...LEGEND_DIMENSION }
+                : {
+                    textElement: {
+                      ...DEFAULT_TEXT_STYLE,
+                      maxLineWidth: 30,
+                      text: name,
+                    },
+                    id: `${floor}_${id}`,
+                    hitX: x - CIRCLE_RADIUS,
+                    hitY: y - CIRCLE_RADIUS,
+                    hitWidth: CIRCLE_RADIUS * 2,
+                    hitHeight: CIRCLE_RADIUS * 2,
+                  };
 
-                onClick: () => {
-                  fetchAccessibleFloorsRequest(floor, name).then(({ data: accessibleFloors }) => {
-                    openOverlayHandler(name, photo, url, { accessibleFloors });
-                  });
-                },
+            accumulator.push({
+              ...baseMapItem,
+              ...liftMapItem,
+              onMouseOver: () => {
+                document.body.style.cursor = 'pointer';
               },
-            );
+
+              onMouseOut: () => {
+                document.body.style.cursor = 'auto';
+              },
+
+              onClick: () => {
+                fetchAccessibleFloorsRequest(floor, name).then(({ data: accessibleFloors }) => {
+                  openOverlayHandler(name, photo, url, { accessibleFloors });
+                });
+              },
+            });
             break;
+          }
           default: {
             accumulator.push({
               ...textMapItem,
@@ -239,7 +249,7 @@ class MapItem extends Component {
 }
 
 const MapCanvasPlugin = {
-  connect: ['mapItemStore', 'legendStore', 'openOverlayHandler', 'setMapItems'],
+  connect: ['mapItemStore', 'legendStore', 'openOverlayHandler', 'setMapItems', 'platform'],
   Component: MapItem,
 };
 const id = 'mapItem';
