@@ -149,10 +149,10 @@ class MapItem extends Component {
                       text: name,
                     },
                     id: `${floor}_${id}`,
-                    hitX: x - CIRCLE_RADIUS,
-                    hitY: y - CIRCLE_RADIUS,
-                    hitWidth: CIRCLE_RADIUS * 2,
-                    hitHeight: CIRCLE_RADIUS * 2,
+                    customHitX: x - CIRCLE_RADIUS,
+                    customHitY: y - CIRCLE_RADIUS,
+                    customHitWidth: CIRCLE_RADIUS * 2,
+                    customHitHeight: CIRCLE_RADIUS * 2,
                   };
 
             accumulator.push({

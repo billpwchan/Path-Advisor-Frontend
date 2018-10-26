@@ -470,10 +470,10 @@ mapItem object:
   onClick: function|null, /* callback function to be called when the map item is clicked */
   onMouseOver: function|null, /* callback function to be called when the cursor is over the map item */
   onMouseOut: function|null, /* callback function to be called when the cursor was over the map item and now is out side the map item */
-  hitX: number|null, /* The custom x coordinate on the left of the map item used in calculating hit test, will use default x coordinate if this is not specified */
-  hitY: number|null, , /* The custom y coordinate at the top of the map item used in calculating hit test, will use default y coordinate if this is not specified */
-  hitWidth: number|null, /* The custom width of the map item used in calculating hit test, will use default width of the map item if this is not specified */
-  hitHeight: number|null, /* The custom height of the map item used in calculating hit test, will use default height of the map item if this is not specified */
+  customHitX: number|null, /* The custom x coordinate on the left of the map item used in calculating hit test, will use default x coordinate if this is not specified */
+  customHitY: number|null, , /* The custom y coordinate at the top of the map item used in calculating hit test, will use default y coordinate if this is not specified */
+  customHitWidth: number|null, /* The custom width of the map item used in calculating hit test, will use default width of the map item if this is not specified */
+  customHitHeight: number|null, /* The custom height of the map item used in calculating hit test, will use default height of the map item if this is not specified */
   others: {}, /* Any other custom data to be attached to this map item */
   textElement: {
     style: string, /* Font style of the text in CSS font format*/

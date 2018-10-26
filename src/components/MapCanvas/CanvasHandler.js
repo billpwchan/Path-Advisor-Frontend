@@ -1,5 +1,6 @@
 import get from 'lodash.get';
 import calculateTextDimension from './calculateTextDimension';
+import stableSort from './stableSort';
 
 const DEFAULT_LISTENER_ID = 'default';
 const DEVICE_PIXEL_RATIO = window.devicePixelRatio || 1;
@@ -54,6 +55,10 @@ const DEVICE_PIXEL_RATIO = window.devicePixelRatio || 1;
  * @property {number} hitY
  * @property {number} hitWidth
  * @property {number} hitHeight
+ * @property {number} [customHitX]
+ * @property {number} [customHitY]
+ * @property {number} [customHitWidth]
+ * @property {number} [customHitHeight]
  * @property {string} floor
  * @property {boolean} [scalePosition]
  * @property {boolean} [scaleDimension]
@@ -112,18 +117,20 @@ function imageNotLoaded(image) {
   );
 }
 
-function setCanvasItemHitArea(canvasItem, renderedX, renderedY, width, height) {
-  const hitArea = { renderedX, renderedY, width, height };
+function setCanvasItemHitArea(canvasItem, x, y, width, height) {
+  const hitArea = { x, y, width, height };
   [
-    { target: 'hitX', replace: 'renderedX' },
-    { target: 'hitY', replace: 'renderedY' },
-    { target: 'hitWidth', replace: 'width' },
-    { target: 'hitHeight', replace: 'height' },
-  ].forEach(({ target, replace }) => {
-    if (canvasItem[target] === null) {
+    { custom: 'customHitX', target: 'hitX', replace: 'x' },
+    { custom: 'customHitY', target: 'hitY', replace: 'y' },
+    { custom: 'customHitWidth', target: 'hitWidth', replace: 'width' },
+    { custom: 'customHitHeight', target: 'hitHeight', replace: 'height' },
+  ].forEach(({ custom, target, replace }) => {
+    if (canvasItem[custom] === null) {
       /* eslint no-param-reassign: [0] */
       canvasItem[target] = hitArea[replace];
+      return;
     }
+    canvasItem[target] = canvasItem[custom];
   });
 }
 class CanvasHandler {
@@ -449,9 +456,9 @@ class CanvasHandler {
 
   setUpCanvasListeners() {
     document.addEventListener('mousedown', e => {
-      const { clientX: downX, clientY: downY, target } = e;
+      const { clientX: downX, clientY: downY, target, relatedTarget } = e;
 
-      if (target !== this.getCanvas()) {
+      if (target !== this.getCanvas() && relatedTarget !== this.getCanvas()) {
         return;
       }
 
@@ -528,6 +535,7 @@ class CanvasHandler {
         switch (event) {
           case 'click':
             if (itemHit) mapItemEvent = event;
+
             break;
           case 'mousemove':
             if (itemHit && !this.mapItemsMouseOvering[id]) {
@@ -641,6 +649,7 @@ class CanvasHandler {
         hitY: y,
         hitWidth: null,
         hitHeight: null,
+        zIndex: 0,
         hidden,
         image,
         scaleDimension: false,
@@ -711,10 +720,10 @@ class CanvasHandler {
         onClick = getDefault(id, 'onClick', null),
         onMouseOver = getDefault(id, 'onMouseOver', null),
         onMouseOut = getDefault(id, 'onMouseOut', null),
-        hitX = getDefault(id, 'hitX', null),
-        hitY = getDefault(id, 'hitY', null),
-        hitWidth = getDefault(id, 'hitWidth', null),
-        hitHeight = getDefault(id, 'hitHeight', null),
+        customHitX = getDefault(id, 'customHitX', null),
+        customHitY = getDefault(id, 'customHitY', null),
+        customHitWidth = getDefault(id, 'customHitWidth', null),
+        customHitHeight = getDefault(id, 'customHitHeight', null),
         scalePosition = getDefault(id, 'scalePosition', true),
         scaleDimension = getDefault(id, 'scaleDimension', false),
       }) => {
@@ -729,10 +738,14 @@ class CanvasHandler {
           floor,
           x,
           y,
-          hitX,
-          hitY,
-          hitWidth,
-          hitHeight,
+          hitX: null,
+          hitY: null,
+          hitWidth: null,
+          hitHeight: null,
+          customHitX,
+          customHitY,
+          customHitWidth,
+          customHitHeight,
           scalePosition,
           scaleDimension,
           width,
@@ -867,7 +880,8 @@ class CanvasHandler {
     );
 
     // sort by zIndex
-    this.mapItemIds.sort((a, b) => this.mapItems[a].zIndex - this.mapItems[b].zIndex);
+    stableSort(this.mapItemIds, (a, b) => this.mapItems[a].zIndex - this.mapItems[b].zIndex);
+    // this.mapItemIds.sort((a, b) => this.mapItems[a].zIndex - this.mapItems[b].zIndex);
     // render all sync map items first
     this.render();
 
@@ -957,7 +971,16 @@ class CanvasHandler {
           renderedY -= scaledHeight / 2;
         }
 
-        setCanvasItemHitArea(mapItem, renderedX, renderedY, scaledWidth, scaledHeight);
+        const centeredX = x - scaledWidth / 2;
+        const centeredY = y - scaledHeight / 2;
+
+        setCanvasItemHitArea(
+          mapItem,
+          center ? centeredX : x,
+          center ? centeredY : y,
+          width,
+          height,
+        );
 
         if (
           hidden ||
