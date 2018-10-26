@@ -147,7 +147,11 @@ class SearchTopPanelView extends Component {
           </div>
           <div className="topPanel__tabRight" />
         </div>
-        <button type="button" onClick={this.checkInputAndShowNearestPopUp}>
+        <button
+          type="button"
+          className={style.pathButton}
+          onClick={this.checkInputAndShowNearestPopUp}
+        >
           <div className="topPanel__tabLeft" />
           <div className={classnames('topPanel__tabSpace', style.pathSpace)} />
           <div className={style.pathIcon} />

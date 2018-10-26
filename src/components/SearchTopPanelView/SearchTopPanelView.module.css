@@ -99,3 +99,8 @@
   vertical-align: middle;
   margin-left: 10px;
 }
+
+.pathButton {
+  display: flex;
+  align-items: flex-start;
+}
