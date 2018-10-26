@@ -50,7 +50,7 @@ class SearchArea extends Component {
         data: { id, floor, value: name, type: 'id', coordinates: [x, y] },
       },
     });
-    linkTo({ floor, x, y, level: 0 });
+    linkTo({ floor, x, y });
   };
 
   onNearestItemClick = fieldName => ({ name, data }) => {

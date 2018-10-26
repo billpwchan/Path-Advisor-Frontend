@@ -1,12 +1,12 @@
 import PropTypes from 'prop-types';
 import React from 'react';
+import { PLATFORM } from '../Main/detectPlatform';
 import style from './TopPanel.module.css';
 import SearchArea from '../SearchArea/SearchArea';
 import SearchTopPanelView from '../SearchTopPanelView/SearchTopPanelView';
 import Floor from '../Floor/Floor';
 import FloorTopPanelView from '../FloorTopPanelView/FloorTopPanelView';
 import { propTypes as urlPropTypes } from '../Router/Url';
-
 import './TopPanel.css';
 
 function TopPanel({ linkTo, x, y, floor, level }) {
@@ -22,6 +22,7 @@ function TopPanel({ linkTo, x, y, floor, level }) {
           currentFloorId={floor}
           level={level}
           FloorView={FloorTopPanelView}
+          platform={PLATFORM.MOBILE}
         />
       )}
     </div>

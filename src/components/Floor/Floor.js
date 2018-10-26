@@ -3,9 +3,11 @@ import get from 'lodash.get';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { floorsPropTypes } from '../../reducers/floors';
+import { PLATFORM } from '../Main/detectPlatform';
 
 class Floor extends Component {
   static propTypes = {
+    platform: PropTypes.oneOf(Object.values(PLATFORM)),
     floorStore: floorsPropTypes,
     x: PropTypes.number,
     y: PropTypes.number,
@@ -21,23 +23,28 @@ class Floor extends Component {
     return this.getFloorBuilding(this.props.currentFloorId);
   }
 
+  getDefaultFloorPosition(floor) {
+    const {
+      floorStore: { floors },
+      platform,
+    } = this.props;
+    const floorData = floors[floor];
+
+    return platform === PLATFORM.MOBILE
+      ? [floorData.mobileDefaultX, floorData.mobileDefaultY, floorData.mobileDefaultLevel]
+      : [floorData.defaultX, floorData.defaultY, floorData.defaultLevel];
+  }
+
   getFloorBuilding(floor) {
     return get(this.props.floorStore, `floors.${floor}.buildingId`);
   }
 
   selectFloor = floor => () => {
-    const {
-      x,
-      y,
-      level,
-      linkTo,
-      currentFloorId,
-      floorStore: { floors },
-    } = this.props;
+    const { x, y, level, linkTo, currentFloorId } = this.props;
 
     const useSameCoordinates = () => {
       switch (this.currentBuilding) {
-        // TO-DO: move this after db position normalized.
+        // TO-DO: remove this after db position is normalized.
         case 'academicBuilding': {
           const mappableFloors = ['1', '2', '3', '4', '5', '6', '7'];
           return mappableFloors.includes(currentFloorId) && mappableFloors.includes(floor);
@@ -52,11 +59,13 @@ class Floor extends Component {
       return;
     }
 
+    const [defaultX, defaultY, defaultLevel] = this.getDefaultFloorPosition(floor);
+
     linkTo({
-      x: floors[floor].defaultX,
-      y: floors[floor].defaultY,
+      x: defaultX,
+      y: defaultY,
       floor,
-      level: floors[floor].defaultLevel,
+      level: defaultLevel,
     });
   };
 
@@ -64,17 +73,18 @@ class Floor extends Component {
     const {
       floorStore: { buildings },
       linkTo,
-      floorStore: { floors },
       selectBuildingAction,
     } = this.props;
     if (buildings[buildingId].floorIds.length === 1) {
       const [floor] = buildings[buildingId].floorIds;
 
+      const [defaultX, defaultY, defaultLevel] = this.getDefaultFloorPosition(floor);
+
       linkTo({
-        x: floors[floor].defaultX,
-        y: floors[floor].defaultY,
+        x: defaultX,
+        y: defaultY,
         floor,
-        level: floors[floor].defaultLevel,
+        level: defaultLevel,
       });
       return;
     }

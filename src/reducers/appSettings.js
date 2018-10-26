@@ -16,7 +16,7 @@ const initialState = {
     floor: 'G',
     x: 2182,
     y: 2343,
-    level: 0,
+    level: 1,
   },
 };
 
