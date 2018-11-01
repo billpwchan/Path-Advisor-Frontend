@@ -132,6 +132,10 @@ class MapCanvas extends Component {
       },
     );
 
+    this.canvasHandler.addPinchEndListener(({ level: newLevel }) => {
+      linkTo({ level: newLevel });
+    });
+
     // init position param
     linkTo({ floor, x, y, level });
     this.canvasHandler.updatePosition(x, y, floor, level);

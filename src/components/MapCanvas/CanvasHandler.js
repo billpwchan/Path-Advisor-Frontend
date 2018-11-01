@@ -1,6 +1,8 @@
 import get from 'lodash.get';
 import calculateTextDimension from './calculateTextDimension';
 import stableSort from './stableSort';
+import addTouchEventHandler from './addTouchEventHandler';
+import watchPinchEvent from './watchPinchEvent';
 
 const DEFAULT_LISTENER_ID = 'default';
 const DEVICE_PIXEL_RATIO = window.devicePixelRatio || 1;
@@ -133,6 +135,7 @@ function setCanvasItemHitArea(canvasItem, x, y, width, height) {
     canvasItem[target] = canvasItem[custom];
   });
 }
+
 class CanvasHandler {
   layers = {
     mapTiles: { id: 'mapTiles', hidden: false },
@@ -181,6 +184,9 @@ class CanvasHandler {
   /** @type {function[]} - canvas position changed listeners */
   positionChangeListeners = [];
 
+  /** @type {function[]} - pinch event end listeners */
+  pinchEndListeners = [];
+
   /** @typedef {Object.<string, Object.<string, mapItemListener>>} listenerGroup */
   /** @type {Object.<string, listenerGroup>} - map items listeners grouped by id */
   mapItemListeners = {
@@ -200,6 +206,29 @@ class CanvasHandler {
 
   height = 0;
 
+  nearestLevel(capScale) {
+    if (capScale >= this.levelToScale[0]) {
+      return 0;
+    }
+
+    let nearestLevel = 0;
+    let lastDiff = this.levelToScale[nearestLevel] - capScale;
+
+    this.levelToScale.some((scale, level) => {
+      const diff = scale - capScale;
+
+      if (diff > 0 !== lastDiff > 0) {
+        nearestLevel = Math.abs(diff) < Math.abs(lastDiff) ? level : nearestLevel;
+        return true;
+      }
+      lastDiff = diff;
+      nearestLevel = level;
+      return false;
+    });
+
+    return nearestLevel;
+  }
+
   getCanvasItems(key) {
     switch (key) {
       case 'mapTiles':
@@ -213,6 +242,7 @@ class CanvasHandler {
 
   constructor() {
     this.canvas = document.createElement('canvas');
+    addTouchEventHandler(this.getCanvas());
     this.setUpCanvasListeners();
     ['click', 'mousemove'].forEach(event => this.setUpListener(event));
   }
@@ -363,6 +393,13 @@ class CanvasHandler {
   }
 
   /**
+   * add user defined pinch end listeners
+   */
+  addPinchEndListener(listener) {
+    this.pinchEndListeners.push(listener);
+  }
+
+  /**
    * remove a user defined position change listener
    * @param {function} listener
    * @return {boolean} True is removed otherwise false
@@ -492,6 +529,29 @@ class CanvasHandler {
         const wheelDelta = Math.sign(e.wheelDelta);
         listener(this.getListenerParamObject({ wheelDelta }));
       });
+    });
+
+    watchPinchEvent(this.getCanvas(), {
+      moving: (e, pinScale) => {
+        const capScale = pinScale * this.levelToScale[this.level];
+
+        const maxScale = this.levelToScale[0];
+        const minScale = this.levelToScale[this.levelToScale.length - 1];
+
+        if (capScale >= minScale && capScale <= maxScale) {
+          this.getCanvas().style.transform = `scale(${pinScale})`;
+        }
+      },
+      end: (e, pinScale) => {
+        const capScale = pinScale * this.levelToScale[this.level];
+        this.pinchEndListeners.forEach(listener => {
+          listener({
+            level: this.nearestLevel(capScale),
+          });
+        });
+
+        this.getCanvas().style.transform = `scale(1)`;
+      },
     });
   }
 
@@ -881,7 +941,6 @@ class CanvasHandler {
 
     // sort by zIndex
     stableSort(this.mapItemIds, (a, b) => this.mapItems[a].zIndex - this.mapItems[b].zIndex);
-    // this.mapItemIds.sort((a, b) => this.mapItems[a].zIndex - this.mapItems[b].zIndex);
     // render all sync map items first
     this.render();
 
