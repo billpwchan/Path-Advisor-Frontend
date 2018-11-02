@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import classnames from 'classnames';
 import infoImage from './info.png';
 import style from './LegendButton.module.css';
 import FullScreenOverlay from '../../components/FullScreenOverlay/FullScreenOverlay';

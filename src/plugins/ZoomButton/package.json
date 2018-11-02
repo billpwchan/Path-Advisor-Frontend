@@ -1,0 +1,9 @@
+{
+  "name": "@ust-pathadvisor/zoom-button",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "react": "^16.4.1",
+    "classnames": "^2.2.6"
+  }
+}

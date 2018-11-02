@@ -50,5 +50,10 @@
       "not op_mini all",
       "ie 9"
     ]
+  },
+  "bolt": {
+    "workspaces": [
+      "src/plugins/*"
+    ]
   }
 }
