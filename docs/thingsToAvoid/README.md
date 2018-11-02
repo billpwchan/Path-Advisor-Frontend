@@ -12,6 +12,8 @@ Your plugin should always use the the APIs and functions documented in this docu
 **Do not edit code outside of your plugin folder.**
 You should only add or edit code for the files in your plugin folder. When you submit your plugin, we only take the files inside your plugin folder.
 
+Similarly for `package.json`, do not edit the package.json file residing in root directory. If you want to add any dependencies, you can always add them in package.json **residing in your plugin directory**. The build script will always look for all package.json files in the `plugins` folder and install the dependencies one by one.
+
 
 ## Direct DOM manipulation
 

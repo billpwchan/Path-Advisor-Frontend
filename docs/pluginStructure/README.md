@@ -2,14 +2,15 @@
 
 ## File structure
 
-All plugins will live under the root `plugins` folder and each plugin will have their own folder containing all their assets inside. Inside their own folders, there should be at least one js file which its filename should be the same as the plugin folder's name and this file will be the entry point for the plugin. All plugin folder name should be in camel case.
-For example, if you want to build a hello world plugin, you will need to create a folder named `HelloWorld` under plugins folder. Inside `HelloWorld` folder, there should be a `HelloWorld.js` file.
+All plugins will live under the root `plugins` folder and each plugin will have their own folder containing all their assets inside. Inside their own folders, there should be at least one `.js` file which its filename should be the same as the plugin folder's name and one other file named `package.json` defining this plugin's name and dependencies. All plugin folder name should be in camel case.
+For example, if you want to build a hello world plugin, you will need to create a folder named `HelloWorld` under plugins folder. Inside `HelloWorld` folder, there should be a `HelloWorld.js` and a `package.json` file.
 
 ```
 ...
 src
 └── plugins/
     └── HelloWorld/
+        ├──  package.json
         └──  HelloWorld.js
 ...
 ```
@@ -25,6 +26,41 @@ import * as HelloWorld from './HelloWorld/HelloWorld';
 export [FooBar, HelloWorld];
 ```
 
+
+## Package.json
+
+The full specification of a package.json can be found here [https://docs.npmjs.com/files/package.json](https://docs.npmjs.com/files/package.json)
+
+You can use libraries found from http://npmjs.com repo and import them to use in your plugin, but you must define these dependencies in `package.json` file so that the build script know what libraries to be included during build time. It is required to define a package.json file for each plugin even if your plugin has no dependencies at all. Your `package.json` should include at least the following content.
+
+```json
+{
+  "name": "@ust-pathadvisor/my-first-plugin",
+  "version": "0.0.0",
+  "private": true
+}
+```
+
+The `name` field should always starts with `@ust-pathadvisor/` followed by your plugin name in kebab case (lower case and words separated by dash) format.
+
+If you plugin, for example, want to use the library [lodash.get](https://www.npmjs.com/package/lodash.get), you must include it in `package.json` like this:
+
+```json
+{
+  "name": "@ust-pathadvisor/my-first-plugin",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "lodash.get": "^4.4.2"
+  }
+}
+```
+
+and then you can start using this library in your plugin:
+
+```javascript
+import get from 'lodash.get';
+```
 
 ## Entry point file
 

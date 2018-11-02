@@ -1,7 +1,5 @@
 # Getting started
 
-Until now we discovered different types of plugins and how a basic plugin looks like. Let's start writing a simple plugin for the project.
-
 ## Download the project
 
 You will need to install git, node 8.x and npm 5.x.
@@ -12,24 +10,49 @@ You can download node from https://nodejs.org/en/ if you don't have one. Install
 
 You will need to git clone the project from https://gitlab.com/thenrikie/pathadvisor-frontend.
 
-Go to the project directory and run `npm install` for the first time
+Go to the project directory and run `npx bolt` for the first time. It will install all dependencies for the project and for all the plugins.
 
 Then run `npm start` in the terminal to start the project.
 
 You should able to access path advisor locally now at http://localhost:3000.
 
+
 ## Plugin feature
 
-Imagine the user specified a place in the left panel of the UI in the input field. For example, the user input is Atrium. Now in the map canvas area the system will jump to the position of the atrium. What if we also want to put a pin on top of atrium location?
+We want to put a pin at the location after user has input a specified location in the left panel of the UI in the input field. For example, if the user has input Atrium in the input field, the map canvas area will now jump to the position of the atrium. What if we also want to put a pin on top of atrium location?
+
+## Bootstrapping
+
+Let first called this plugin `Pin` and create a folder named `Pin` in plugins folders.
+
+Also create an empty `Pin.js` file for now and a `package.json` file with the following content.
+
+package.json
+```json
+{
+  "name": "@ust-pathadvisor/pin",
+  "version": "0.0.0",
+  "private": true
+}
+```
+
+We should now the the following file structure:
+
+```
+src
+└── plugins/
+    └── Pin/
+        ├──  package.json
+        └──  Pin.js
+```
 
 ## Decide which type of plugins
 
-The first thing we need to think about is which [ype of plugins we need to build for this feature. For some features it may require you to write multiple types of plugin to achieve. In this case, we are just putting a pin icon in map canvas area and therefore it only affects the rendering of the map canvas area. So we only need to build a MapCanvasPlugin type plugin.
+The first thing we need to think about is which [ype of plugins we need to build for this feature. For some features it may require you to write multiple types of plugin to achieve. In this case, we are just putting a pin icon in map canvas area and therefore it only affects the rendering of the map canvas area. So we only need to build a `MapCanvasPlugin` type plugin. You can find all types of plugin in [Plugin structure](pluginStructure/README.md) section.
 
 ## Decide what properties you need to connect
 
-In order to put a pin in the user specified location, we will need the property which stores the user input values. This
-property is called `searchAreaInputStore`.
+In order to put a pin in the user specified location, we will need the property which stores the user input values. This property is called `searchAreaInputStore`. You can find all available properties for different type of plugins in [Types of plugins](typesOfPlugins/README.md) section.
 
 Also imagine we need to put a pin in the map area depending on the user input value, or we need to remove a pin if users clear their input value. Therefore we need two more properties `setMapItems` and `removeMapItem` which they are functions to set or remove an item in map canvas area.
 
@@ -103,6 +126,7 @@ image.src = pinImage;
 
 Now inside the plugin function, we can say if `x`, `y` and `floor` are defined, we will call `setMapItems` to put the pin in map canvas otherwise we will call `removeMapItem` to remove it from map canvas. The function will be called every time the connected properties are updated. So whenever the user updated its input, the pin will be updated as well. Also remember to return null as we are not rendering any HTML elements in this plugin, we only instruct map canvas to add one more item only.
 
+Pin.js
 ```javascript
 function Pin({ setMapItems, removeMapItem, searchAreaInputStore }) {
   // Getting required values from searchAreaInputStore
