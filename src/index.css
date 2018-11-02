@@ -11,6 +11,7 @@ body {
   padding: 0;
   font-family: Arial, Helvetica, sans-serif;
   height: 100%;
+  touch-action: none;
 }
 
 #root {
@@ -23,6 +24,7 @@ a {
 }
 
 button {
+  margin: 0;
   padding: 0;
   border: none;
   font: inherit;
