@@ -89,8 +89,22 @@ class Main extends Component {
 
     return (
       <>
-        {!isMobile ? <div className={style.header}>HKUST Path Advisor</div> : null}
-        <div className={classnames(style.body, { [style['body--mobile']]: isMobile })}>
+        {!isMobile ? (
+          <div className={style.headerContainer}>
+            <div className={style.header}>HKUST Path Advisor</div>
+            <div className={style.social}>
+              <iframe
+                title="facebook"
+                src="http://www.facebook.com/plugins/like.php?href=http%3A%2F%2Fpathadvisor.ust.hk%2F&amp;send=false&amp;layout=button_count&amp;width=90&amp;show_faces=true&amp;action=like&amp;colorscheme=light&amp;font=arial&amp;height=21"
+                scrolling="no"
+                frameBorder="0"
+                style={{ border: 'none', overflow: 'hidden', width: '90px', height: '21px' }}
+                allowTransparency
+              />
+            </div>
+          </div>
+        ) : null}
+        <div className={classnames(style.body, { [style.bodyMobile]: isMobile })}>
           {!isMobile ? (
             <PrimaryPanel {...this.urlParams} linkTo={this.linkTo}>
               {plugins.map(
