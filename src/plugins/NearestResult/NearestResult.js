@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import style from './NearestResult.module.css';
-import Loading from '../../components/Loading/Loading';
+import Loading from '../Loading/Loading';
 
 class NearestResult extends Component {
   componentDidUpdate(prevProps) {

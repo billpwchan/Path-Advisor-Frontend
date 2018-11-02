@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import style from './ShortestResult.module.css';
-import Loading from '../../components/Loading/Loading';
+import Loading from '../Loading/Loading';
 
 // local store
 const pathIds = new Set();
