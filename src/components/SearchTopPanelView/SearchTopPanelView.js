@@ -6,6 +6,9 @@ import '../TopPanel/TopPanel.css';
 import SearchInput from '../SearchInput/SearchInput';
 import PopUpMenu from '../PopUpMenu/PopUpMenu';
 import OverlayMessageBox from '../OverlayMessageBox/OverlayMessageBox';
+import { searchAreaInputPropTypes } from '../../reducers/searchAreaInput';
+import { searchMapItemPropTypes } from '../../reducers/searchMapItem';
+import { floorsPropTypes } from '../../reducers/floors';
 
 const INPUT_DIRECTION = 'from';
 const NEAREST_DIRECTION = 'to';
@@ -26,6 +29,14 @@ makeButton.propTypes = {
 };
 
 class SearchTopPanelView extends Component {
+  static propTypes = {
+    onAutoCompleteItemClick: PropTypes.func.isRequired,
+    onKeywordChange: PropTypes.func.isRequired,
+    searchAreaInputStore: searchAreaInputPropTypes.isRequired,
+    searchMapItemStore: searchMapItemPropTypes.isRequired,
+    floorStore: floorsPropTypes.isRequired,
+  };
+
   state = {
     shouldNearestPopUpDisplay: false,
     shouldFacilityPopUpDisplay: false,
@@ -37,10 +48,11 @@ class SearchTopPanelView extends Component {
     const { searchMapItemStore, onAutoCompleteItemClick, searchAreaInputStore } = this.props;
     if (
       prevProps.searchMapItemStore !== searchMapItemStore &&
-      searchMapItemStore.suggestions.length
+      searchMapItemStore.suggestions.length &&
+      searchAreaInputStore[INPUT_DIRECTION].name
     ) {
       const [{ name, floor, coordinates, id }] = searchMapItemStore.suggestions;
-      // Auto select the first suggestion as input before user click on it
+      // Auto select the first suggestion as input before user clicking on it
       onAutoCompleteItemClick(INPUT_DIRECTION)({
         name,
         floor,
@@ -77,21 +89,26 @@ class SearchTopPanelView extends Component {
   };
 
   checkInputAndShowNearestPopUp = () => {
-    const { searchAreaInputStore, searchMapItemStore, onAutoCompleteItemClick } = this.props;
+    const { searchAreaInputStore, onAutoCompleteItemClick } = this.props;
 
     if (!searchAreaInputStore[INPUT_DIRECTION].name) {
       this.setInputErrorDisplay(true);
       return;
     }
 
-    const [{ name, floor, coordinates, id }] = searchMapItemStore.suggestions;
-    // Mainly to update the input field display value if user hasn't complete their input before click search button where the first autocomplete item will be selected automatically
-    onAutoCompleteItemClick(INPUT_DIRECTION)({
-      name,
-      floor,
-      coordinates,
-      id,
-    });
+    if (
+      searchAreaInputStore[INPUT_DIRECTION].data.value !==
+      searchAreaInputStore[INPUT_DIRECTION].name
+    ) {
+      const { value, floor, coordinates, id } = searchAreaInputStore[INPUT_DIRECTION].data;
+      // Update display name of the input field to match real location name if users haven't clicked on one of the auto suggestion item before clicking the search button
+      onAutoCompleteItemClick(INPUT_DIRECTION)({
+        name: value,
+        floor,
+        coordinates,
+        id,
+      });
+    }
 
     this.setAutoCompleteDisplay(false);
     this.setNearestPopUpDisplay(true);
