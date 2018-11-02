@@ -7,11 +7,13 @@ import AdvancedSearch from '../AdvancedSearch/AdvancedSearch';
 import style from './SearchPrimaryPanelView.module.css';
 import switchImage from './switch.png';
 import { searchAreaInputPropTypes } from '../../reducers/searchAreaInput';
+import { searchMapItemPropTypes } from '../../reducers/searchMapItem';
+import { floorsPropTypes } from '../../reducers/floors';
 
 class SearchPrimaryPanelView extends React.Component {
   static propTypes = {
-    floorStore: PropTypes.shape({}).isRequired,
-    searchMapItemStore: PropTypes.shape({}).isRequired,
+    floorStore: floorsPropTypes.isRequired,
+    searchMapItemStore: searchMapItemPropTypes.isRequired,
     searchAreaInputStore: searchAreaInputPropTypes.isRequired,
     onKeywordChange: PropTypes.func.isRequired,
     onAutoCompleteItemClick: PropTypes.func.isRequired,

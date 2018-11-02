@@ -1,3 +1,5 @@
+import PropTypes from 'prop-types';
+
 export const SEARCH_MAP_ITEM = 'SEARCH_MAP_ITEM';
 export const SEARCH_MAP_ITEM_SUCCESS = 'SEARCH_MAP_ITEM_SUCCESS';
 export const SEARCH_MAP_ITEM_FAILURE = 'SEARCH_MAP_ITEM_FAILURE';
@@ -28,6 +30,22 @@ const initialState = {
   success: false,
   suggestions: [],
 };
+
+export const searchMapItemPropTypes = PropTypes.shape({
+  loading: PropTypes.bool.isRequired,
+  failure: PropTypes.bool.isRequired,
+  success: PropTypes.bool.isRequired,
+  buildingIds: PropTypes.arrayOf(PropTypes.string).isRequired,
+  suggestions: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string.isRequired,
+      floor: PropTypes.string.isRequired,
+      coordinates: PropTypes.arrayOf(PropTypes.number),
+      id: PropTypes.string.isRequired,
+      type: PropTypes.string,
+    }),
+  ).isRequired,
+});
 
 const searchMapItem = (state = initialState, { type, payload }) => {
   switch (type) {

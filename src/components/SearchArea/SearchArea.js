@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { searchMapItemAction } from '../../reducers/searchMapItem';
+import { searchMapItemAction, searchMapItemPropTypes } from '../../reducers/searchMapItem';
 import {
   searchShortestPathAction,
   clearSearchShortestPathResultAction,
 } from '../../reducers/searchShortestPath';
 import { searchNearestAction, clearSearchNearestResultAction } from '../../reducers/searchNearest';
 import { setSearchAreaInputAction, searchAreaInputPropTypes } from '../../reducers/searchAreaInput';
+import { floorsPropTypes } from '../../reducers/floors';
 
 class SearchArea extends Component {
   static propTypes = {
@@ -16,8 +17,8 @@ class SearchArea extends Component {
     clearSearchShortestPathResultHandler: PropTypes.func.isRequired,
     searchNearestHandler: PropTypes.func.isRequired,
     clearSearchNearestResultHandler: PropTypes.func.isRequired,
-    searchMapItemStore: PropTypes.shape({}),
-    floorStore: PropTypes.shape({}),
+    searchMapItemStore: searchMapItemPropTypes.isRequired,
+    floorStore: floorsPropTypes.isRequired,
     SearchView: PropTypes.func.isRequired,
     linkTo: PropTypes.func.isRequired,
     setSearchAreaInputHandler: PropTypes.func.isRequired,
