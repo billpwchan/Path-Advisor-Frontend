@@ -38,6 +38,10 @@ class Main extends Component {
   constructor(props) {
     super(props);
     this.initPosition();
+
+    this.state = {
+      initSearch: !!this.props.match.params.search,
+    };
   }
 
   componentDidMount() {
@@ -48,44 +52,64 @@ class Main extends Component {
     this.initPosition();
   }
 
-  get urlParams() {
-    return parseParams(this.props.match.params);
+  getUrlParams(platform) {
+    return parseParams(this.props.match.params, platform);
   }
 
-  linkTo = position => {
-    const { level: currentLevel, x: currentX, y: currentY, floor: currentFloor } = this.urlParams;
-    const { floor = currentFloor, x = currentX, y = currentY, level = currentLevel } = position;
+  updateInitSearch = initSearch => {
+    this.setState({ initSearch });
+  };
+
+  linkTo = (params, method) => {
+    const {
+      level: currentLevel,
+      x: currentX,
+      y: currentY,
+      floor: currentFloor,
+      from: currentFrom,
+      to: currentTo,
+      search: currentSearch,
+    } = this.getUrlParams(detectPlatform());
+    const {
+      floor = currentFloor,
+      x = currentX,
+      y = currentY,
+      level = currentLevel,
+      from = currentFrom,
+      to = currentTo,
+      search = currentSearch,
+    } = params;
 
     const isNewPosition =
       floor !== currentFloor || x !== currentX || y !== currentY || level !== currentLevel;
 
-    if (isNewPosition) {
-      this.props.history.push(buildUrl({ floor, x, y, level }));
-    }
+    const opt = method || (isNewPosition ? 'push' : 'replace');
+    this.props.history[opt](buildUrl({ floor, x, y, level, search, from, to }));
   };
 
   initPosition() {
+    const platform = detectPlatform();
+
     // init position from app settings if current position is not set
-    if (
-      [this.urlParams.level, this.urlParams.x, this.urlParams.y, this.urlParams.floor].some(v =>
-        isNil(v),
-      )
-    ) {
+    const urlParams = this.getUrlParams(platform);
+    if ([urlParams.level, urlParams.x, urlParams.y, urlParams.floor].some(v => isNil(v))) {
       const {
         appSettingStore: { defaultPosition, mobileDefaultPosition },
       } = this.props;
 
       const { floor, x, y, level } =
-        detectPlatform() === PLATFORM.MOBILE ? mobileDefaultPosition : defaultPosition;
+        platform === PLATFORM.MOBILE ? mobileDefaultPosition : defaultPosition;
 
       if ([floor, x, y, level].every(v => !isNil(v))) {
-        this.linkTo({ floor, x, y, level });
+        this.linkTo({ floor, x, y, level }, 'replace');
       }
     }
   }
 
   render() {
-    const isMobile = detectPlatform() === PLATFORM.MOBILE;
+    const platform = detectPlatform();
+    const isMobile = platform === PLATFORM.MOBILE;
+    const urlParams = this.getUrlParams(platform);
 
     return (
       <>
@@ -106,7 +130,12 @@ class Main extends Component {
         ) : null}
         <div className={classnames(style.body, { [style.bodyMobile]: isMobile })}>
           {!isMobile ? (
-            <PrimaryPanel {...this.urlParams} linkTo={this.linkTo}>
+            <PrimaryPanel
+              {...urlParams}
+              linkTo={this.linkTo}
+              initSearch={this.state.initSearch}
+              updateInitSearch={this.updateInitSearch}
+            >
               {plugins.map(
                 ({ id, PrimaryPanelPlugin, OverlayHeaderPlugin, OverlayContentPlugin }) => ({
                   id,
@@ -118,7 +147,12 @@ class Main extends Component {
             </PrimaryPanel>
           ) : (
             <>
-              <TopPanel {...this.urlParams} linkTo={this.linkTo} />
+              <TopPanel
+                {...urlParams}
+                linkTo={this.linkTo}
+                initSearch={this.state.initSearch}
+                updateInitSearch={this.updateInitSearch}
+              />
               <MobileOverlay>
                 {plugins.map(({ id, MobileOverlayHeaderPlugin, MobileOverlayContentPlugin }) => ({
                   id,
@@ -129,7 +163,7 @@ class Main extends Component {
             </>
           )}
           {this.props.appSettingStore.success && (
-            <MapCanvas {...this.urlParams} linkTo={this.linkTo} platform={detectPlatform()}>
+            <MapCanvas {...urlParams} linkTo={this.linkTo} platform={detectPlatform()}>
               {plugins.map(({ id, MapCanvasPlugin }) => ({
                 id,
                 MapCanvasPlugin,

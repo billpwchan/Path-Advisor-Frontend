@@ -9,10 +9,17 @@ import FloorTopPanelView from '../FloorTopPanelView/FloorTopPanelView';
 import { propTypes as urlPropTypes } from '../Router/Url';
 import './TopPanel.css';
 
-function TopPanel({ linkTo, x, y, floor, level }) {
+function TopPanel({ linkTo, x, y, floor, level, from, to, initSearch, updateInitSearch }) {
   return (
     <div className={style.body}>
-      <SearchArea linkTo={linkTo} SearchView={SearchTopPanelView} />
+      <SearchArea
+        linkTo={linkTo}
+        SearchView={SearchTopPanelView}
+        initSearch={initSearch}
+        updateInitSearch={updateInitSearch}
+        from={from}
+        to={to}
+      />
       {floor && (
         <Floor
           selectedBuilding="academicBuilding"
@@ -31,6 +38,8 @@ function TopPanel({ linkTo, x, y, floor, level }) {
 
 TopPanel.propTypes = {
   linkTo: PropTypes.func.isRequired,
+  initSearch: PropTypes.bool.isRequired,
+  updateInitSearch: PropTypes.func.isRequired,
   ...urlPropTypes,
 };
 

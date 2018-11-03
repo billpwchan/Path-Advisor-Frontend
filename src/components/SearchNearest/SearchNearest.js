@@ -1,15 +1,50 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import style from './SearchNearest.module.css';
+import INPUT_TYPE from '../SearchArea/InputType';
 
-const rootNearestOptions = direction => [
-  { name: 'Nearest Lift', data: { type: 'nearest', value: 'lift' } },
-  { name: 'Atrium', data: { type: 'keyword', value: 'Atrium' } },
+export const nearestOptions = {
+  lift: { name: 'Nearest Lift', data: { type: INPUT_TYPE.NEAREST, value: 'lift' } },
+  maleToilet: {
+    name: 'Nearest male toilet',
+    data: { type: INPUT_TYPE.NEAREST, value: 'male toilet' },
+  },
+  femaleToilet: {
+    name: 'Nearest female toilet',
+    data: { type: INPUT_TYPE.NEAREST, value: 'female toilet' },
+  },
+  expressStation: {
+    name: 'Nearest express station',
+    data: { type: INPUT_TYPE.NEAREST, value: 'express station' },
+  },
+  drinkingFountain: {
+    name: 'Nearest drinking fountain',
+    data: { type: INPUT_TYPE.NEAREST, value: 'drinking fountain' },
+  },
+  atm: { name: 'Nearest ATM', data: { type: INPUT_TYPE.NEAREST, value: 'ATM' } },
+  mailbox: { name: 'Nearest mailbox', data: { type: INPUT_TYPE.NEAREST, value: 'mailbox' } },
+  restaurant: {
+    name: 'Nearest restaurant',
+    data: { type: INPUT_TYPE.NEAREST, value: 'restaurant' },
+  },
+  virtualBarnStation: {
+    name: 'Nearest virtual barn workstation',
+    data: { type: INPUT_TYPE.NEAREST, value: 'virtual barn station' },
+  },
+  satellitePrinter: {
+    name: 'Nearest satellite printer',
+    data: { type: INPUT_TYPE.NEAREST, value: 'satellite printer' },
+  },
+};
+
+const rootMenuOptions = direction => [
+  nearestOptions.lift,
+  { name: 'Atrium', data: { type: INPUT_TYPE.KEYWORD, value: 'Atrium' } },
   {
     name: 'Bus stop',
     children: [
-      { name: 'North bus stop', data: { type: 'keyword', value: 'North Bus Stop' } },
-      { name: 'South bus stop', data: { type: 'keyword', value: 'South Bus Stop' } },
+      { name: 'North bus stop', data: { type: INPUT_TYPE.KEYWORD, value: 'North Bus Stop' } },
+      { name: 'South bus stop', data: { type: INPUT_TYPE.KEYWORD, value: 'South Bus Stop' } },
     ],
   },
   {
@@ -18,14 +53,14 @@ const rootNearestOptions = direction => [
       {
         name: 'Choi Hung',
         data: {
-          type: 'keyword',
+          type: INPUT_TYPE.KEYWORD,
           value: direction === 'from' ? 'North Bus Stop' : 'South Bus Stop',
         },
       },
       {
         name: 'Hang Hau',
         data: {
-          type: 'keyword',
+          type: INPUT_TYPE.KEYWORD,
           value: direction === 'from' ? 'South Bus Stop' : 'North Bus Stop',
         },
       },
@@ -33,30 +68,18 @@ const rootNearestOptions = direction => [
   },
   {
     name: 'Nearest toilet',
-    children: [
-      { name: 'Nearest male toilet', data: { type: 'nearest', value: 'male toilet' } },
-      { name: 'Nearest female toilet', data: { type: 'nearest', value: 'female toilet' } },
-    ],
+    children: [nearestOptions.maleToilet, nearestOptions.femaleToilet],
   },
   {
     name: 'Others',
     children: [
-      { name: 'Nearest express station', data: { type: 'nearest', value: 'express station' } },
-      {
-        name: 'Nearest drinking fountain',
-        data: { type: 'nearest', value: 'drinking fountain' },
-      },
-      { name: 'Nearest ATM', data: { type: 'nearest', value: 'ATM' } },
-      { name: 'Nearest mailbox', data: { type: 'nearest', value: 'mailbox' } },
-      { name: 'Nearest restaurant', data: { type: 'nearest', value: 'restaurant' } },
-      {
-        name: 'Nearest virtual barn workstation',
-        data: { type: 'nearest', value: 'virtual barn station' },
-      },
-      {
-        name: 'Nearest satellite printer',
-        data: { type: 'nearest', value: 'satellite printer' },
-      },
+      nearestOptions.expressStation,
+      nearestOptions.drinkingFountain,
+      nearestOptions.atm,
+      nearestOptions.mailbox,
+      nearestOptions.restaurant,
+      nearestOptions.virtualBarnStation,
+      nearestOptions.satellitePrinter,
     ],
   },
 ];
@@ -79,7 +102,7 @@ class SearchNearest extends Component {
     }
     return {
       prevDirection: direction,
-      nearestOptions: rootNearestOptions(direction),
+      menuOptions: rootMenuOptions(direction),
     };
   }
 
@@ -87,7 +110,7 @@ class SearchNearest extends Component {
     const { onNearestItemClick, direction } = this.props;
     if (children) {
       this.setState({
-        nearestOptions: children,
+        menuOptions: children,
       });
 
       return;
@@ -96,7 +119,7 @@ class SearchNearest extends Component {
     if (data) {
       this.hideDropDown();
       this.setState({
-        nearestOptions: rootNearestOptions(direction),
+        menuOptions: rootMenuOptions(direction),
       });
 
       onNearestItemClick({ name, data });
@@ -116,7 +139,7 @@ class SearchNearest extends Component {
   };
 
   render() {
-    const { nearestOptions, hideDropDown } = this.state;
+    const { menuOptions, hideDropDown } = this.state;
     const { value, children } = this.props;
     return (
       <div>
@@ -137,7 +160,7 @@ class SearchNearest extends Component {
                 {React.cloneElement(child, { onClickHook: this.hideDropDown })}
               </li>
             ))}
-            {nearestOptions.map(({ name, children: listChildren, data }) => (
+            {menuOptions.map(({ name, children: listChildren, data }) => (
               <li key={name} className={style.dropDownListItem}>
                 <button
                   type="button"

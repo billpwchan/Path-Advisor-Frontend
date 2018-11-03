@@ -9,6 +9,8 @@ import {
 import { searchNearestAction, clearSearchNearestResultAction } from '../../reducers/searchNearest';
 import { setSearchAreaInputAction, searchAreaInputPropTypes } from '../../reducers/searchAreaInput';
 import { floorsPropTypes } from '../../reducers/floors';
+import { placePropTypes } from '../Router/Url';
+import INPUT_TYPE from './InputType';
 
 class SearchArea extends Component {
   static propTypes = {
@@ -24,39 +26,62 @@ class SearchArea extends Component {
     setSearchAreaInputHandler: PropTypes.func.isRequired,
     searchAreaInputStore: searchAreaInputPropTypes,
     displayAdvancedSearch: PropTypes.bool,
+    initSearch: PropTypes.bool.isRequired,
+    updateInitSearch: PropTypes.func.isRequired,
+    from: placePropTypes,
+    to: placePropTypes,
   };
 
-  onKeywordChange = fieldName => keyword => {
-    const { searchMapItemHandler, setSearchAreaInputHandler } = this.props;
-    setSearchAreaInputHandler({
-      [fieldName]: { name: keyword, data: { type: 'keyword', value: keyword } },
-    });
+  constructor(props) {
+    super(props);
+    // init orders, do not need to react if props changed later
+    this.state = {
+      searchInputOrders:
+        this.props.from.data.type === INPUT_TYPE.NEAREST
+          ? ['SearchNearest', 'SearchInput']
+          : ['SearchInput', 'SearchNearest'],
+    };
+  }
 
-    if (keyword.length) {
-      searchMapItemHandler(keyword);
+  componentDidMount() {
+    if (this.props.initSearch) {
+      this.props.updateInitSearch(false);
+      this.search();
     }
+  }
+
+  onKeywordChange = direction => keyword => {
+    const { searchMapItemHandler, linkTo } = this.props;
+
+    if (!keyword.length) {
+      linkTo({ [direction]: { name: '', data: {} } });
+      return;
+    }
+    linkTo({ [direction]: { name: keyword, data: { type: INPUT_TYPE.KEYWORD, value: keyword } } });
+    searchMapItemHandler(keyword);
   };
 
-  onAutoCompleteItemClick = fieldName => ({
+  onAutoCompleteItemClick = direction => ({
     name,
     coordinates: [x, y],
     floor,
     id,
     displayName,
   }) => {
-    const { setSearchAreaInputHandler, linkTo } = this.props;
-    setSearchAreaInputHandler({
-      [fieldName]: {
+    this.props.linkTo({
+      floor,
+      x,
+      y,
+      [direction]: {
         name: displayName || name,
-        data: { id, floor, value: name, type: 'id', coordinates: [x, y] },
+        data: { id, floor, value: name, type: INPUT_TYPE.ID, coordinates: [x, y] },
       },
     });
-    linkTo({ floor, x, y });
   };
 
-  onNearestItemClick = fieldName => ({ name, data }) => {
-    this.props.setSearchAreaInputHandler({
-      [fieldName]: { name, data },
+  onNearestItemClick = direction => ({ name, data }) => {
+    this.props.linkTo({
+      [direction]: { name, data },
     });
   };
 
@@ -81,15 +106,20 @@ class SearchArea extends Component {
   };
 
   switchInputOrder = () => {
-    const {
-      searchAreaInputStore: { searchInputOrders, from, to },
-      setSearchAreaInputHandler,
-    } = this.props;
-    setSearchAreaInputHandler({
-      searchInputOrders: searchInputOrders.reverse(),
+    const { from, to, linkTo } = this.props;
+
+    this.setState(prevState => ({
+      searchInputOrders: [...prevState.searchInputOrders].reverse(),
+    }));
+
+    linkTo({
       from: to,
       to: from,
     });
+  };
+
+  linkToSearch = () => {
+    this.props.linkTo({ search: true });
   };
 
   search = () => {
@@ -99,32 +129,39 @@ class SearchArea extends Component {
       searchNearestHandler,
       clearSearchNearestResultHandler,
       searchAreaInputStore: {
-        from: {
-          data: { type: fromType, id: fromId, floor: fromFloor, value: fromValue },
-        },
-        to: {
-          data: { type: toType, id: toId, floor: toFloor, value: toValue },
-        },
         searchOptions: { sameFloor },
       },
+      from: {
+        data: { type: fromType, id: fromId, floor: fromFloor, value: fromValue },
+      },
+      to: {
+        data: { type: toType, id: toId, floor: toFloor, value: toValue },
+      },
+      linkTo,
     } = this.props;
 
     if ((!fromValue && !fromId) || (!toValue && !toId)) {
       return;
     }
 
+    // update url
+    linkTo({
+      search: true,
+    });
+
     clearSearchNearestResultHandler();
     clearSearchShortestPathResultHandler();
 
-    if (fromType === 'nearest') {
+    if (fromType === INPUT_TYPE.NEAREST) {
       searchNearestHandler(toFloor, toValue, fromValue, sameFloor, toId);
-    } else if (toType === 'nearest') {
+    } else if (toType === INPUT_TYPE.NEAREST) {
       searchNearestHandler(fromFloor, fromValue, toValue, sameFloor, fromId);
     } else {
       // point to point search
       const searchFrom =
-        fromType === 'keyword' ? { keyword: fromValue } : { id: fromId, floor: fromFloor };
-      const searchTo = toType === 'keyword' ? { keyword: toValue } : { id: toId, floor: toFloor };
+        fromType === INPUT_TYPE.KEYWORD ? { keyword: fromValue } : { id: fromId, floor: fromFloor };
+      const searchTo =
+        toType === INPUT_TYPE.KEYWORD ? { keyword: toValue } : { id: toId, floor: toFloor };
 
       searchShortestPathHandler(searchFrom, searchTo);
     }
@@ -137,13 +174,17 @@ class SearchArea extends Component {
       searchAreaInputStore,
       displayAdvancedSearch,
       SearchView,
+      from,
+      to,
     } = this.props;
-
     return (
       <SearchView
         floorStore={floorStore}
         searchMapItemStore={searchMapItemStore}
         searchAreaInputStore={searchAreaInputStore}
+        searchInputOrders={this.state.searchInputOrders}
+        from={from}
+        to={to}
         onKeywordChange={this.onKeywordChange}
         onAutoCompleteItemClick={this.onAutoCompleteItemClick}
         onNearestItemClick={this.onNearestItemClick}

@@ -9,6 +9,7 @@ import switchImage from './switch.png';
 import { searchAreaInputPropTypes } from '../../reducers/searchAreaInput';
 import { searchMapItemPropTypes } from '../../reducers/searchMapItem';
 import { floorsPropTypes } from '../../reducers/floors';
+import { placePropTypes } from '../Router/Url';
 
 class SearchPrimaryPanelView extends React.Component {
   static propTypes = {
@@ -23,6 +24,9 @@ class SearchPrimaryPanelView extends React.Component {
     search: PropTypes.func.isRequired,
     displayAdvancedSearch: PropTypes.bool.isRequired,
     updateSearchOptions: PropTypes.func.isRequired,
+    searchInputOrders: PropTypes.arrayOf(PropTypes.string).isRequired,
+    from: placePropTypes,
+    to: placePropTypes,
   };
 
   state = {
@@ -54,11 +58,13 @@ class SearchPrimaryPanelView extends React.Component {
       search,
       displayAdvancedSearch,
       updateSearchOptions,
+      from,
+      to,
+      searchInputOrders,
     } = this.props;
 
     const {
       searchOptions: { sameFloor },
-      searchInputOrders,
     } = searchAreaInputStore;
 
     const { shouldAutoCompleteDisplay } = this.state;
@@ -71,7 +77,7 @@ class SearchPrimaryPanelView extends React.Component {
           onKeywordChange={onKeywordChange(direction)}
           loading={searchMapItemStore.loading}
           onAutoCompleteItemClick={onAutoCompleteItemClick(direction)}
-          value={searchAreaInputStore[direction].name}
+          value={direction === 'from' ? from.name : to.name}
           floorStore={floorStore}
           shouldAutoCompleteDisplay={shouldAutoCompleteDisplay[direction]}
           setAutoCompleteDisplay={this.setAutoCompleteDisplay(direction)}
@@ -81,7 +87,7 @@ class SearchPrimaryPanelView extends React.Component {
         <SearchNearest
           direction={direction}
           onNearestItemClick={onNearestItemClick(direction)}
-          value={searchAreaInputStore[direction].name}
+          value={direction === 'from' ? from.name : to.name}
         >
           <SearchInput
             inputClassName={style.input}

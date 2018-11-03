@@ -157,14 +157,7 @@ class MapCanvas extends Component {
   render() {
     const {
       children,
-      place,
-      fromPlace,
-      toPlace,
-      mapItemType,
-      x,
-      y,
       floor,
-      level,
       linkTo,
       floorStore: { floors, buildings },
       platform,
@@ -172,16 +165,7 @@ class MapCanvas extends Component {
 
     const { width, height } = this.state;
 
-    const urlParams = {
-      place,
-      fromPlace,
-      toPlace,
-      mapItemType,
-      x,
-      y,
-      level,
-      floor,
-    };
+    const urlParams = pick(this.props, ['from', 'to', 'x', 'y', 'level', 'floor']);
 
     const isDimensionReady = width && height;
 

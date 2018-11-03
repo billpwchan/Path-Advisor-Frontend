@@ -9,6 +9,7 @@ import OverlayMessageBox from '../OverlayMessageBox/OverlayMessageBox';
 import { searchAreaInputPropTypes } from '../../reducers/searchAreaInput';
 import { searchMapItemPropTypes } from '../../reducers/searchMapItem';
 import { floorsPropTypes } from '../../reducers/floors';
+import { placePropTypes } from '../Router/Url';
 
 const INPUT_DIRECTION = 'from';
 const NEAREST_DIRECTION = 'to';
@@ -35,6 +36,8 @@ class SearchTopPanelView extends Component {
     searchAreaInputStore: searchAreaInputPropTypes.isRequired,
     searchMapItemStore: searchMapItemPropTypes.isRequired,
     floorStore: floorsPropTypes.isRequired,
+    from: placePropTypes,
+    to: placePropTypes,
   };
 
   state = {
@@ -45,20 +48,20 @@ class SearchTopPanelView extends Component {
   };
 
   componentDidUpdate(prevProps) {
-    const { searchMapItemStore, onAutoCompleteItemClick, searchAreaInputStore } = this.props;
+    const { searchMapItemStore, onAutoCompleteItemClick } = this.props;
     if (
       prevProps.searchMapItemStore !== searchMapItemStore &&
       searchMapItemStore.suggestions.length &&
-      searchAreaInputStore[INPUT_DIRECTION].name
+      this.props[INPUT_DIRECTION].name
     ) {
-      const [{ name, floor, coordinates, id }] = searchMapItemStore.suggestions;
+      const [{ floor, coordinates, id }] = searchMapItemStore.suggestions;
       // Auto select the first suggestion as input before user clicking on it
       onAutoCompleteItemClick(INPUT_DIRECTION)({
-        name,
+        name: this.props[INPUT_DIRECTION].name,
         floor,
         coordinates,
         id,
-        displayName: searchAreaInputStore[INPUT_DIRECTION].name,
+        displayName: this.props[INPUT_DIRECTION].name,
       });
     }
   }
@@ -89,18 +92,15 @@ class SearchTopPanelView extends Component {
   };
 
   checkInputAndShowNearestPopUp = () => {
-    const { searchAreaInputStore, onAutoCompleteItemClick } = this.props;
+    const { onAutoCompleteItemClick } = this.props;
 
-    if (!searchAreaInputStore[INPUT_DIRECTION].name) {
+    if (!this.props[INPUT_DIRECTION].name) {
       this.setInputErrorDisplay(true);
       return;
     }
 
-    if (
-      searchAreaInputStore[INPUT_DIRECTION].data.value !==
-      searchAreaInputStore[INPUT_DIRECTION].name
-    ) {
-      const { value, floor, coordinates, id } = searchAreaInputStore[INPUT_DIRECTION].data;
+    if (this.props[INPUT_DIRECTION].data.value !== this.props[INPUT_DIRECTION].name) {
+      const { value, floor, coordinates, id } = this.props[INPUT_DIRECTION].data;
       // Update display name of the input field to match real location name if users haven't clicked on one of the auto suggestion item before clicking the search button
       onAutoCompleteItemClick(INPUT_DIRECTION)({
         name: value,
@@ -125,13 +125,7 @@ class SearchTopPanelView extends Component {
 
   render() {
     console.log('SearchTopPanelView render');
-    const {
-      floorStore,
-      searchMapItemStore,
-      searchAreaInputStore,
-      onKeywordChange,
-      onAutoCompleteItemClick,
-    } = this.props;
+    const { floorStore, searchMapItemStore, onKeywordChange, onAutoCompleteItemClick } = this.props;
 
     const {
       shouldNearestPopUpDisplay,
@@ -155,7 +149,7 @@ class SearchTopPanelView extends Component {
               onKeywordChange={onKeywordChange(INPUT_DIRECTION)}
               loading={searchMapItemStore.loading}
               onAutoCompleteItemClick={onAutoCompleteItemClick(INPUT_DIRECTION)}
-              value={searchAreaInputStore[INPUT_DIRECTION].name}
+              value={this.props[INPUT_DIRECTION].name}
               floorStore={floorStore}
               shouldAutoCompleteDisplay={shouldAutoCompleteDisplay}
               setAutoCompleteDisplay={this.setAutoCompleteDisplay}

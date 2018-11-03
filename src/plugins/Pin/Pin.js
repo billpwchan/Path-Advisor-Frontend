@@ -5,11 +5,10 @@ const pinImageHeight = 20;
 
 const PIN_ID = 'PIN_ID';
 
-function Pin({ setMapItems, removeMapItem, searchAreaInputStore }) {
+function Pin({ setMapItems, removeMapItem, from }) {
   console.log('pin rendered');
   // put a read pin in map if user specified the 'from' value in input field
-  const { from: { data: { coordinates: [x, y] = [null, null], floor = null } = {} } = {} } =
-    searchAreaInputStore || {};
+  const { data: { coordinates: [x, y] = [null, null], floor = null } = {} } = from;
 
   if (x && y && floor) {
     const image = new Image();
@@ -36,7 +35,7 @@ function Pin({ setMapItems, removeMapItem, searchAreaInputStore }) {
 
 const MapCanvasPlugin = {
   Component: Pin,
-  connect: ['searchAreaInputStore', 'setMapItems', 'removeMapItem'],
+  connect: ['from', 'setMapItems', 'removeMapItem'],
 };
 
 const id = 'pin';
