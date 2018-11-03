@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import get from 'lodash.get';
 import isNil from 'lodash.isnil';
+import qs from 'query-string';
 import INPUT_TYPE from '../SearchArea/InputType';
 import { nearestOptions } from '../SearchNearest/SearchNearest';
 import { PLATFORM } from '../Main/detectPlatform';
@@ -50,16 +51,12 @@ function parsePlace(place) {
     : { name, data: { type: INPUT_TYPE.KEYWORD, value: name } };
 }
 
-function parseParams(params, platform) {
-  const {
-    search,
-    fromPlace,
-    toPlace,
-    fromNearestType,
-    toNearestType,
-    coordinatePath,
-    floorPath,
-  } = params;
+function parseParams(params, query, platform) {
+  const queryParams = qs.parse(query);
+
+  const { fromPlace, toPlace, fromNearestType, toNearestType, coordinatePath, floorPath } = params;
+
+  let { search } = params;
 
   const coordinateString =
     (typeof coordinatePath === 'string' && get(coordinatePath.split('/'), 1)) || null;
@@ -78,7 +75,19 @@ function parseParams(params, platform) {
       ...DEFAULT_INPUT,
     };
 
-  if (platform === PLATFORM.MOBILE && from && from.data && from.data.type === INPUT_TYPE.NEAREST) {
+  if (queryParams.roomno) {
+    from = { ...nearestOptions.lift };
+    to = {
+      name: queryParams.roomno,
+      data: { type: INPUT_TYPE.KEYWORD, value: queryParams.roomno },
+    };
+    search = true;
+  } else if (
+    platform === PLATFORM.MOBILE &&
+    from &&
+    from.data &&
+    from.data.type === INPUT_TYPE.NEAREST
+  ) {
     [from, to] = [to, from];
   }
 

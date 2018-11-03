@@ -40,7 +40,7 @@ class Main extends Component {
     this.initPosition();
 
     this.state = {
-      initSearch: !!this.props.match.params.search,
+      initSearch: this.getUrlParams().search,
     };
   }
 
@@ -53,7 +53,7 @@ class Main extends Component {
   }
 
   getUrlParams(platform) {
-    return parseParams(this.props.match.params, platform);
+    return parseParams(this.props.match.params, this.props.location.search, platform);
   }
 
   updateInitSearch = initSearch => {
