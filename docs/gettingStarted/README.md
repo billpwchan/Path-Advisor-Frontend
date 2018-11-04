@@ -52,7 +52,7 @@ The first thing we need to think about is which [ype of plugins we need to build
 
 ## Decide what properties you need to connect
 
-In order to put a pin in the user specified location, we will need the property which stores the user input values. This property is called `searchAreaInputStore`. You can find all available properties for different type of plugins in [Types of plugins](typesOfPlugins/README.md) section.
+In order to put a pin in the user specified location, we will need the property which stores the user input values. This property is called `from`. You can find all available properties for different type of plugins in [Types of plugins](typesOfPlugins/README.md) section.
 
 Also imagine we need to put a pin in the map area depending on the user input value, or we need to remove a pin if users clear their input value. Therefore we need two more properties `setMapItems` and `removeMapItem` which they are functions to set or remove an item in map canvas area.
 
@@ -61,13 +61,13 @@ This is what we have now for the pin plugin after connect all the required prope
 Pin.js
 
 ```javascript
-function Pin({ searchAreaInputStore, setMapItems, removeMapItem }) {
+function Pin({ from, setMapItems, removeMapItem }) {
   return null;
 }
 
 const MapCanvasPlugin = {
   Component: Pin,
-  connect: ["searchAreaInputStore", "setMapItems", "removeMapItem"]
+  connect: ["from", "setMapItems", "removeMapItem"]
 };
 
 const id = "Pin";
@@ -76,21 +76,19 @@ export { id, MapCanvasPlugin };
 
 ## Implementing the function
 
-If we look at the plugin type documentation, we can find out `searchAreaInputStore` is an object containing some of the following properties:
+If we look at the plugin type documentation, we can find out `from` is an object containing some of the following properties:
 
 ```javascript
  {
-   from: {
-      data: {
-        coordinates: [Number, Number]
-      },
-    floor: String
-   },
-  /* and more properties ... */
+   data: {
+     coordinates: [Number, Number],
+     floor: String
+     /* and more properties ... */
+   }
  }
 ```
 
-The `[x, y]` coordinates and `floor` will be updated in this object every time when the users update their input values.
+The `[x, y]` coordinates and `floor` will be updated every time when the users update their input values.
 
 Also the `setMapItems` function takes an array of object with the following format:
 
@@ -128,13 +126,9 @@ Now inside the plugin function, we can say if `x`, `y` and `floor` are defined, 
 
 Pin.js
 ```javascript
-function Pin({ setMapItems, removeMapItem, searchAreaInputStore }) {
-  // Getting required values from searchAreaInputStore
-  const {
-    from: {
-      data: { coordinates: [x, y] = [null, null], floor = null } = {}
-    } = {}
-  } = searchAreaInputStore || {};
+function Pin({ setMapItems, removeMapItem, from }) {
+  // Getting required values from from
+  const { data: { coordinates: [x, y] = [null, null], floor = null } = {} } = from;
 
   const PIN_ID = "PIN_ID";
 
@@ -160,7 +154,7 @@ function Pin({ setMapItems, removeMapItem, searchAreaInputStore }) {
 
 const MapCanvasPlugin = {
   Component: Pin,
-  connect: ["searchAreaInputStore", "setMapItems", "removeMapItem"]
+  connect: ["from", "setMapItems", "removeMapItem"]
 };
 
 const id = "Pin";

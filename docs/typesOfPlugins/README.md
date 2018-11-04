@@ -6,6 +6,8 @@ There are six types of plugin for this project. They are `PrimaryPanelPlugin`, `
 
 ![plugin-indication-2](../images/pluginIndication2.jpg)
 
+![plugin-indication-3](../images/pluginIndication3.jpg ':size=321')
+
 ## PrimaryPanelPlugin
 
 ### Properties
@@ -34,11 +36,82 @@ Current zoom level. 0 is the default zoom level at largest scale.
 
 Current floor ID.
 
+#### search
+`search` - boolean
+
+Whether user has requested a search action
+
+#### from
+`from` - object
+
+The "from" input field data in the following format:
+
+```javascript
+{
+  name: string, /* Display name of the search object */
+  data: {
+    id: string, /* Id of the search object */
+    floor: string, /* Floor of the search object */
+    value: string, /* Value of the search object */
+    type: "id", /* Search object type, full information search object type must be "id" */
+    coordinates: [
+      number, /* x coordinate of the search object */
+      number  /* y coordinate of the search object */
+    ]
+  }
+}
+```
+
+Only keyword
+```javascript
+{
+  name: string, /* Display name of the search object */
+  data: {
+    type: 'keyword', /* Search object type */
+    value: string /* Value of the search object, same as display name for keyword search object type */
+  }
+}
+```
+
+Nearest item
+```javascript
+{
+  name: string, /* Display name of the search object */
+  data: {
+    type: 'nearest', /* Search object type */
+    value: 'lift'|'male toilet'|'female toilet'|'express station'
+           |'drinking fountain'|'ATM'|'mailbox'|'restaurant'
+           |'virtual barn station'|'satellite printer' /* Nearest object type to be searched */
+  }
+}
+```
+
+#### to
+`to` - object
+
+The "to" input field data. Same format as `from` property.
+
 <!-- [linkTo](properties/linkTo.md ':include') -->
 #### linkTo
 `linkTo` - function
 
-A function that takes a `{x, y, floor, level}` object argument and it reposition the map canvas to this position. All four properties in the object are optional, if they are missing in the supplied object, they will be assigned with current position value. For example, you can call `linkTo` with `{level: 2}` to indicate that you don't want to change the current `x`, `y`, `floor` value but to change only the zoom level and keep the map canvas at the same position.
+A function that takes a `{x, y, floor, level, from, to, search}` object for the first argument and it will reposition the map canvas to this position and fill the input field with the `from` and `to` values and do search action if `search` is set to true. All properties in the object are optional, if they are missing in the supplied object, they will be assigned with current position value. For example, you can call `linkTo` with `{level: 2}` to indicate that you don't want to change the current `x`, `y`, `floor` value but to change only the zoom level and keep the map canvas at the same position. This function will also update the URL to reflect state changes as the changes are not save to any store. This can ensure params in URL is the single source of truth for all the states and users can just save or share the url to recreate the same screen.
+
+Format:
+x - number
+
+y - number
+
+level - number
+
+search - boolean
+
+from - Refer to `from` property format
+
+to - Refer to `to` property format
+
+
+The second argument is a string that can be either `push` or `replace` and the default is `push` if it is not supplied. If `push` is given it will create a visit history in the browser and if `replace` is chosen then it will replace the current history and no new history is created.
 
 
 <!-- [legendStore](properties/legendStore.md ':include') -->
@@ -186,67 +259,18 @@ An object storing the shortest path between two locations.
 }
 ```
 
-<!-- [searchAreaInputStore](properties/searchAreaInputStore.md ':include') -->
-#### searchAreaInputStore
-`searchAreaInputStore` - object
+<!-- [searchOptions](properties/searchOptions.md ':include') -->
+#### searchOptionsStore
+`searchOptionsStore` - object
 
-An object storing the user input search query.
+An object storing the user search options
 
 ```javascript
 {
-  searchAreaInput: {
-    from: {},  /* Starting point search object */
-    to: {},    /* Ending point search object */
-    searchOptions: { /* Search options object */
-      sameFloor: boolean, /* Whether the nearest object should be on the same floor, only for nearest search */
-      noStairCase: boolean, /* Whether the shortest path should include stair case */,
-      noEscalator: boolean, /* Whether the shortest path should include escalator */,
-      searchMode: "SHORTEST_TIME"|"SHORTEST_DISTANCE"|"MIN_NO_OF_LIFTS" /* Shortest path search mode */
-    },
-  }
-}
-```
-
-Search starting or ending point object can be in one of the following format
-
-Full information
-```javascript
-{
-  name: string, /* Display name of the search object */
-  data: {
-    id: string, /* Id of the search object */
-    floor: string, /* Floor of the search object */
-    value: string, /* Value of the search object */
-    type: "id", /* Search object type, full information search object type must be "id" */
-    coordinates: [
-      number, /* x coordinate of the search object */
-      number  /* y coordinate of the search object */
-    ]
-  }
-}
-```
-
-Only keyword
-```javascript
-{
-  name: string, /* Display name of the search object */
-  data: {
-    type: 'keyword', /* Search object type */
-    value: string /* Value of the search object, same as display name for keyword search object type */
-  }
-}
-```
-
-Nearest search
-```javascript
-{
-  name: string, /* Display name of the search object */
-  data: {
-    type: 'nearest', /* Search object type */
-    value: 'lift'|'male toilet'|'female toilet'|'express station'
-           |'drinking fountain'|'ATM'|'mailbox'|'restaurant'
-           |'virtual barn station'|'satellite printer' /* Nearest object type to be searched */
-  }
+  sameFloor: boolean, /* Whether the nearest object should be on the same floor, only for nearest search */
+  noStairCase: boolean, /* Whether the shortest path should include stair case */,
+  noEscalator: boolean, /* Whether the shortest path should include escalator */,
+  searchMode: "SHORTEST_TIME"|"SHORTEST_DISTANCE"|"MIN_NO_OF_LIFTS" /* Shortest path search mode */
 }
 ```
 

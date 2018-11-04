@@ -4,7 +4,7 @@
 
 A plugin will be re-rendered every time when its connected properties are updated. Therefore to minimize the numbers of unnecessary update, you should only connect properties you need for a plugin.
 
-A property is considered to be updated when it is assigned a value by some external actions, usually triggered by user interaction. But there is no guarantee the assigned value must be different from the old one. One of the examples is that when users input a room number and click search for the first time, property `searchAreaInputStore` will be considered as updated and if your plugin connects to `searchAreaInputStore` property, the plugin function or the render function of the plugin class will be called to re-render. If the user later click search again without changing any input values, `searchAreaInputStore` will be considered to be updated as well and the same re-rendering process will follow. This process can guarantee it captures every user interactions correctly.
+A property is considered to be updated when it is assigned a value by some external actions, usually triggered by user interaction. But there is no guarantee the assigned value must be different from the old one. One of the examples is that when users select a nearest item in the dropdown list, property `to` will be considered as updated and if your plugin connects to `to` property, the plugin function or the render function of the plugin class will be called to re-render. If the user later click on the nearest item again, `to` will be considered to be updated as well and the same re-rendering process will follow. This process can guarantee it captures every user interactions correctly.
 
 Usually this process will be enough for most of the use cases. If for performance reason or any other reason you only want rendering to happen when the actual value of a property changed. You will need to define your plugin as a class and extending from [React.PureComponent](https://reactjs.org/docs/react-api.html#reactpurecomponent) or define a [shouldComponentUpdate](https://reactjs.org/docs/react-component.html#shouldcomponentupdate) method in your React.Component class.
 
@@ -14,15 +14,12 @@ Example:
 class HelloWorld extends React.Component {
   shouldComponentUpdate(nextProps) {
     return;
-    nextProps.searchAreaInputStore.from.name !==
-      this.props.searchAreaInputStore.from.name ||
-      nextProps.searchAreaInputStore.to.name !==
-        this.props.searchAreaInputStore.to.name;
+    nextProps.to.name !== this.props.to.name
   }
 
   render() {
     console.log(
-      "This message will only be logged if the value from.name and to.name inside object searchAreaInputStore are changed, even if users click search multiple times"
+      "This message will only be logged if the value to.name are changed, even if users click on the items multiple times"
     );
     return null;
   }
