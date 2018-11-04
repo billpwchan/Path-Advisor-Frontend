@@ -26,7 +26,7 @@ function fetchMapItemsResponseWrapper(data, floor) {
       .split(',')
       .map(v => parseInt(v, 10));
     return {
-      name: mapItemValues[1],
+      name: mapItemValues[1] === 'null' ? '' : mapItemValues[1],
       floor,
       coordinates,
       id: mapItemValues[5],
