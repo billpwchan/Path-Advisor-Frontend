@@ -13,6 +13,12 @@ function* searchNearestRequestWorker({ payload: { floor, name, nearestType, same
     const {
       data: { from, nearest },
     } = yield call(searchNearestRequest, floor, name, nearestType, sameFloor, id);
+
+    if (!nearest.id) {
+      yield put(searchNearestFailureAction());
+      return;
+    }
+
     yield put(searchNearestSuccessAction(from, nearest));
 
     const { id: fromId, floor: fromFloor } = from;

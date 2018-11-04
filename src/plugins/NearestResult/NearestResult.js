@@ -78,6 +78,15 @@ class NearestResult extends Component {
         );
       }
 
+      case searchNearestStore.failure: {
+        return (
+          <div className={style.body}>
+            {searchNearestHead}
+            <div className={style.content}>Sorry, no result found.</div>
+          </div>
+        );
+      }
+
       default:
         return null;
     }
