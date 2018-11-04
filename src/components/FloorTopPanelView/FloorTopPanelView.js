@@ -21,7 +21,7 @@ function padArray(items, divider) {
 }
 
 class FloorTopPanelView extends Component {
-  propTypes = {
+  static propTypes = {
     currentFloorId: PropTypes.string.isRequired,
     floorStore: floorsPropTypes.isRequired,
     selectedBuilding: PropTypes.string.isRequired,

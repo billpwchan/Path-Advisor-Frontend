@@ -217,7 +217,7 @@ class CanvasHandler {
     this.levelToScale.some((scale, level) => {
       const diff = scale - capScale;
 
-      if (diff > 0 !== lastDiff > 0) {
+      if ((diff > 0) !== (lastDiff > 0)) {
         nearestLevel = Math.abs(diff) < Math.abs(lastDiff) ? level : nearestLevel;
         return true;
       }
