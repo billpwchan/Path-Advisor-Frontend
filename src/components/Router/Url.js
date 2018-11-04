@@ -160,7 +160,8 @@ function build({ floor, x, y, level, search = false, from = null, to = null }) {
     toPlace += formPlaceUrl(to);
   }
 
-  return `${search ? '/search' : ''}${nearest}${fromPlace}${toPlace}${position}`;
+  const searchUrl = inputHasContent(from) && inputHasContent(to) && search ? '/search' : '';
+  return `${searchUrl}${nearest}${fromPlace}${toPlace}${position}`;
 }
 
 export { parseParams, propTypes, build };
