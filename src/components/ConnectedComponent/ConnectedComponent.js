@@ -8,7 +8,7 @@ const paramStateMap = {
   floorStore: 'floors',
   searchNearestStore: 'searchNearest',
   searchShortestPathStore: 'searchShortestPath',
-  searchAreaInputStore: 'searchAreaInput',
+  searchOptionsStore: 'searchOptions',
   appSettingStore: 'appSettings',
   overlayStore: 'overlay',
   searchMapItemStore: 'searchMapItem',

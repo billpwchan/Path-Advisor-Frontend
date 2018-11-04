@@ -7,7 +7,7 @@ import {
   clearSearchShortestPathResultAction,
 } from '../../reducers/searchShortestPath';
 import { searchNearestAction, clearSearchNearestResultAction } from '../../reducers/searchNearest';
-import { setSearchAreaInputAction, searchAreaInputPropTypes } from '../../reducers/searchAreaInput';
+import { setSearchOptionsAction, searchOptionsPropTypes } from '../../reducers/searchOptions';
 import { floorsPropTypes } from '../../reducers/floors';
 import { placePropTypes } from '../Router/Url';
 import { TYPE as INPUT_TYPE, isEqual as InputIsEqual } from './Input';
@@ -23,8 +23,8 @@ class SearchArea extends Component {
     floorStore: floorsPropTypes.isRequired,
     SearchView: PropTypes.func.isRequired,
     linkTo: PropTypes.func.isRequired,
-    setSearchAreaInputHandler: PropTypes.func.isRequired,
-    searchAreaInputStore: searchAreaInputPropTypes,
+    setSearchOptionsHandler: PropTypes.func.isRequired,
+    searchOptionsStore: searchOptionsPropTypes.isRequired,
     displayAdvancedSearch: PropTypes.bool,
     from: placePropTypes,
     to: placePropTypes,
@@ -56,7 +56,7 @@ class SearchArea extends Component {
       (!InputIsEqual(prevProps.to, this.props.to) ||
         !InputIsEqual(prevProps.from, this.props.from) ||
         this.props.search !== prevProps.search ||
-        this.props.searchAreaInputStore !== prevProps.searchAreaInputStore)
+        this.props.searchOptionsStore !== prevProps.searchOptionsStore)
     ) {
       this.search();
     }
@@ -112,16 +112,8 @@ class SearchArea extends Component {
   };
 
   updateSearchOptions = newSearchOptions => {
-    const {
-      searchAreaInputStore: { searchOptions },
-      setSearchAreaInputHandler,
-    } = this.props;
-
-    setSearchAreaInputHandler({
-      searchOptions: {
-        ...searchOptions,
-        ...newSearchOptions,
-      },
+    this.props.setSearchOptionsHandler({
+      ...newSearchOptions,
     });
   };
 
@@ -149,9 +141,7 @@ class SearchArea extends Component {
       clearSearchShortestPathResultHandler,
       searchNearestHandler,
       clearSearchNearestResultHandler,
-      searchAreaInputStore: {
-        searchOptions: { sameFloor },
-      },
+      searchOptionsStore: { sameFloor },
       from: {
         data: { type: fromType, id: fromId, floor: fromFloor, value: fromValue },
       },
@@ -186,7 +176,7 @@ class SearchArea extends Component {
     const {
       floorStore,
       searchMapItemStore,
-      searchAreaInputStore,
+      searchOptionsStore,
       displayAdvancedSearch,
       SearchView,
       from,
@@ -196,7 +186,7 @@ class SearchArea extends Component {
       <SearchView
         floorStore={floorStore}
         searchMapItemStore={searchMapItemStore}
-        searchAreaInputStore={searchAreaInputStore}
+        searchOptionsStore={searchOptionsStore}
         searchInputOrders={this.state.searchInputOrders}
         from={from}
         to={to}
@@ -216,7 +206,7 @@ class SearchArea extends Component {
 export default connect(
   state => ({
     searchMapItemStore: state.searchMapItem,
-    searchAreaInputStore: state.searchAreaInput,
+    searchOptionsStore: state.searchOptions,
     floorStore: state.floors,
   }),
   dispatch => ({
@@ -235,8 +225,8 @@ export default connect(
     clearSearchNearestResultHandler: () => {
       dispatch(clearSearchNearestResultAction());
     },
-    setSearchAreaInputHandler: payload => {
-      dispatch(setSearchAreaInputAction(payload));
+    setSearchOptionsHandler: payload => {
+      dispatch(setSearchOptionsAction(payload));
     },
   }),
 )(SearchArea);

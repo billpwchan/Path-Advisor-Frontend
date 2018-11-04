@@ -3,7 +3,7 @@ import searchMapItem from './searchMapItem';
 import mapItems from './mapItems';
 import searchNearest from './searchNearest';
 import searchShortestPath from './searchShortestPath';
-import searchAreaInput from './searchAreaInput';
+import searchOptions from './searchOptions';
 import legends from './legends';
 import floors from './floors';
 import overlay from './overlay';
@@ -18,5 +18,5 @@ export default combineReducers({
   legends,
   floors,
   overlay,
-  searchAreaInput,
+  searchOptions,
 });

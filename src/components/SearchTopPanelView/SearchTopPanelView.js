@@ -6,7 +6,6 @@ import '../TopPanel/TopPanel.css';
 import SearchInput from '../SearchInput/SearchInput';
 import PopUpMenu from '../PopUpMenu/PopUpMenu';
 import OverlayMessageBox from '../OverlayMessageBox/OverlayMessageBox';
-import { searchAreaInputPropTypes } from '../../reducers/searchAreaInput';
 import { searchMapItemPropTypes } from '../../reducers/searchMapItem';
 import { floorsPropTypes } from '../../reducers/floors';
 import { placePropTypes } from '../Router/Url';
@@ -33,7 +32,6 @@ class SearchTopPanelView extends Component {
   static propTypes = {
     onAutoCompleteItemClick: PropTypes.func.isRequired,
     onKeywordChange: PropTypes.func.isRequired,
-    searchAreaInputStore: searchAreaInputPropTypes.isRequired,
     updateSearchOptions: PropTypes.func.isRequired,
     searchMapItemStore: searchMapItemPropTypes.isRequired,
     floorStore: floorsPropTypes.isRequired,

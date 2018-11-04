@@ -13,9 +13,7 @@ function* searchShortestPathRequestWorker({
   },
 }) {
   try {
-    const {
-      searchOptions: { noStairCase, noEscalator, searchMode },
-    } = yield select(state => state.searchAreaInput);
+    const { noStairCase, noEscalator, searchMode } = yield select(state => state.searchOptions);
 
     const { data } = yield call(
       searchShortestPathRequest,
