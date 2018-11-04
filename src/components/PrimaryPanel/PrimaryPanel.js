@@ -19,8 +19,6 @@ class PrimaryPanel extends Component {
     overlayStore: PropTypes.shape({}).isRequired,
     closeOverlayHandler: PropTypes.func.isRequired,
     linkTo: PropTypes.func.isRequired,
-    initSearch: PropTypes.bool.isRequired,
-    updateInitSearch: PropTypes.func.isRequired,
     ...urlPropTypes,
   };
 
@@ -38,22 +36,11 @@ class PrimaryPanel extends Component {
   };
 
   render() {
-    const {
-      children,
-      overlayStore,
-      closeOverlayHandler,
-      x,
-      y,
-      level,
-      floor,
-      linkTo,
-      initSearch,
-      updateInitSearch,
-    } = this.props;
+    const { children, overlayStore, closeOverlayHandler, x, y, level, floor, linkTo } = this.props;
 
     const { selectedBuilding, displayAdvancedSearch } = this.state;
 
-    const urlParams = pick(this.props, ['from', 'to', 'x', 'y', 'level', 'floor']);
+    const urlParams = pick(this.props, ['from', 'to', 'x', 'y', 'level', 'floor', 'search']);
 
     const renderTab = () => {
       switch (overlayStore.open) {
@@ -129,8 +116,7 @@ class PrimaryPanel extends Component {
               <SearchArea
                 from={urlParams.from}
                 to={urlParams.to}
-                initSearch={initSearch}
-                updateInitSearch={updateInitSearch}
+                search={urlParams.search}
                 displayAdvancedSearch={displayAdvancedSearch}
                 linkTo={linkTo}
                 SearchView={SearchPrimaryPanelView}

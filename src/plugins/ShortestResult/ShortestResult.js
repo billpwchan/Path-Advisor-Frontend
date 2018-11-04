@@ -31,11 +31,14 @@ class ShortestResultPrimaryPanel extends Component {
       },
     ] = paths;
 
-    linkTo({
-      floor,
-      x,
-      y,
-    });
+    linkTo(
+      {
+        floor,
+        x,
+        y,
+      },
+      'replace',
+    );
   }
 
   render() {

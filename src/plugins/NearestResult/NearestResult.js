@@ -14,11 +14,14 @@ class NearestResult extends Component {
     } = this.props;
 
     if (nearest) {
-      linkTo({
-        x: nearest.coordinates[0],
-        y: nearest.coordinates[1],
-        floor: nearest.floor,
-      });
+      linkTo(
+        {
+          x: nearest.coordinates[0],
+          y: nearest.coordinates[1],
+          floor: nearest.floor,
+        },
+        'replace',
+      );
     }
   }
 

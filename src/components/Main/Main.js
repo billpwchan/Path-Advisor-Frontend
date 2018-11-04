@@ -38,10 +38,6 @@ class Main extends Component {
   constructor(props) {
     super(props);
     this.initPosition();
-
-    this.state = {
-      initSearch: this.getUrlParams().search,
-    };
   }
 
   componentDidMount() {
@@ -56,11 +52,7 @@ class Main extends Component {
     return parseParams(this.props.match.params, this.props.location.search, platform);
   }
 
-  updateInitSearch = initSearch => {
-    this.setState({ initSearch });
-  };
-
-  linkTo = (params, method) => {
+  linkTo = (params, method = 'push') => {
     const {
       level: currentLevel,
       x: currentX,
@@ -80,11 +72,7 @@ class Main extends Component {
       search = currentSearch,
     } = params;
 
-    const isNewPosition =
-      floor !== currentFloor || x !== currentX || y !== currentY || level !== currentLevel;
-
-    const opt = method || (isNewPosition ? 'push' : 'replace');
-    this.props.history[opt](buildUrl({ floor, x, y, level, search, from, to }));
+    this.props.history[method](buildUrl({ floor, x, y, level, search, from, to }));
   };
 
   initPosition() {
@@ -130,12 +118,7 @@ class Main extends Component {
         ) : null}
         <div className={classnames(style.body, { [style.bodyMobile]: isMobile })}>
           {!isMobile ? (
-            <PrimaryPanel
-              {...urlParams}
-              linkTo={this.linkTo}
-              initSearch={this.state.initSearch}
-              updateInitSearch={this.updateInitSearch}
-            >
+            <PrimaryPanel {...urlParams} linkTo={this.linkTo}>
               {plugins.map(
                 ({ id, PrimaryPanelPlugin, OverlayHeaderPlugin, OverlayContentPlugin }) => ({
                   id,
@@ -147,12 +130,7 @@ class Main extends Component {
             </PrimaryPanel>
           ) : (
             <>
-              <TopPanel
-                {...urlParams}
-                linkTo={this.linkTo}
-                initSearch={this.state.initSearch}
-                updateInitSearch={this.updateInitSearch}
-              />
+              <TopPanel {...urlParams} linkTo={this.linkTo} />
               <MobileOverlay>
                 {plugins.map(({ id, MobileOverlayHeaderPlugin, MobileOverlayContentPlugin }) => ({
                   id,

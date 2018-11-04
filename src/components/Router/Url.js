@@ -2,14 +2,13 @@ import PropTypes from 'prop-types';
 import get from 'lodash.get';
 import isNil from 'lodash.isnil';
 import qs from 'query-string';
-import INPUT_TYPE from '../SearchArea/InputType';
+import {
+  TYPE as INPUT_TYPE,
+  hasContent as inputHasContent,
+  EMPTY as EMPTY_INPUT,
+} from '../SearchArea/Input';
 import { nearestOptions } from '../SearchNearest/SearchNearest';
 import { PLATFORM } from '../Main/detectPlatform';
-
-const DEFAULT_INPUT = {
-  name: '',
-  data: {},
-};
 
 function formPlaceUrl(place) {
   const {
@@ -19,10 +18,6 @@ function formPlaceUrl(place) {
     return `/${value};${id};${floor};${coordinates.join(',')}`;
   }
   return `/${value}`;
-}
-
-function placeHasContent(place) {
-  return place && place.data && Object.values(INPUT_TYPE).includes(place.data.type);
 }
 
 function parsePlace(place) {
@@ -65,19 +60,29 @@ function parseParams(params, query, platform) {
     ? coordinateString.split(',').map(v => parseInt(v, 10))
     : [];
 
+  let fromNearest = Object.values(nearestOptions).find(
+    ({ data: { value } }) => value === fromNearestType,
+  );
+  fromNearest = fromNearest ? { ...fromNearest } : null;
+
   let from = parsePlace(fromPlace) ||
-    Object.values(nearestOptions).find(({ data: { value } }) => value === fromNearestType) || {
-      ...DEFAULT_INPUT,
+    fromNearest || {
+      ...EMPTY_INPUT,
     };
 
+  let toNearest = Object.values(nearestOptions).find(
+    ({ data: { value } }) => value === toNearestType,
+  );
+  toNearest = toNearest ? { ...toNearest } : null;
+
   let to = parsePlace(toPlace) ||
-    Object.values(nearestOptions).find(({ data: { value } }) => value === toNearestType) || {
-      ...DEFAULT_INPUT,
+    toNearest || {
+      ...EMPTY_INPUT,
     };
 
   if (queryParams.roomno) {
-    from = { ...nearestOptions.lift };
-    to = {
+    to = { ...nearestOptions.lift };
+    from = {
       name: queryParams.roomno,
       data: { type: INPUT_TYPE.KEYWORD, value: queryParams.roomno },
     };
@@ -101,6 +106,7 @@ function parseParams(params, query, platform) {
     search: Boolean(search),
   };
 
+  console.log('param parsed', parsed);
   return parsed;
 }
 
@@ -139,18 +145,18 @@ function build({ floor, x, y, level, search = false, from = null, to = null }) {
     '';
 
   let fromPlace =
-    from && from.data.type !== INPUT_TYPE.NEAREST && (placeHasContent(from) || placeHasContent(to))
+    from && from.data.type !== INPUT_TYPE.NEAREST && (inputHasContent(from) || inputHasContent(to))
       ? '/from'
       : '';
-  if (fromPlace && placeHasContent(from)) {
+  if (fromPlace && inputHasContent(from)) {
     fromPlace += formPlaceUrl(from);
   }
 
   let toPlace =
-    to && to.data.type !== INPUT_TYPE.NEAREST && (placeHasContent(from) || placeHasContent(to))
+    to && to.data.type !== INPUT_TYPE.NEAREST && (inputHasContent(from) || inputHasContent(to))
       ? '/to'
       : '';
-  if (toPlace && placeHasContent(to)) {
+  if (toPlace && inputHasContent(to)) {
     toPlace += formPlaceUrl(to);
   }
 

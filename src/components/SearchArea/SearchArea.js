@@ -10,7 +10,7 @@ import { searchNearestAction, clearSearchNearestResultAction } from '../../reduc
 import { setSearchAreaInputAction, searchAreaInputPropTypes } from '../../reducers/searchAreaInput';
 import { floorsPropTypes } from '../../reducers/floors';
 import { placePropTypes } from '../Router/Url';
-import INPUT_TYPE from './InputType';
+import { TYPE as INPUT_TYPE, isEqual as InputIsEqual } from './Input';
 
 class SearchArea extends Component {
   static propTypes = {
@@ -26,10 +26,9 @@ class SearchArea extends Component {
     setSearchAreaInputHandler: PropTypes.func.isRequired,
     searchAreaInputStore: searchAreaInputPropTypes,
     displayAdvancedSearch: PropTypes.bool,
-    initSearch: PropTypes.bool.isRequired,
-    updateInitSearch: PropTypes.func.isRequired,
     from: placePropTypes,
     to: placePropTypes,
+    search: PropTypes.bool.isRequired,
   };
 
   constructor(props) {
@@ -44,8 +43,21 @@ class SearchArea extends Component {
   }
 
   componentDidMount() {
-    if (this.props.initSearch) {
-      this.props.updateInitSearch(false);
+    if (this.props.search) {
+      this.search();
+    }
+    console.log('searchArea mount', this.props.to);
+  }
+
+  componentDidUpdate(prevProps) {
+    console.log('searchArea did update', this.props.search, prevProps.search);
+    if (
+      this.props.search &&
+      (!InputIsEqual(prevProps.to, this.props.to) ||
+        !InputIsEqual(prevProps.from, this.props.from) ||
+        this.props.search !== prevProps.search ||
+        this.props.searchAreaInputStore !== prevProps.searchAreaInputStore)
+    ) {
       this.search();
     }
   }
@@ -54,10 +66,16 @@ class SearchArea extends Component {
     const { searchMapItemHandler, linkTo } = this.props;
 
     if (!keyword.length) {
-      linkTo({ [direction]: { name: '', data: {} } });
+      linkTo({ [direction]: { name: '', data: {} }, search: false });
       return;
     }
-    linkTo({ [direction]: { name: keyword, data: { type: INPUT_TYPE.KEYWORD, value: keyword } } });
+    linkTo(
+      {
+        [direction]: { name: keyword, data: { type: INPUT_TYPE.KEYWORD, value: keyword } },
+        search: false,
+      },
+      'replace',
+    );
     searchMapItemHandler(keyword);
   };
 
@@ -69,6 +87,7 @@ class SearchArea extends Component {
     displayName,
   }) => {
     this.props.linkTo({
+      search: false,
       floor,
       x,
       y,
@@ -82,6 +101,7 @@ class SearchArea extends Component {
   onNearestItemClick = direction => ({ name, data }) => {
     this.props.linkTo({
       [direction]: { name, data },
+      search: false,
     });
   };
 
@@ -115,6 +135,7 @@ class SearchArea extends Component {
     linkTo({
       from: to,
       to: from,
+      search: false,
     });
   };
 
@@ -137,17 +158,11 @@ class SearchArea extends Component {
       to: {
         data: { type: toType, id: toId, floor: toFloor, value: toValue },
       },
-      linkTo,
     } = this.props;
 
     if ((!fromValue && !fromId) || (!toValue && !toId)) {
       return;
     }
-
-    // update url
-    linkTo({
-      search: true,
-    });
 
     clearSearchNearestResultHandler();
     clearSearchShortestPathResultHandler();
@@ -190,7 +205,7 @@ class SearchArea extends Component {
         onNearestItemClick={this.onNearestItemClick}
         switchInputOrder={this.switchInputOrder}
         updateSameFloor={this.updateSameFloor}
-        search={this.search}
+        search={this.linkToSearch}
         displayAdvancedSearch={displayAdvancedSearch}
         updateSearchOptions={this.updateSearchOptions}
       />
