@@ -42,110 +42,103 @@ class PrimaryPanel extends Component {
 
     const urlParams = pick(this.props, ['from', 'to', 'x', 'y', 'level', 'floor', 'search']);
 
-    const renderTab = () => {
-      switch (overlayStore.open) {
-        case true:
-          return (
-            <PanelOverlay
-              closeOverlayHandler={closeOverlayHandler}
-              headerElements={children.map(({ id, OverlayHeaderPlugin }) => {
-                if (!OverlayHeaderPlugin || !OverlayHeaderPlugin.Component) {
-                  return null;
-                }
-                const { photo, name, url, others } = overlayStore;
-                return (
-                  <OverlayHeaderPlugin.Component
-                    key={`header_${id}`}
-                    name={name}
-                    photo={photo}
-                    url={url}
-                    others={others}
-                  />
-                );
-              })}
-              contentElements={children.map(({ id, OverlayContentPlugin }) => {
-                if (!OverlayContentPlugin || !OverlayContentPlugin.Component) {
-                  return null;
-                }
-                const { photo, name, url, others } = overlayStore;
-                return (
-                  <OverlayContentPlugin.Component
-                    key={`content_${id}`}
-                    name={name}
-                    photo={photo}
-                    url={url}
-                    others={others}
-                  />
-                );
-              })}
-            />
-          );
-
-        default:
-          return (
-            <div>
-              <div className={style.tab}>
-                <button
-                  type="button"
-                  className={style.tabButton}
-                  onClick={this.displayAdvancedSearch(false)}
-                >
-                  Path advisor
-                </button>
-                <button
-                  type="button"
-                  className={style.tabButton}
-                  onClick={this.displayAdvancedSearch(true)}
-                >
-                  Advanced Search
-                </button>
-              </div>
-
-              {displayAdvancedSearch ? null : (
-                <Floor
-                  selectedBuilding={selectedBuilding}
-                  selectBuildingAction={this.selectBuildingAction}
-                  linkTo={linkTo}
-                  x={x}
-                  y={y}
-                  currentFloorId={floor}
-                  level={level}
-                  FloorView={FloorPrimaryPanelView}
+    return (
+      <div className={style.body}>
+        {overlayStore.open ? (
+          <PanelOverlay
+            closeOverlayHandler={closeOverlayHandler}
+            headerElements={children.map(({ id, OverlayHeaderPlugin }) => {
+              if (!OverlayHeaderPlugin || !OverlayHeaderPlugin.Component) {
+                return null;
+              }
+              const { photo, name, url, others } = overlayStore;
+              return (
+                <OverlayHeaderPlugin.Component
+                  key={`header_${id}`}
+                  name={name}
+                  photo={photo}
+                  url={url}
+                  others={others}
                 />
-              )}
-              <SearchArea
-                from={urlParams.from}
-                to={urlParams.to}
-                search={urlParams.search}
-                displayAdvancedSearch={displayAdvancedSearch}
-                linkTo={linkTo}
-                SearchView={SearchPrimaryPanelView}
+              );
+            })}
+            contentElements={children.map(({ id, OverlayContentPlugin }) => {
+              if (!OverlayContentPlugin || !OverlayContentPlugin.Component) {
+                return null;
+              }
+              const { photo, name, url, others } = overlayStore;
+              return (
+                <OverlayContentPlugin.Component
+                  key={`content_${id}`}
+                  name={name}
+                  photo={photo}
+                  url={url}
+                  others={others}
+                />
+              );
+            })}
+          />
+        ) : null}
+        <div style={{ display: overlayStore.open ? 'none' : '' }}>
+          <div className={style.tab}>
+            <button
+              type="button"
+              className={style.tabButton}
+              onClick={this.displayAdvancedSearch(false)}
+            >
+              Path advisor
+            </button>
+            <button
+              type="button"
+              className={style.tabButton}
+              onClick={this.displayAdvancedSearch(true)}
+            >
+              Advanced Search
+            </button>
+          </div>
+
+          {displayAdvancedSearch ? null : (
+            <Floor
+              selectedBuilding={selectedBuilding}
+              selectBuildingAction={this.selectBuildingAction}
+              linkTo={linkTo}
+              x={x}
+              y={y}
+              currentFloorId={floor}
+              level={level}
+              FloorView={FloorPrimaryPanelView}
+            />
+          )}
+          <SearchArea
+            from={urlParams.from}
+            to={urlParams.to}
+            search={urlParams.search}
+            displayAdvancedSearch={displayAdvancedSearch}
+            linkTo={linkTo}
+            SearchView={SearchPrimaryPanelView}
+          />
+
+          {children.map(({ id, PrimaryPanelPlugin }) => {
+            if (!PrimaryPanelPlugin) {
+              return null;
+            }
+
+            const PluginComponent = getConnectedComponent(
+              `primaryPanel_${id}`,
+              PrimaryPanelPlugin.connect,
+              PrimaryPanelPlugin.Component,
+            );
+
+            return (
+              <PluginComponent
+                key={id}
+                {...pick({ ...urlParams, linkTo }, PrimaryPanelPlugin.connect)}
               />
-
-              {children.map(({ id, PrimaryPanelPlugin }) => {
-                if (!PrimaryPanelPlugin) {
-                  return null;
-                }
-
-                const PluginComponent = getConnectedComponent(
-                  `primaryPanel_${id}`,
-                  PrimaryPanelPlugin.connect,
-                  PrimaryPanelPlugin.Component,
-                );
-
-                return (
-                  <PluginComponent
-                    key={id}
-                    {...pick({ ...urlParams, linkTo }, PrimaryPanelPlugin.connect)}
-                  />
-                );
-              })}
-            </div>
-          );
-      }
-    };
-
-    return <div className={style.body}>{renderTab()}</div>;
+            );
+          })}
+        </div>
+      </div>
+    );
   }
 }
 
