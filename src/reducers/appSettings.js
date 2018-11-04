@@ -10,7 +10,7 @@ const initialState = {
     floor: 'Overall',
     x: 936,
     y: 654,
-    level: 2,
+    level: 1,
   },
   mobileDefaultPosition: {
     floor: 'G',
@@ -20,7 +20,7 @@ const initialState = {
   },
 };
 
-const appSettings = (state = initialState, { type, payload }) => {
+const appSettings = (state = initialState, { type }) => {
   switch (type) {
     default:
       return state;
