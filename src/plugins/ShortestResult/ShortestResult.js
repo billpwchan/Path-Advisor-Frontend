@@ -3,7 +3,7 @@ import style from './ShortestResult.module.css';
 import Loading from '../Loading/Loading';
 
 // local store
-const pathIds = new Set();
+const addedMapItemIds = new Set();
 const clickListenerMapItemIds = new Set();
 
 class ShortestResultPrimaryPanel extends Component {
@@ -99,7 +99,7 @@ class ShortestResultPrimaryPanel extends Component {
       case searchShortestPathStore.loading:
         return (
           <div className={style.body}>
-            {shortestPathHead}{' '}
+            {shortestPathHead}
             <div className={style.content}>
               <Loading text="Please wait..." />
             </div>
@@ -187,11 +187,11 @@ function ShortestResultMapCanvas({
 
   const LISTENER_ID = 'shortestResultConnector';
 
-  pathIds.forEach(id => {
+  addedMapItemIds.forEach(id => {
     removeMapItem(id);
   });
 
-  pathIds.clear();
+  addedMapItemIds.clear();
 
   clickListenerMapItemIds.forEach(id => {
     removeMapItemClickListener(LISTENER_ID, id);
@@ -199,9 +199,9 @@ function ShortestResultMapCanvas({
 
   clickListenerMapItemIds.clear();
 
-  paths.forEach(({ floor, coordinates, id }, i) => {
+  paths.forEach(({ floor, coordinates, id, photo }, i) => {
     if (!mapItems[floor]) {
-      pathIds.add(`${floor}_line`);
+      addedMapItemIds.add(`${floor}_line`);
       mapItems[floor] = {
         id: `${floor}_line`,
         floor,
@@ -216,6 +216,7 @@ function ShortestResultMapCanvas({
     }
 
     const prevPath = i === 0 ? null : paths[i - 1];
+
     if (prevPath && prevPath.floor !== floor) {
       addMapItemClickListener(
         LISTENER_ID,
@@ -246,6 +247,99 @@ function ShortestResultMapCanvas({
 
       clickListenerMapItemIds.add(`${floor}_${id}`);
       clickListenerMapItemIds.add(`${prevPath.floor}_${prevPath.id}`);
+    }
+
+    if (photo) {
+      const img = new Image();
+      img.addEventListener('load', () => {
+        const PHOTO_ITEM_ID = `${id}_path_photo`;
+        addedMapItemIds.add(PHOTO_ITEM_ID);
+
+        const x = coordinates[0];
+        const y = coordinates[1] + 20;
+
+        const photoMapItem = {
+          id: PHOTO_ITEM_ID,
+          floor,
+          x,
+          y,
+          image: img,
+          zIndex: 1,
+        };
+
+        const CONTAINER_ITEM_ID = `${id}_path_photo_container`;
+        addedMapItemIds.add(CONTAINER_ITEM_ID);
+
+        const PADDING = 15;
+
+        const containerTagItem = {
+          id: CONTAINER_ITEM_ID,
+          floor,
+          x: x - PADDING,
+          y: y - PADDING,
+          rect: {
+            color: 'rgba(0,0,0,0.6)',
+            width: img.width + 2 * PADDING,
+            height: img.height + 2 * PADDING,
+          },
+        };
+
+        const CONTAINER_CLOSE_BUTTON_ITEM_ID = `${id}_path_photo_container_close_button`;
+        const closeButtonItem = {
+          id: CONTAINER_CLOSE_BUTTON_ITEM_ID,
+          floor,
+          x: x + img.width,
+          y: y - PADDING,
+          textElement: {
+            text: '×',
+            style: '14px Verdana',
+            color: 'white',
+          },
+          onClick: () => {
+            [PHOTO_ITEM_ID, CONTAINER_ITEM_ID, CONTAINER_CLOSE_BUTTON_ITEM_ID].forEach(itemId => {
+              removeMapItem(itemId);
+              addedMapItemIds.delete(itemId);
+            });
+          },
+          onMouseOver: () => {
+            document.body.style.cursor = 'pointer';
+          },
+          onMouseOut: () => {
+            document.body.style.cursor = 'auto';
+          },
+        };
+
+        setMapItems([
+          {
+            ...containerTagItem,
+          },
+          {
+            ...closeButtonItem,
+          },
+          {
+            ...photoMapItem,
+            opacity: 0.6,
+            onMouseOver: () => {
+              setMapItems([
+                {
+                  ...photoMapItem,
+                  opacity: 1,
+                },
+              ]);
+            },
+            onMouseOut: () => {
+              setMapItems([
+                {
+                  ...photoMapItem,
+                  opacity: 0.6,
+                },
+              ]);
+            },
+          },
+        ]);
+      });
+
+      img.src = photo;
     }
   });
 
