@@ -53,6 +53,7 @@ const DEVICE_PIXEL_RATIO = window.devicePixelRatio || 1;
  * @property {number} width
  * @property {number} height
  * @property {number} zIndex
+ * @property {number} opacity
  * @property {number} hitX
  * @property {number} hitY
  * @property {number} hitWidth
@@ -77,6 +78,17 @@ const DEVICE_PIXEL_RATIO = window.devicePixelRatio || 1;
  * @property {Rect} [rect]
  * @property {Object} [others] - additional data for plugins to attach
  */
+
+/**
+ * reverse forEach array
+ * @param {array} array
+ * @param {function} callback
+ */
+function revForEach(array, callback) {
+  for (let i = array.length - 1; i >= 0; i -= 1) {
+    callback(array[i], i, array);
+  }
+}
 
 /**
  * Create a promise and resolve when image is loaded
@@ -216,8 +228,8 @@ class CanvasHandler {
 
     this.levelToScale.some((scale, level) => {
       const diff = scale - capScale;
-
-      if ((diff > 0) !== (lastDiff > 0)) {
+      // eslint-disable-next-line
+      if (diff > 0 !== lastDiff > 0) {
         nearestLevel = Math.abs(diff) < Math.abs(lastDiff) ? level : nearestLevel;
         return true;
       }
@@ -574,7 +586,7 @@ class CanvasHandler {
       const x = clientX - canvasCoordinate.left + this.getScreenLeftX();
       const y = clientY - canvasCoordinate.top + this.getScreenTopY();
 
-      this.mapItemIds.forEach(id => {
+      revForEach(this.mapItemIds, id => {
         const mapItem = this.mapItems[id];
         if (mapItem.floor !== this.floor) {
           return;
@@ -709,6 +721,7 @@ class CanvasHandler {
         hitY: y,
         hitWidth: null,
         hitHeight: null,
+        opacity: null,
         zIndex: 0,
         hidden,
         image,
@@ -755,6 +768,12 @@ class CanvasHandler {
    * @param {CanvasItem[]} mapItems
    */
   async setMapItems(mapItems) {
+    if (!Array.isArray(mapItems)) {
+      throw new Error(
+        'setMapItems only accept an array of map items, if you have only one map item, please wrap it into an array',
+      );
+    }
+
     const asyncMapItems = [];
     // use this set default value from existing map item, and therefore support updating a map item with partial information
     const getDefault = (id, prop, defaultValue) => get(this.mapItems[id], prop, defaultValue);
@@ -768,6 +787,7 @@ class CanvasHandler {
         width = getDefault(id, 'width', null),
         height = getDefault(id, 'height', null),
         zIndex = getDefault(id, 'zIndex', 0),
+        opacity = getDefault(id, 'opacity', null),
         image = getDefault(id, 'image', null),
         textElement = getDefault(id, 'textElement', null),
         circle = getDefault(id, 'circle', null),
@@ -810,6 +830,7 @@ class CanvasHandler {
           scaleDimension,
           width,
           height,
+          opacity,
           zIndex,
           image,
           textElement,
@@ -1018,7 +1039,14 @@ class CanvasHandler {
           scalePosition,
           scaleDimension,
           center,
+          opacity,
         } = mapItem;
+
+        if (opacity === null) {
+          ctx.globalAlpha = 1;
+        } else {
+          ctx.globalAlpha = opacity;
+        }
 
         let renderedX = scalePosition ? this.scaleCoordinate(x) : x;
         let renderedY = scalePosition ? this.scaleCoordinate(y) : y;
