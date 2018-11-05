@@ -60,7 +60,7 @@ class MapCanvas extends Component {
     });
 
     this.canvasHandler.addWheelListener(({ wheelDelta, x, y, floor, nextLevel, previousLevel }) => {
-      if (wheelDelta > 0) {
+      if (wheelDelta < 0) {
         linkTo({ floor, x, y, level: nextLevel });
       } else {
         linkTo({ floor, x, y, level: previousLevel });

@@ -538,7 +538,7 @@ class CanvasHandler {
 
     this.canvas.addEventListener('wheel', e => {
       this.wheelListeners.forEach(listener => {
-        const wheelDelta = Math.sign(e.wheelDelta);
+        const wheelDelta = Math.sign(e.deltaY);
         listener(this.getListenerParamObject({ wheelDelta }));
       });
     });
