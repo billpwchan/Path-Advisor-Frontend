@@ -62,6 +62,9 @@ class MapItem extends Component {
 
     setMapItems(
       mapItems.reduce((accumulator, { id, coordinates: [x, y], floor, name, type, photo, url }) => {
+        const marginLeft = -40;
+        let marginTop = 0;
+
         const baseMapItem = {
           id: `${floor}_${id}`,
           floor,
@@ -76,6 +79,28 @@ class MapItem extends Component {
             text: convertName(name),
           },
         };
+
+        if (photo) {
+          accumulator.push({
+            ...baseMapItem,
+            id: `${floor}_${id}_photo`,
+            x: x + marginLeft,
+            image: createImage(legends.photo.image),
+            ...LEGEND_DIMENSION,
+            onClick: () => {
+              openOverlayHandler(name, photo, url);
+            },
+            onMouseOver: () => {
+              document.body.style.cursor = 'pointer';
+            },
+            onMouseOut: () => {
+              document.body.style.cursor = 'auto';
+            },
+          });
+
+          marginTop += 20;
+        }
+
         switch (type) {
           case 'maleToilet':
           case 'femaleToilet':
@@ -175,6 +200,17 @@ class MapItem extends Component {
             break;
           }
           default: {
+            if (type === 'restaurant') {
+              accumulator.push({
+                ...baseMapItem,
+                id: `${floor}_${id}_restaurant`,
+                x: x + marginLeft,
+                y: y + marginTop,
+                image: createImage(legends[type].image),
+                ...LEGEND_DIMENSION,
+              });
+            }
+
             accumulator.push({
               ...textMapItem,
               onClick: () => {
@@ -204,40 +240,6 @@ class MapItem extends Component {
               },
             });
           }
-        }
-
-        const marginLeft = -40;
-        let marginTop = 0;
-
-        if (type === 'restaurant') {
-          accumulator.push({
-            ...baseMapItem,
-            id: `${floor}_${id}_restaurant`,
-            x: x + marginLeft,
-            image: createImage(legends[type].image),
-            ...LEGEND_DIMENSION,
-          });
-          marginTop += 20;
-        }
-
-        if (photo) {
-          accumulator.push({
-            ...baseMapItem,
-            id: `${floor}_${id}_photo`,
-            x: x + marginLeft,
-            y: y + marginTop,
-            image: createImage(legends.photo.image),
-            ...LEGEND_DIMENSION,
-            onClick: () => {
-              openOverlayHandler(name, photo, url);
-            },
-            onMouseOver: () => {
-              document.body.style.cursor = 'pointer';
-            },
-            onMouseOut: () => {
-              document.body.style.cursor = 'auto';
-            },
-          });
         }
 
         return accumulator;
