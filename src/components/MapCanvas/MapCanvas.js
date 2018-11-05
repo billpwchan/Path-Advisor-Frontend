@@ -180,10 +180,15 @@ class MapCanvas extends Component {
                 `Floor ${floors[floor].name} - ${buildings[floors[floor].buildingId].name}`}
             </div>
             <div className={style.buttons}>
-              <a className={style.button} href="/suggestions.html">
+              <a
+                className={style.button}
+                href="http://pathadvisor.ust.hk/suggestions.html"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
                 Suggestion
               </a>
-              <button className={style.button} type="button">
+              <button className={style.button} type="button" onClick={window.print}>
                 Print
               </button>
             </div>
