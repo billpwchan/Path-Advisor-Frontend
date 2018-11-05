@@ -275,26 +275,31 @@ function ShortestResultMapCanvas({
         const containerTagItem = {
           id: CONTAINER_ITEM_ID,
           floor,
-          x: x - PADDING,
-          y: y - PADDING,
+          x,
+          y,
+          offsetX: -PADDING,
+          offsetY: -PADDING,
           rect: {
             color: 'rgba(0,0,0,0.6)',
             width: img.width + 2 * PADDING,
             height: img.height + 2 * PADDING,
           },
+          zIndex: 1,
         };
 
         const CONTAINER_CLOSE_BUTTON_ITEM_ID = `${id}_path_photo_container_close_button`;
         const closeButtonItem = {
           id: CONTAINER_CLOSE_BUTTON_ITEM_ID,
           floor,
-          x: x + img.width,
-          y: y - PADDING,
+          x,
+          y,
           textElement: {
             text: '×',
             style: '14px Verdana',
             color: 'white',
           },
+          offsetX: img.width,
+          offsetY: -PADDING,
           onClick: () => {
             [PHOTO_ITEM_ID, CONTAINER_ITEM_ID, CONTAINER_CLOSE_BUTTON_ITEM_ID].forEach(itemId => {
               removeMapItem(itemId);
@@ -307,6 +312,7 @@ function ShortestResultMapCanvas({
           onMouseOut: () => {
             document.body.style.cursor = 'auto';
           },
+          zIndex: 1,
         };
 
         setMapItems([

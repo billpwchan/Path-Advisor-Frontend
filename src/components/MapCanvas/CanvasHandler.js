@@ -50,6 +50,8 @@ const DEVICE_PIXEL_RATIO = window.devicePixelRatio || 1;
  * @property {string} id
  * @property {number} x
  * @property {number} y
+ * @property {number} offsetX
+ * @property {number} offsetY
  * @property {number} width
  * @property {number} height
  * @property {number} zIndex
@@ -597,13 +599,22 @@ class CanvasHandler {
         visitedItemIds.add(id);
 
         let mapItemEvent;
-        const { hitX, hitY, hitWidth, hitHeight, scaleDimension, scalePosition } = mapItem;
+        const {
+          hitX,
+          hitY,
+          hitWidth,
+          hitHeight,
+          scaleDimension,
+          scalePosition,
+          offsetX,
+          offsetY,
+        } = mapItem;
 
         const itemHit = hitTest(
           x,
           y,
-          scalePosition ? this.scaleCoordinate(hitX) : hitX,
-          scalePosition ? this.scaleCoordinate(hitY) : hitY,
+          (scalePosition ? this.scaleCoordinate(hitX) : hitX) + offsetX,
+          (scalePosition ? this.scaleCoordinate(hitY) : hitY) + offsetY,
           scaleDimension ? this.scaleCoordinate(hitWidth) : hitWidth,
           scaleDimension ? this.scaleCoordinate(hitHeight) : hitHeight,
         );
@@ -731,6 +742,8 @@ class CanvasHandler {
         floor,
         x,
         y,
+        offsetX: null,
+        offsetY: null,
         width,
         height,
         hitX: x,
@@ -800,6 +813,8 @@ class CanvasHandler {
         floor = getDefault(id, 'floor', null),
         x = getDefault(id, 'x', null),
         y = getDefault(id, 'y', null),
+        offsetX = getDefault(id, 'offsetX', null),
+        offsetY = getDefault(id, 'offsetY', null),
         width = getDefault(id, 'width', null),
         height = getDefault(id, 'height', null),
         zIndex = getDefault(id, 'zIndex', 0),
@@ -834,6 +849,8 @@ class CanvasHandler {
           floor,
           x,
           y,
+          offsetX,
+          offsetY,
           hitX: null,
           hitY: null,
           hitWidth: null,
@@ -1042,6 +1059,8 @@ class CanvasHandler {
         const {
           x,
           y,
+          offsetX,
+          offsetY,
           floor,
           image,
           textElement,
@@ -1068,6 +1087,14 @@ class CanvasHandler {
         let renderedY = scalePosition ? this.scaleCoordinate(y) : y;
         const scaledWidth = scaleDimension ? this.scaleCoordinate(width) : width;
         const scaledHeight = scaleDimension ? this.scaleCoordinate(height) : height;
+
+        if (offsetX) {
+          renderedX += offsetX;
+        }
+
+        if (offsetY) {
+          renderedY += offsetY;
+        }
 
         if (center) {
           renderedX -= scaledWidth / 2;
