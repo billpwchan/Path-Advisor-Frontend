@@ -175,6 +175,7 @@ function ShortestResultMapCanvas({
   addMapItemClickListener,
   removeMapItemClickListener,
   linkTo,
+  platform,
 }) {
   const { paths = [] } = searchShortestPathStore;
   const lineStyle = {
@@ -249,7 +250,7 @@ function ShortestResultMapCanvas({
       clickListenerMapItemIds.add(`${prevPath.floor}_${prevPath.id}`);
     }
 
-    if (photo) {
+    if (platform === 'DESKTOP' && photo) {
       const img = new Image();
       img.addEventListener('load', () => {
         const PHOTO_ITEM_ID = `${id}_path_photo`;
@@ -376,6 +377,7 @@ const MapCanvasPlugin = {
     'addMapItemClickListener',
     'removeMapItemClickListener',
     'linkTo',
+    'platform',
   ],
   Component: ShortestResultMapCanvas,
 };
