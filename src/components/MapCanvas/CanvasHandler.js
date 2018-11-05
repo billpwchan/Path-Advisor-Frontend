@@ -586,11 +586,15 @@ class CanvasHandler {
       const x = clientX - canvasCoordinate.left + this.getScreenLeftX();
       const y = clientY - canvasCoordinate.top + this.getScreenTopY();
 
+      const visitedItemIds = new Set();
+
       revForEach(this.mapItemIds, id => {
         const mapItem = this.mapItems[id];
         if (mapItem.floor !== this.floor) {
           return;
         }
+
+        visitedItemIds.add(id);
 
         let mapItemEvent;
         const { hitX, hitY, hitWidth, hitHeight, scaleDimension, scalePosition } = mapItem;
@@ -627,6 +631,18 @@ class CanvasHandler {
               this.mapItemListeners[mapItemEvent][id][listenerId]({ ...this.mapItems[id] }) ===
               false,
           );
+        }
+      });
+
+      Object.keys(this.mapItemsMouseOvering).forEach(mapItemId => {
+        if (!visitedItemIds.has(mapItemId)) {
+          (get(this.mapItemListenerIds.mouseout, mapItemId) || []).some(
+            listenerId =>
+              this.mapItemListeners.mouseout[mapItemId][listenerId]({
+                ...this.mapItems[mapItemId],
+              }) === false,
+          );
+          delete this.mapItemsMouseOvering[mapItemId];
         }
       });
     });
