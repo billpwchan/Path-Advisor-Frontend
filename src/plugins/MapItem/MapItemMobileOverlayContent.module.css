@@ -25,3 +25,7 @@
   display: block;
   padding: 2px 5px;
 }
+
+.link {
+  text-decoration: underline;
+}

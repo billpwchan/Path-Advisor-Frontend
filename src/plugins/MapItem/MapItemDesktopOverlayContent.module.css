@@ -28,3 +28,13 @@
   display: block;
   padding: 2px 5px;
 }
+
+.link {
+  text-decoration: underline;
+  font-size: 10pt;
+  color: blue;
+}
+
+.link:hover {
+  color: red;
+}
