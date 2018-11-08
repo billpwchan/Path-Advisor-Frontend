@@ -32,8 +32,8 @@ class MapCanvas extends Component {
   state = {
     width: null,
     height: null,
-    scaledWidth: null,
-    scaledHeight: null,
+    normalizedWidth: null,
+    normalizedHeight: null,
     movingX: null,
     movingY: null,
     movingScaledX: null,
@@ -83,7 +83,7 @@ class MapCanvas extends Component {
 
     this.canvasHandler.addPositionChangeListener(
       throttle(
-        ({ floor: _floor, leftX, topY, scaledWidth: _width, scaledHeight: _height }) => {
+        ({ floor: _floor, leftX, topY, normalizedWidth: _width, normalizedHeight: _height }) => {
           const isPositionReady =
             [leftX, topY, _width, _height].every(v => !isNaN(v)) && !isNil(_floor);
 
@@ -100,8 +100,8 @@ class MapCanvas extends Component {
       ({
         width,
         height,
-        scaledWidth,
-        scaledHeight,
+        normalizedWidth,
+        normalizedHeight,
         x: movingX,
         y: movingY,
         scaledX: movingScaledX,
@@ -116,8 +116,8 @@ class MapCanvas extends Component {
         this.setState({
           width,
           height,
-          scaledWidth,
-          scaledHeight,
+          normalizedWidth,
+          normalizedHeight,
           movingX,
           movingY,
           movingScaledX,

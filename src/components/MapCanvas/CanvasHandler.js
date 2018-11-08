@@ -311,8 +311,8 @@ class CanvasHandler {
    * @property {number} floor
    * @property {number} scaledX
    * @property {number} scaledY
-   * @property {number} scaledWidth
-   * @property {number} scaledHeight
+   * @property {number} normalizedWidth
+   * @property {number} normalizedHeight
    * @property {number} screenLeftX
    * @property {number} screenTopY
    * @property {number} screenRightX
@@ -488,8 +488,8 @@ class CanvasHandler {
       level: this.level,
       width: this.getWidth(),
       height: this.getHeight(),
-      scaledWidth: this.getScaledWidth(),
-      scaledHeight: this.getScaledHeight(),
+      normalizedWidth: this.getNormalizedWidth(),
+      normalizedHeight: this.getNormalizedHeight(),
       floor: this.floor,
       x: this.x,
       y: this.y,
@@ -676,11 +676,11 @@ class CanvasHandler {
     return this.height;
   }
 
-  getScaledWidth() {
+  getNormalizedWidth() {
     return this.normalizeCoordinate(this.width);
   }
 
-  getScaledHeight() {
+  getNormalizedHeight() {
     return this.normalizeCoordinate(this.height);
   }
 
@@ -693,19 +693,19 @@ class CanvasHandler {
   }
 
   getLeftX() {
-    return this.x - this.getScaledWidth() / 2;
+    return this.x - this.getNormalizedWidth() / 2;
   }
 
   getTopY() {
-    return this.y - this.getScaledHeight() / 2;
+    return this.y - this.getNormalizedHeight() / 2;
   }
 
   getRightX() {
-    return this.x + this.getScaledWidth() / 2;
+    return this.x + this.getNormalizedWidth() / 2;
   }
 
   getBottomY() {
-    return this.y + this.getScaledHeight() / 2;
+    return this.y + this.getNormalizedHeight() / 2;
   }
 
   getScreenLeftX() {

@@ -18,8 +18,8 @@ const urlParams = ['place', 'from', 'to', 'x', 'y', 'level', 'floor'];
 const canvasParams = [
   'width',
   'height',
-  'scaledWidth',
-  'scaledHeight',
+  'normalizedWidth',
+  'normalizedHeight',
   'movingLeftX',
   'movingTopY',
   'movingScreenLeftX',

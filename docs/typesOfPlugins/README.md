@@ -364,15 +364,15 @@ Current map canvas width.
 
 Current map canvas height.
 
-#### scaledWidth
-`scaledWidth` - number
+#### normalizedWidth
+`normalizedWidth` - number
 
-`width` multiply by current level's scale.
+`width` divided by current level's scale, (i.e. the width value at default zoom level)
 
-#### scaledHeight
-`scaledHeight` - number
+#### normalizedHeight
+`normalizedHeight` - number
 
-`height` multiply by current level's scale.
+`height` divided by current level's scale, (i.e. the height value at default zoom level)
 
 <!-- [movingX](properties/movingX.md ':include') -->
 #### movingX
