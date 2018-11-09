@@ -13,6 +13,19 @@ function toCamelCase(term) {
     )
     .join('');
 }
+
+function prependHttp(url) {
+  if (typeof url !== 'string') {
+    return url;
+  }
+
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    return `http://${url}`;
+  }
+
+  return url;
+}
+
 // TO-DO: remove wrapper after backend api updated
 function fetchMapItemsResponseWrapper(data, floor) {
   if (typeof data !== 'string') {
@@ -35,7 +48,7 @@ function fetchMapItemsResponseWrapper(data, floor) {
         mapItemValues[3] === 'null'
           ? null
           : `${APIEndpoint()}/map_image/${floor}/${mapItemValues[3]}.jpg`,
-      url: mapItemValues[4] === 'null' ? null : mapItemValues[4],
+      url: mapItemValues[4] === 'null' ? null : prependHttp(mapItemValues[4]),
     };
   });
 }

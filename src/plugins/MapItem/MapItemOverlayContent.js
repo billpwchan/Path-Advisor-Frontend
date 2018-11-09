@@ -12,7 +12,9 @@ function MapItemOverlayContent({ style, name, photo, url, others: { accessibleFl
 
       {url && (
         <div className={style.url}>
-          <div className={style.head}>Website</div>
+          <div className={style.head}>
+            {url.indexOf('seatplan.ust.hk') !== -1 ? 'Seat plan' : 'Website'}
+          </div>
           <a className={style.link} href={url} target="_blank" rel="noopener noreferrer">
             {url}
           </a>

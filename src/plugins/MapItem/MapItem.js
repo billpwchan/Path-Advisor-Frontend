@@ -211,10 +211,17 @@ class MapItem extends Component {
               });
             }
 
+            const extraTextStyle = photo || url ? { color: 'blue' } : {};
+
             accumulator.push({
               ...textMapItem,
+              textElement: {
+                ...textMapItem.textElement,
+                ...extraTextStyle,
+              },
+
               onClick: () => {
-                if (photo) openOverlayHandler(name, photo, url);
+                if (photo || url) openOverlayHandler(name, photo, url);
               },
 
               onMouseOver: () => {
@@ -235,6 +242,10 @@ class MapItem extends Component {
                 setMapItems([
                   {
                     ...textMapItem,
+                    textElement: {
+                      ...textMapItem.textElement,
+                      ...extraTextStyle,
+                    },
                   },
                 ]);
               },
