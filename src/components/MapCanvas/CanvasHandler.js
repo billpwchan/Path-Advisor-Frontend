@@ -317,9 +317,13 @@ class CanvasHandler {
    * @property {number} screenTopY
    * @property {number} screenRightX
    * @property {number} screenBottomY
-   * @property {number} wheelDelta
+   * @property {number} [wheelDelta]
    * @property {number} nextLevel
    * @property {number} previousLevel
+   * @property {number} [newX]
+   * @property {number} [newY]
+   * @property {number} [newLeftX]
+   * @property {number} [newTopY]
    */
 
   /**
@@ -517,13 +521,21 @@ class CanvasHandler {
 
       const mouseMoveListener = mouseDownEvent => {
         const { clientX: currentX, clientY: currentY } = mouseDownEvent;
-        const newX = prevX + this.normalizeCoordinate(downX - currentX);
-        const newY = prevY + this.normalizeCoordinate(downY - currentY);
-        this.updatePosition(newX, newY);
+        let newX = prevX + this.normalizeCoordinate(downX - currentX);
+        let newY = prevY + this.normalizeCoordinate(downY - currentY);
 
         this.mouseMoveListeners.forEach(listener => {
-          listener(this.getListenerParamObject());
+          [newX, newY] = listener(
+            this.getListenerParamObject({
+              newX,
+              newY,
+              newLeftX: newX - this.getNormalizedWidth() / 2,
+              newTopY: newY - this.getNormalizedHeight() / 2,
+            }) || [newX, newY],
+          );
         });
+
+        this.updatePosition(newX, newY);
       };
 
       const mouseUpListener = () => {

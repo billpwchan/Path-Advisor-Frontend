@@ -59,6 +59,8 @@ class MapCanvas extends Component {
       }
     });
 
+    this.canvasHandler.addMouseMoveListener(props => this.restrictOutOfBoundary(props));
+
     this.canvasHandler.addWheelListener(({ wheelDelta, x, y, floor, nextLevel, previousLevel }) => {
       if (wheelDelta < 0) {
         linkTo({ floor, x, y, level: nextLevel });
@@ -81,11 +83,37 @@ class MapCanvas extends Component {
       height: this.canvasRootRef.current.offsetHeight,
     });
 
+    // if incoming coordinate is out of boundary, jump back to nearest position
+    this.canvasHandler.addPositionChangeListener(params => {
+      const {
+        leftX,
+        topY,
+        normalizedWidth,
+        normalizedHeight,
+        x: _x,
+        y: _y,
+        floor: _floor,
+      } = params;
+      const [newX, newY] = this.restrictOutOfBoundary({
+        newX: _x,
+        newY: _y,
+        newLeftX: leftX,
+        newTopY: topY,
+        normalizedHeight,
+        normalizedWidth,
+        floor: _floor,
+      });
+
+      if (_x !== newX || _y !== newY) {
+        this.props.linkTo({ x: newX, y: newY }, 'replace');
+      }
+    });
+
     this.canvasHandler.addPositionChangeListener(
       throttle(
         ({ floor: _floor, leftX, topY, normalizedWidth: _width, normalizedHeight: _height }) => {
           const isPositionReady =
-            [leftX, topY, _width, _height].every(v => !isNaN(v)) && !isNil(_floor);
+            [leftX, topY, _width, _height].every(v => !Number.isNaN(v)) && !isNil(_floor);
 
           if (isPositionReady) {
             getMapItemsHandler(_floor, [leftX, topY], _width, _height);
@@ -137,7 +165,6 @@ class MapCanvas extends Component {
     });
 
     // init position param
-    linkTo({ floor, x, y, level });
     this.canvasHandler.updatePosition(x, y, floor, level);
   }
 
@@ -152,6 +179,45 @@ class MapCanvas extends Component {
     ) {
       this.canvasHandler.updatePosition(x, y, floor, level);
     }
+  }
+
+  restrictOutOfBoundary({
+    newLeftX = null,
+    newTopY = null,
+    newX = null,
+    newY = null,
+    normalizedWidth,
+    normalizedHeight,
+    floor,
+  }) {
+    const floorData = get(this.props.floorStore, `floors.${floor}`);
+    if (!floorData) {
+      return [this.props.x, this.props.y];
+    }
+    const { mapWidth, mapHeight } = floorData;
+
+    return [
+      [newX, newLeftX, normalizedWidth, mapWidth],
+      [newY, newTopY, normalizedHeight, mapHeight],
+    ]
+      .map(([originalCoordinate, cornerCoordinate, normalizedDimension, totalDimension]) => {
+        if (totalDimension <= normalizedDimension) {
+          return normalizedDimension / 2;
+        }
+
+        if (cornerCoordinate < 0) {
+          return normalizedDimension / 2;
+        }
+
+        if (cornerCoordinate + normalizedDimension > totalDimension) {
+          let restricted = totalDimension - normalizedDimension / 2;
+          restricted = restricted < 0 ? normalizedDimension / 2 : restricted;
+          return restricted;
+        }
+
+        return originalCoordinate;
+      })
+      .map(v => Math.round(v));
   }
 
   render() {
