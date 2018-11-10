@@ -1,0 +1,9 @@
+{
+  "name": "@ust-pathadvisor/context-menu",
+  "description": "Show custom right click context menu in canvas area",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "react": "^16.4.1"
+  }
+}

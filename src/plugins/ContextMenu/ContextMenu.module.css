@@ -1,0 +1,28 @@
+.body {
+  width: 200px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: rgb(204, 204, 204) rgb(51, 51, 51) rgb(51, 51, 51) rgb(204, 204, 204);
+  background-color: white;
+  position: absolute;
+  font-family: Verdana;
+  font-size: 13px;
+  top: 0;
+}
+
+.heading {
+  padding: 5px;
+  font-weight: bold;
+}
+
+.button {
+  display: block;
+  padding: 5px;
+  width: 100%;
+  text-align: left;
+}
+
+.button:hover {
+  background-color: rgb(204,204,204);
+}
+

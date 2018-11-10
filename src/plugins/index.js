@@ -8,6 +8,7 @@ import * as Pin from './Pin/Pin';
 import * as CampusBuildingOverlay from './CampusBuildingOverlay/CampusBuildingOverlay';
 import * as ZoomButton from './ZoomButton/ZoomButton';
 import * as LegendButton from './LegendButton/LegendButton';
+import * as ContextMenu from './ContextMenu/ContextMenu';
 
 export default [
   MapTile,
@@ -20,4 +21,5 @@ export default [
   ZoomButton,
   NearestResultMobile,
   LegendButton,
+  ContextMenu,
 ];
