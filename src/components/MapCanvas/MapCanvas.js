@@ -244,7 +244,7 @@ class MapCanvas extends Component {
             <div className={style.floor}>
               {get(floors, `${floor}.name`)
                 ? `Floor ${floors[floor].name} - ${buildings[floors[floor].buildingId].name}`
-                : `${buildings[floors[floor].buildingId].name}`}
+                : floor && `${buildings[floors[floor].buildingId].name}`}
             </div>
             <div className={style.buttons}>
               <a
