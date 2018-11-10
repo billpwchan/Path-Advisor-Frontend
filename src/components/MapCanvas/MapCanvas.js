@@ -249,7 +249,7 @@ class MapCanvas extends Component {
             <div className={style.buttons}>
               <a
                 className={style.button}
-                href="http://pathadvisor.ust.hk/suggestions.html"
+                href="/suggestions.html"
                 rel="noopener noreferrer"
                 target="_blank"
               >
