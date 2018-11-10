@@ -242,8 +242,9 @@ class MapCanvas extends Component {
         {!isMobile ? (
           <div className={style.title}>
             <div className={style.floor}>
-              {get(floors, `${floor}.name`) &&
-                `Floor ${floors[floor].name} - ${buildings[floors[floor].buildingId].name}`}
+              {get(floors, `${floor}.name`)
+                ? `Floor ${floors[floor].name} - ${buildings[floors[floor].buildingId].name}`
+                : `${buildings[floors[floor].buildingId].name}`}
             </div>
             <div className={style.buttons}>
               <a
@@ -285,6 +286,7 @@ class MapCanvas extends Component {
                   key={id}
                   {...pick(
                     {
+                      canvas: this.canvasHandler.getCanvas(),
                       ...urlParams,
                       ...this.state,
                       ...this.canvasHandler.getProps(),

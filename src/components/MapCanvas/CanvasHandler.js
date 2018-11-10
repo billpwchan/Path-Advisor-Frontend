@@ -1,4 +1,5 @@
 import get from 'lodash.get';
+import { list } from 'postcss';
 import calculateTextDimension from './calculateTextDimension';
 import stableSort from './stableSort';
 import addTouchEventHandler from './addTouchEventHandler';
@@ -195,6 +196,9 @@ class CanvasHandler {
   /** @type {function[]} - canvas wheel listeners */
   wheelListeners = [];
 
+  /** @type {function[]} - canvas wheel listeners */
+  contextMenuListeners = [];
+
   /** @type {function[]} - canvas position changed listeners */
   positionChangeListeners = [];
 
@@ -299,6 +303,7 @@ class CanvasHandler {
 
   /**
    * @typedef CanvasEvent
+   * @property {object} [originalEvent]
    * @property {number} x
    * @property {number} y
    * @property {number} leftX
@@ -324,6 +329,10 @@ class CanvasHandler {
    * @property {number} [newY]
    * @property {number} [newLeftX]
    * @property {number} [newTopY]
+   * @property {number} [clientX]
+   * @property {number} [clientY]
+   * @property {number} [clientMapX]
+   * @property {number} [clientMapY]
    */
 
   /**
@@ -386,6 +395,14 @@ class CanvasHandler {
    */
   addWheelListener(listener) {
     this.wheelListeners.push(listener);
+  }
+
+  /**
+   * add user defined context menu listeners
+   * @param {canvasListener} listener
+   */
+  addContextMenuListener(listener) {
+    this.contextMenuListeners.push(listener);
   }
 
   /**
@@ -519,14 +536,21 @@ class CanvasHandler {
 
       const { x: prevX, y: prevY } = this;
 
-      const mouseMoveListener = mouseDownEvent => {
-        const { clientX: currentX, clientY: currentY } = mouseDownEvent;
+      const mouseMoveListener = mouseMoveEvent => {
+        const { clientX: currentX, clientY: currentY } = mouseMoveEvent;
         let newX = prevX + this.normalizeCoordinate(downX - currentX);
         let newY = prevY + this.normalizeCoordinate(downY - currentY);
 
         this.mouseMoveListeners.forEach(listener => {
+          const [clientX, clientY] = this.getCanvasXYFromMouseXY(
+            mouseMoveEvent.clientX,
+            mouseMoveEvent.clientY,
+          );
           [newX, newY] = listener(
             this.getListenerParamObject({
+              originalEvent: mouseMoveEvent,
+              clientX,
+              clientY,
               newX,
               newY,
               newLeftX: newX - this.getNormalizedWidth() / 2,
@@ -538,11 +562,15 @@ class CanvasHandler {
         this.updatePosition(newX, newY);
       };
 
-      const mouseUpListener = () => {
+      const mouseUpListener = mouseUpEvent => {
         document.removeEventListener('mousemove', mouseMoveListener);
         document.removeEventListener('mouseup', mouseUpListener);
         this.mouseUpListeners.forEach(listener => {
-          listener(this.getListenerParamObject());
+          const [clientX, clientY] = this.getCanvasXYFromMouseXY(
+            mouseUpEvent.clientX,
+            mouseUpEvent.clientY,
+          );
+          listener(this.getListenerParamObject({ originalEvent: mouseUpEvent, clientX, clientY }));
         });
       };
 
@@ -553,7 +581,24 @@ class CanvasHandler {
     this.canvas.addEventListener('wheel', e => {
       this.wheelListeners.forEach(listener => {
         const wheelDelta = Math.sign(e.deltaY);
-        listener(this.getListenerParamObject({ wheelDelta }));
+        listener(this.getListenerParamObject({ originalEvent: e, wheelDelta }));
+      });
+    });
+
+    this.canvas.addEventListener('contextmenu', e => {
+      this.contextMenuListeners.forEach(listener => {
+        const [clientX, clientY] = this.getCanvasXYFromMouseXY(e.clientX, e.clientY);
+        const clientMapX = this.normalizeCoordinate(clientX) + this.getLeftX();
+        const clientMapY = this.normalizeCoordinate(clientY) + this.getTopY();
+        listener(
+          this.getListenerParamObject({
+            originalEvent: e,
+            clientX,
+            clientY,
+            clientMapX,
+            clientMapY,
+          }),
+        );
       });
     });
 
@@ -593,12 +638,17 @@ class CanvasHandler {
     return nextLevel > maxLevel ? maxLevel : nextLevel;
   }
 
+  getCanvasXYFromMouseXY(mouseX, mouseY) {
+    const canvasCoordinate = this.canvas.getBoundingClientRect();
+    return [mouseX - canvasCoordinate.left, mouseY - canvasCoordinate.top];
+  }
+
   setUpListener(event) {
     this.getCanvas().addEventListener(event, e => {
       const { clientX, clientY } = e;
-      const canvasCoordinate = this.canvas.getBoundingClientRect();
-      const x = clientX - canvasCoordinate.left + this.getScreenLeftX();
-      const y = clientY - canvasCoordinate.top + this.getScreenTopY();
+      let [x, y] = this.getCanvasXYFromMouseXY(clientX, clientY);
+      x += this.getScreenLeftX();
+      y += this.getScreenTopY();
 
       const visitedItemIds = new Set();
 
@@ -1289,6 +1339,10 @@ class CanvasHandler {
       this.removeMapItemListener('mouseover', id, mapItemId),
     removeMapItemMouseOutListener: (id, mapItemId) =>
       this.removeMapItemListener('mouseout', id, mapItemId),
+    // canvas root element listener
+    addCanvasMouseUpListener: listener => this.addMouseUpListener(listener),
+    addCanvasMouseMoveListener: listener => this.addMouseMoveListener(listener),
+    addCanvasContextMenuListener: listener => this.addContextMenuListener(listener),
   };
 
   getProps() {

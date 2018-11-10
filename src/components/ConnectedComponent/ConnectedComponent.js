@@ -16,6 +16,7 @@ const paramStateMap = {
 
 const urlParams = ['place', 'from', 'to', 'x', 'y', 'level', 'floor'];
 const canvasParams = [
+  'canvas',
   'width',
   'height',
   'normalizedWidth',
