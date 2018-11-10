@@ -92,6 +92,8 @@ class SearchNearest extends Component {
     children: PropTypes.node,
   };
 
+  dropDownRef = React.createRef();
+
   state = {
     hideDropDown: true,
   };
@@ -105,6 +107,19 @@ class SearchNearest extends Component {
       menuOptions: rootMenuOptions(direction),
     };
   }
+
+  hideIfClickOutSideListener = e => {
+    let node = e.target;
+    while (node !== null) {
+      if (node === this.dropDownRef.current) {
+        return;
+      }
+      node = node.parentElement;
+    }
+
+    this.hideDropDown();
+    document.removeEventListener('click', this.hideIfClickOutSideListener);
+  };
 
   selectDropDownItem = (name, children, data) => () => {
     const { onNearestItemClick, direction } = this.props;
@@ -130,6 +145,8 @@ class SearchNearest extends Component {
     this.setState({
       hideDropDown: false,
     });
+
+    document.addEventListener('click', this.hideIfClickOutSideListener);
   };
 
   hideDropDown = () => {
@@ -154,7 +171,7 @@ class SearchNearest extends Component {
           <span className={style.arrowDown} />
         </button>
         {!hideDropDown && (
-          <ul className={style.dropDownList}>
+          <ul ref={this.dropDownRef} className={style.dropDownList}>
             {React.Children.map(children, child => (
               <li className={style.dropDownListItem}>
                 {React.cloneElement(child, { onClickHook: this.hideDropDown })}
