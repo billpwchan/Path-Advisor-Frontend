@@ -18,11 +18,18 @@ There are six types of plugin for this project. They are `PrimaryPanelPlugin`, `
 
 Current x coordinate of the center of the map canvas.
 
+This x value does not change when user is moving the map until the user releases the mouse click.
+If you want a dynamic value, see property with `moving` prefix like `movingX`.
+
 <!-- [y](properties/y.md ':include') -->
 #### y
 `y` - number
 
 Current y coordinate of the center of the map canvas.
+
+This y value does not change when user is moving the map until the user releases the mouse click.
+If you want a dynamic value, see property with `moving` prefix like `movingY`.
+
 
 <!-- [level](properties/level.md ':include') -->
 #### level
@@ -428,13 +435,17 @@ Next possible zoom level value that represents a larger scale value. Value Will 
 
 Previous zoom level that represents a smaller scale value. Value will be the same as `level` if there is no possible previous zoom level.
 
-####
 <!-- [APIEndpoint](properties/APIEndpoint.md ':include') -->
 
 #### APIEndpoint
-`APIEndpoint` - string
+`APIEndpoint` - function
 
-The root API endpoint of the system.
+The function returns the root API endpoint of the system.
+
+#### canvas
+`canvas` - HTMLCanvasElement
+
+Canvas DOM element reference
 
 <!-- [addMapTiles](properties/addMapTiles.md ':include') -->
 #### addMapTiles
@@ -628,6 +639,38 @@ Remove a map item mouse out listener.
 `id` - string - Id of the listener to be removed.
 
 `mapItemId` - string - Id of the map item listener to be removed.
+
+#### addCanvasMouseUpListener
+`addCanvasMouseUpListener(listener) - function`
+
+**Usually you don't need this.**
+
+You can use `addMapItemClickListener` or `setMapItems` and add a onClick handler for the map items on the canvas.
+
+Add a mouse up listener to canvas element.
+The listener will receive an custom event with current position information and mouse cursor position relative to the canvas element.
+If you need to access the origin event from browser, you can it from `originalEvent` property.
+
+
+#### addCanvasMouseMoveListener
+`addCanvasMouseMoveListener(listener) - function`
+
+**Usually you don't need this.**
+
+If you just want the current x, y coordinates and keep track of the changes, you can simply connect to `movingX` and `movingY` property. This is usually for developers who want to restrict users' drag and drop action to some extend.
+
+Add a mouse move listener to canvas element.
+The listener will receive an custom event with current position information and mouse cursor position relative to the canvas element.
+If you need to access the origin event from browser, you can it from `originalEvent` property.
+
+
+#### addCanvasContextMenuListener
+`addCanvasContextMenuListener(listener) - function`
+
+Add a context menu listener to canvas element.
+
+The listener will receive an custom event with current position information and mouse cursor position relative to the canvas element.
+If you need to access the origin event from browser, you can it from `originalEvent` property.
 
 ## OverlayHeaderPlugin
 
