@@ -1,16 +1,52 @@
 import React, { Component } from 'react';
 import style from './ContextMenu.module.css';
+import fetchMapItemByCoorRequest from '../../sagas/requests/fetchMapItemByCoorRequest';
 
 class ContextMenu extends Component {
-  state = { isContextMenuDisplay: false, clientX: null, clientY: null };
+  state = {
+    menuTitle: null,
+    isContextMenuDisplay: false,
+    clientX: null,
+    clientY: null,
+    clientMapX: null,
+    clientMapY: null,
+    nodeId: null,
+  };
 
   ref = React.createRef();
 
   componentDidMount() {
-    this.props.addCanvasContextMenuListener(({ originalEvent, clientX, clientY }) => {
-      originalEvent.preventDefault();
-      this.setState({ isContextMenuDisplay: true, clientX, clientY });
-    });
+    this.props.addCanvasContextMenuListener(
+      async ({ originalEvent, clientX, clientY, clientMapX, clientMapY }) => {
+        const {
+          floorStore: { floors, buildings },
+          floor,
+        } = this.props;
+
+        originalEvent.preventDefault();
+        const menuTitle = `${
+          floors && floors[floor] && floors[floor].name
+            ? `Floor ${floors[floor].name} - ${buildings[floors[floor].buildingId].name}`
+            : buildings[floors[floor].buildingId].name
+        } (${clientMapX}, ${clientMapY})`;
+
+        this.setState({
+          nodeId: null,
+          menuTitle,
+          isContextMenuDisplay: true,
+          clientX,
+          clientY,
+          clientMapX,
+          clientMapY,
+        });
+
+        const {
+          data: { name, nodeId },
+        } = await fetchMapItemByCoorRequest(floor, clientMapX, clientMapY);
+
+        this.setState(name ? { menuTitle: name, nodeId } : { nodeId });
+      },
+    );
 
     document.addEventListener('mousedown', e => {
       let node = e.target;
@@ -31,25 +67,39 @@ class ContextMenu extends Component {
   };
 
   suggestLocation = () => {
-    const { clientX, clientY } = this.state;
-    const { APIEndpoint, floor, movingLeftX, movingTopY } = this.props;
+    const { clientMapX, clientMapY } = this.state;
+    const { APIEndpoint, floor } = this.props;
     window.open(
-      `${APIEndpoint()}/suggest.php?type=location&floor=${floor}&x=${clientX +
-        movingLeftX}&y=${clientY + movingTopY}`,
+      `${APIEndpoint()}/suggest.php?type=location&floor=${floor}&x=${clientMapX}&y=${clientMapY}`,
       '_blank',
       'height=300,width=350',
     );
     this.hideContextMenu();
   };
 
+  setLocation = direction => () => {
+    const { linkTo, floor } = this.props;
+    const { clientMapX, clientMapY, menuTitle, nodeId } = this.state;
+
+    linkTo({
+      search: true,
+      [direction]: {
+        name: menuTitle,
+        data: {
+          id: nodeId,
+          type: 'nodeId',
+          floor,
+          value: menuTitle,
+          coordinates: [clientMapX, clientMapY],
+        },
+      },
+    });
+
+    this.hideContextMenu();
+  };
+
   render() {
-    const { isContextMenuDisplay, clientX, clientY } = this.state;
-    const {
-      floorStore: { floors, buildings },
-      floor,
-      movingLeftX,
-      movingTopY,
-    } = this.props;
+    const { menuTitle, isContextMenuDisplay, clientX, clientY, nodeId } = this.state;
     return isContextMenuDisplay ? (
       <ul
         ref={this.ref}
@@ -59,22 +109,23 @@ class ContextMenu extends Component {
           e.preventDefault();
         }}
       >
-        <li className={style.heading}>
-          {floors && floors[floor] && floors[floor].name
-            ? `Floor ${floors[floor].name} - ${buildings[floors[floor].buildingId].name}`
-            : `${buildings[floors[floor].buildingId].name}`}{' '}
-          ({clientX + movingLeftX},{clientY + movingTopY})
-        </li>
-        {/* <li>
-          <button type="button" className={style.button} onClick={() => console.log('ok')}>
-            Starts from here
-          </button>
-        </li>
-        <li>
-          <button type="button" className={style.button}>
-            Stops to here
-          </button>
-        </li> */}
+        <li className={style.heading}>{menuTitle}</li>
+        {nodeId ? (
+          <>
+            <li>
+              <button type="button" className={style.button} onClick={this.setLocation('from')}>
+                Starts from here
+              </button>
+            </li>
+            <li>
+              <button type="button" className={style.button} onClick={this.setLocation('to')}>
+                Stops to here
+              </button>
+            </li>
+          </>
+        ) : (
+          <li className={style.heading}> Loading location... </li>
+        )}
         <li>
           <button type="button" className={style.button} onClick={this.suggestLocation}>
             Suggests a location here
@@ -87,14 +138,7 @@ class ContextMenu extends Component {
 
 const MapCanvasPlugin = {
   Component: ContextMenu,
-  connect: [
-    'addCanvasContextMenuListener',
-    'floorStore',
-    'floor',
-    'movingLeftX',
-    'movingTopY',
-    'APIEndpoint',
-  ],
+  connect: ['addCanvasContextMenuListener', 'floorStore', 'floor', 'APIEndpoint', 'linkTo'],
 };
 
 const id = 'CONTEXT_MENU';
