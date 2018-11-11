@@ -14,7 +14,7 @@ function formPlaceUrl(place) {
   const {
     data: { type, value, id, floor, coordinates },
   } = place;
-  if (type === INPUT_TYPE.ID) {
+  if (type === INPUT_TYPE.ID || type === INPUT_TYPE.NODE_ID) {
     return `/${value};${id};${floor};${coordinates.join(',')}`;
   }
   return `/${value}`;
@@ -39,7 +39,7 @@ function parsePlace(place) {
           id,
           floor,
           value: name,
-          type: INPUT_TYPE.ID,
+          type: id.startsWith('n') ? INPUT_TYPE.NODE_ID : INPUT_TYPE.ID,
           coordinates: [x, y],
         },
       }
@@ -113,7 +113,12 @@ function parseParams(params, query, platform) {
 export const placePropTypes = PropTypes.shape({
   name: PropTypes.string.isRequired,
   data: PropTypes.shape({
-    type: PropTypes.oneOf([INPUT_TYPE.ID, INPUT_TYPE.KEYWORD, INPUT_TYPE.NEAREST]).isRequired,
+    type: PropTypes.oneOf([
+      INPUT_TYPE.NODE_ID,
+      INPUT_TYPE.ID,
+      INPUT_TYPE.KEYWORD,
+      INPUT_TYPE.NEAREST,
+    ]).isRequired,
     value: PropTypes.string.isRequired,
     id: PropTypes.string,
     floor: PropTypes.string,

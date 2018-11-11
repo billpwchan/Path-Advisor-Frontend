@@ -60,7 +60,7 @@ The "from" input field data in the following format:
     id: string, /* Id of the search object */
     floor: string, /* Floor of the search object */
     value: string, /* Value of the search object */
-    type: "id", /* Search object type, full information search object type must be "id" */
+    type: "id", /* Search object type, full information search object type must be "id" for room id or "nodeId" for a node id */
     coordinates: [
       number, /* x coordinate of the search object */
       number  /* y coordinate of the search object */

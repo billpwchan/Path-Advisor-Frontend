@@ -164,9 +164,13 @@ class SearchArea extends Component {
     } else {
       // point to point search
       const searchFrom =
-        fromType === INPUT_TYPE.KEYWORD ? { keyword: fromValue } : { id: fromId, floor: fromFloor };
+        fromType === INPUT_TYPE.KEYWORD
+          ? { keyword: fromValue }
+          : { [fromType === INPUT_TYPE.NODE_ID ? 'nodeId' : 'id']: fromId, floor: fromFloor };
       const searchTo =
-        toType === INPUT_TYPE.KEYWORD ? { keyword: toValue } : { id: toId, floor: toFloor };
+        toType === INPUT_TYPE.KEYWORD
+          ? { keyword: toValue }
+          : { [toType === INPUT_TYPE.NODE_ID ? 'nodeId' : 'id']: toId, floor: toFloor };
 
       searchShortestPathHandler(searchFrom, searchTo);
     }

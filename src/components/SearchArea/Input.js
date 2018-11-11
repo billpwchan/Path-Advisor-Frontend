@@ -1,5 +1,6 @@
 const TYPE = {
   ID: 'id',
+  NODE_ID: 'nodeId',
   KEYWORD: 'keyword',
   NEAREST: 'nearest',
 };
