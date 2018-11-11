@@ -9,6 +9,7 @@ import * as CampusBuildingOverlay from './CampusBuildingOverlay/CampusBuildingOv
 import * as ZoomButton from './ZoomButton/ZoomButton';
 import * as LegendButton from './LegendButton/LegendButton';
 import * as ContextMenu from './ContextMenu/ContextMenu';
+import * as LiveView from './LiveView/LiveView';
 
 export default [
   MapTile,
@@ -22,4 +23,5 @@ export default [
   NearestResultMobile,
   LegendButton,
   ContextMenu,
+  LiveView,
 ];

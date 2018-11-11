@@ -204,13 +204,22 @@ class MapItem extends Component {
               break;
             }
             default: {
-              if (type === 'restaurant') {
+              if (type === 'restaurant' || type === 'video') {
                 accumulator.push({
                   ...baseMapItem,
-                  id: `${floor}_${id}_restaurant`,
+                  id: `${floor}_${id}_${type}`,
                   x: x + marginLeft,
                   y: y + marginTop,
                   image: createImage(legends[type].image),
+                  onClick: () => {
+                    if (photo || url || others) openOverlayHandler(name, photo, url, others);
+                  },
+                  onMouseOver: () => {
+                    document.body.style.cursor = 'pointer';
+                  },
+                  onMouseOut: () => {
+                    document.body.style.cursor = 'auto';
+                  },
                   ...LEGEND_DIMENSION,
                 });
               }
