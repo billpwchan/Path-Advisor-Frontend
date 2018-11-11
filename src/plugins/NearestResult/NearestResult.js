@@ -29,7 +29,10 @@ class NearestResult extends Component {
     const {
       floorStore: { floors, buildings },
     } = this.props;
-    return `Floor ${floors[floor].name}, ${buildings[floors[floor].buildingId].name}`;
+
+    return floors[floor].name
+      ? `Floor ${floors[floor].name}, ${buildings[floors[floor].buildingId].name}`
+      : buildings[floors[floor].buildingId].name;
   }
 
   render() {

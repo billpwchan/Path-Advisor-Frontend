@@ -54,7 +54,11 @@ class ShortestResultPrimaryPanel extends Component {
     };
 
     const getBuildingAndFloorText = floor =>
-      `Floor ${floors[floor].name}, ${buildings[floors[floor].buildingId].name}`;
+      floors[floor].name
+        ? `Floor ${floors[floor].name}, ${buildings[floors[floor].buildingId].name}`
+        : buildings[floors[floor].buildingId].name;
+
+    const formNameFromCoordinate = place => `(${place.coordinates.join(', ')})`;
 
     const { paths = [] } = searchShortestPathStore;
 
@@ -127,7 +131,8 @@ class ShortestResultPrimaryPanel extends Component {
                           });
                         }}
                       >
-                        From {from.name} to {to.name}
+                        From {from.name || formNameFromCoordinate(from)} to{' '}
+                        {to.name || formNameFromCoordinate(to)}
                       </button>
                       {nextFloor && (
                         <button
@@ -141,7 +146,9 @@ class ShortestResultPrimaryPanel extends Component {
                             });
                           }}
                         >
-                          Take {to.name} to floor {floors[nextFloor].name}
+                          {to.type === 'lift'
+                            ? `Take ${to.name} to floor ${floors[nextFloor].name}`
+                            : null}
                         </button>
                       )}
                     </div>
