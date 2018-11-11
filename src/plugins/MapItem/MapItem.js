@@ -85,7 +85,8 @@ class MapItem extends Component {
             accumulator.push({
               ...baseMapItem,
               id: `${floor}_${id}_photo`,
-              x: x + marginLeft,
+              x,
+              offsetX: marginLeft,
               image: createImage(legends.photo.image),
               ...LEGEND_DIMENSION,
               onClick: () => {
@@ -208,8 +209,10 @@ class MapItem extends Component {
                 accumulator.push({
                   ...baseMapItem,
                   id: `${floor}_${id}_${type}`,
-                  x: x + marginLeft,
-                  y: y + marginTop,
+                  x,
+                  y,
+                  offsetX: marginLeft,
+                  offsetY: marginTop,
                   image: createImage(legends[type].image),
                   onClick: () => {
                     if (photo || url || others) openOverlayHandler(name, photo, url, others);
