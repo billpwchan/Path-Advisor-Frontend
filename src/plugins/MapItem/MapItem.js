@@ -61,200 +61,206 @@ class MapItem extends Component {
     } = this.props;
 
     setMapItems(
-      mapItems.reduce((accumulator, { id, coordinates: [x, y], floor, name, type, photo, url }) => {
-        const marginLeft = -40;
-        let marginTop = 0;
+      mapItems.reduce(
+        (accumulator, { id, coordinates: [x, y], floor, name, type, photo, url, others }) => {
+          const marginLeft = -40;
+          let marginTop = 0;
 
-        const baseMapItem = {
-          id: `${floor}_${id}`,
-          floor,
-          x,
-          y,
-          center: true,
-        };
-        const textMapItem = {
-          ...baseMapItem,
-          textElement: {
-            ...DEFAULT_TEXT_STYLE,
-            text: convertName(name),
-          },
-        };
-
-        if (photo) {
-          accumulator.push({
+          const baseMapItem = {
+            id: `${floor}_${id}`,
+            floor,
+            x,
+            y,
+            center: true,
+          };
+          const textMapItem = {
             ...baseMapItem,
-            id: `${floor}_${id}_photo`,
-            x: x + marginLeft,
-            image: createImage(legends.photo.image),
-            ...LEGEND_DIMENSION,
-            onClick: () => {
-              openOverlayHandler(name, photo, url);
+            textElement: {
+              ...DEFAULT_TEXT_STYLE,
+              text: convertName(name),
             },
-            onMouseOver: () => {
-              document.body.style.cursor = 'pointer';
-            },
-            onMouseOut: () => {
-              document.body.style.cursor = 'auto';
-            },
-          });
+          };
 
-          marginTop += 20;
-        }
-
-        switch (type) {
-          case 'maleToilet':
-          case 'femaleToilet':
-          case 'stair':
-          case 'expressStation':
-          case 'drinkingFountain':
-          case 'atm':
-          case 'mailbox':
-          case 'taxiStand':
-          case 'virtualBarnWorkstation':
-          case 'satellitePrinter':
+          if (photo) {
             accumulator.push({
               ...baseMapItem,
-              image: createImage(legends[type].image),
+              id: `${floor}_${id}_photo`,
+              x: x + marginLeft,
+              image: createImage(legends.photo.image),
               ...LEGEND_DIMENSION,
-            });
-            break;
-          case 'crossBuildingConnector':
-          case 'escalator':
-            accumulator.push({
-              ...baseMapItem,
-              image: createImage(legends[type].image),
-              ...LEGEND_DIMENSION,
-              onMouseOver: () => {
-                document.body.style.cursor = 'pointer';
-              },
-              onMouseOut: () => {
-                document.body.style.cursor = 'auto';
-              },
-            });
-            break;
-          case 'lift': {
-            if (platform !== 'MOBILE') {
-              accumulator.push({
-                ...baseMapItem,
-                id: `${floor}_${id}_circle`,
-                circle: {
-                  ...DEFAULT_CIRCLE_STYLE,
-                },
-                onMouseOver: () => {
-                  setMapItems([
-                    {
-                      id: `${floor}_${id}_circle`,
-                      circle: {
-                        ...DEFAULT_CIRCLE_STYLE,
-                        color: 'lightyellow',
-                      },
-                    },
-                  ]);
-                },
-                onMouseOut: () => {
-                  setMapItems([
-                    {
-                      id: `${floor}_${id}_circle`,
-                      circle: {
-                        ...DEFAULT_CIRCLE_STYLE,
-                      },
-                    },
-                  ]);
-                },
-              });
-            }
-
-            const liftMapItem =
-              platform === 'MOBILE'
-                ? { image: createImage(legends[type].image), ...LEGEND_DIMENSION }
-                : {
-                    textElement: {
-                      ...DEFAULT_TEXT_STYLE,
-                      maxLineWidth: 30,
-                      text: name,
-                    },
-                    id: `${floor}_${id}`,
-                    customHitX: x - CIRCLE_RADIUS,
-                    customHitY: y - CIRCLE_RADIUS,
-                    customHitWidth: CIRCLE_RADIUS * 2,
-                    customHitHeight: CIRCLE_RADIUS * 2,
-                  };
-
-            accumulator.push({
-              ...baseMapItem,
-              ...liftMapItem,
-              onMouseOver: () => {
-                document.body.style.cursor = 'pointer';
-              },
-
-              onMouseOut: () => {
-                document.body.style.cursor = 'auto';
-              },
-
               onClick: () => {
-                fetchAccessibleFloorsRequest(floor, name).then(({ data: accessibleFloors }) => {
-                  openOverlayHandler(name, photo, url, { accessibleFloors });
-                });
+                openOverlayHandler(name, photo, url, others);
+              },
+              onMouseOver: () => {
+                document.body.style.cursor = 'pointer';
+              },
+              onMouseOut: () => {
+                document.body.style.cursor = 'auto';
               },
             });
-            break;
+
+            marginTop += 20;
           }
-          default: {
-            if (type === 'restaurant') {
+
+          switch (type) {
+            case 'maleToilet':
+            case 'femaleToilet':
+            case 'stair':
+            case 'expressStation':
+            case 'drinkingFountain':
+            case 'atm':
+            case 'mailbox':
+            case 'taxiStand':
+            case 'virtualBarnWorkstation':
+            case 'satellitePrinter':
               accumulator.push({
                 ...baseMapItem,
-                id: `${floor}_${id}_restaurant`,
-                x: x + marginLeft,
-                y: y + marginTop,
                 image: createImage(legends[type].image),
                 ...LEGEND_DIMENSION,
               });
+              break;
+            case 'crossBuildingConnector':
+            case 'escalator':
+              accumulator.push({
+                ...baseMapItem,
+                image: createImage(legends[type].image),
+                ...LEGEND_DIMENSION,
+                onMouseOver: () => {
+                  document.body.style.cursor = 'pointer';
+                },
+                onMouseOut: () => {
+                  document.body.style.cursor = 'auto';
+                },
+              });
+              break;
+            case 'lift': {
+              if (platform !== 'MOBILE') {
+                accumulator.push({
+                  ...baseMapItem,
+                  id: `${floor}_${id}_circle`,
+                  circle: {
+                    ...DEFAULT_CIRCLE_STYLE,
+                  },
+                  onMouseOver: () => {
+                    setMapItems([
+                      {
+                        id: `${floor}_${id}_circle`,
+                        circle: {
+                          ...DEFAULT_CIRCLE_STYLE,
+                          color: 'lightyellow',
+                        },
+                      },
+                    ]);
+                  },
+                  onMouseOut: () => {
+                    setMapItems([
+                      {
+                        id: `${floor}_${id}_circle`,
+                        circle: {
+                          ...DEFAULT_CIRCLE_STYLE,
+                        },
+                      },
+                    ]);
+                  },
+                });
+              }
+
+              const liftMapItem =
+                platform === 'MOBILE'
+                  ? { image: createImage(legends[type].image), ...LEGEND_DIMENSION }
+                  : {
+                      textElement: {
+                        ...DEFAULT_TEXT_STYLE,
+                        maxLineWidth: 30,
+                        text: name,
+                      },
+                      id: `${floor}_${id}`,
+                      customHitX: x - CIRCLE_RADIUS,
+                      customHitY: y - CIRCLE_RADIUS,
+                      customHitWidth: CIRCLE_RADIUS * 2,
+                      customHitHeight: CIRCLE_RADIUS * 2,
+                    };
+
+              accumulator.push({
+                ...baseMapItem,
+                ...liftMapItem,
+                onMouseOver: () => {
+                  document.body.style.cursor = 'pointer';
+                },
+
+                onMouseOut: () => {
+                  document.body.style.cursor = 'auto';
+                },
+
+                onClick: () => {
+                  fetchAccessibleFloorsRequest(floor, name).then(({ data: accessibleFloors }) => {
+                    openOverlayHandler(name, photo, url, {
+                      ...(others || {}),
+                      accessibleFloors,
+                    });
+                  });
+                },
+              });
+              break;
             }
+            default: {
+              if (type === 'restaurant') {
+                accumulator.push({
+                  ...baseMapItem,
+                  id: `${floor}_${id}_restaurant`,
+                  x: x + marginLeft,
+                  y: y + marginTop,
+                  image: createImage(legends[type].image),
+                  ...LEGEND_DIMENSION,
+                });
+              }
 
-            const extraTextStyle = photo || url ? { color: 'blue' } : {};
+              const extraTextStyle = photo || url || others ? { color: 'blue' } : {};
 
-            accumulator.push({
-              ...textMapItem,
-              textElement: {
-                ...textMapItem.textElement,
-                ...extraTextStyle,
-              },
+              accumulator.push({
+                ...textMapItem,
+                textElement: {
+                  ...textMapItem.textElement,
+                  ...extraTextStyle,
+                },
 
-              onClick: () => {
-                if (photo || url) openOverlayHandler(name, photo, url);
-              },
+                onClick: () => {
+                  if (photo || url || others) openOverlayHandler(name, photo, url, others);
+                },
 
-              onMouseOver: () => {
-                document.body.style.cursor = 'pointer';
-                setMapItems([
-                  {
-                    ...textMapItem,
-                    textElement: {
-                      ...textMapItem.textElement,
-                      color: 'lightblue',
+                onMouseOver: () => {
+                  document.body.style.cursor = 'pointer';
+                  setMapItems([
+                    {
+                      ...textMapItem,
+                      textElement: {
+                        ...textMapItem.textElement,
+                        color: 'lightblue',
+                      },
                     },
-                  },
-                ]);
-              },
+                  ]);
+                },
 
-              onMouseOut: () => {
-                document.body.style.cursor = 'auto';
-                setMapItems([
-                  {
-                    ...textMapItem,
-                    textElement: {
-                      ...textMapItem.textElement,
-                      ...extraTextStyle,
+                onMouseOut: () => {
+                  document.body.style.cursor = 'auto';
+                  setMapItems([
+                    {
+                      ...textMapItem,
+                      textElement: {
+                        ...textMapItem.textElement,
+                        ...extraTextStyle,
+                      },
                     },
-                  },
-                ]);
-              },
-            });
+                  ]);
+                },
+              });
+            }
           }
-        }
 
-        return accumulator;
-      }, []),
+          return accumulator;
+        },
+        [],
+      ),
     );
 
     return null;

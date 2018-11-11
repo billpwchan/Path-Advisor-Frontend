@@ -1,3 +1,5 @@
+import plugins from '../plugins';
+
 export const GET_MAP_ITEMS = 'GET_MAP_ITEMS';
 export const GET_MAP_ITEMS_SUCCESS = 'GET_MAP_ITEMS_SUCCESS';
 export const GET_MAP_ITEMS_FAILURE = 'GET_MAP_ITEMS_FAILURE';
@@ -17,9 +19,18 @@ export function getMapItemsAction(floor, coordinates, width, height) {
 }
 
 export function getMapItemsSuccessAction(mapItems) {
+  let mutatedMapItems = mapItems;
+
+  plugins.forEach(({ MapItemStoreMutation }) => {
+    if (!MapItemStoreMutation) {
+      return;
+    }
+    mutatedMapItems = MapItemStoreMutation(mutatedMapItems);
+  });
+
   return {
     type: GET_MAP_ITEMS_SUCCESS,
-    payload: { mapItems },
+    payload: { mapItems: mutatedMapItems },
   };
 }
 

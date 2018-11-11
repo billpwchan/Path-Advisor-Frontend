@@ -49,6 +49,7 @@ function fetchMapItemsResponseWrapper(data, floor) {
           ? null
           : `${APIEndpoint()}/map_image/${floor}/${mapItemValues[3]}.jpg`,
       url: mapItemValues[4] === 'null' ? null : prependHttp(mapItemValues[4]),
+      others: null,
     };
   });
 }
