@@ -63,6 +63,17 @@ class MapItem extends Component {
     setMapItems(
       mapItems.reduce(
         (accumulator, { id, coordinates: [x, y], floor, name, type, photo, url, others }) => {
+          // TO-FIX: hardcoding liveview info here before there is a API for it.
+          if (name.toUpperCase() === 'NORTH BUS STOP' || name.toUpperCase() === 'SOUTH BUS STOP') {
+            // eslint-disable-next-line
+            others = {
+              liveView: {
+                url: 'http://liveview.ust.hk',
+                iframeUrl: '/liveview.html',
+              },
+            };
+          }
+
           const marginLeft = -40;
           let marginTop = 0;
 
@@ -205,7 +216,7 @@ class MapItem extends Component {
               break;
             }
             default: {
-              if (type === 'restaurant' || type === 'video') {
+              if (type === 'restaurant') {
                 accumulator.push({
                   ...baseMapItem,
                   id: `${floor}_${id}_${type}`,

@@ -30,19 +30,65 @@ const MobileOverlayContentPlugin = {
   Component: LiveViewOverlayContent(mobileStyle),
 };
 
-const MapItemStoreMutation = mapItems =>
-  mapItems.map(item => {
-    const mapItem = { ...item };
-    const name = mapItem.name && mapItem.name.toUpperCase();
-    if (name === 'NORTH BUS STOP' || name === 'SOUTH BUS STOP') {
-      mapItem.type = 'video';
-      mapItem.others = mapItem.others ? mapItem.others : {};
-      mapItem.others.liveView = {
-        url: 'http://liveview.ust.hk',
-        iframeUrl: '/liveview.html',
-      };
-    }
-    return mapItem;
-  });
+function createImage(src) {
+  const img = new Image();
+  img.src = src;
+  return img;
+}
 
-export { id, OverlayContentPlugin, MobileOverlayContentPlugin, MapItemStoreMutation };
+function LiveViewVideoLegend({
+  mapItemStore: { mapItems },
+  setMapItems,
+  legendStore: { legends },
+  openOverlayHandler,
+}) {
+  const videoLegends = mapItems
+    .filter(
+      ({ name = '' }) =>
+        name.toUpperCase() === 'NORTH BUS STOP' || name.toUpperCase() === 'SOUTH BUS STOP',
+    )
+    .map(({ id: itemId, coordinates: [x, y], floor, name, photo, url, others }) => {
+      // TO-FIX: hardcoding liveview info here before there is a API for it.
+      if (name.toUpperCase() === 'NORTH BUS STOP' || name.toUpperCase() === 'SOUTH BUS STOP') {
+        // eslint-disable-next-line
+        others = {
+          liveView: {
+            url: 'http://liveview.ust.hk',
+            iframeUrl: '/liveview.html',
+          },
+        };
+      }
+
+      return {
+        id: `${floor}_${itemId}_video`,
+        center: true,
+        x,
+        y,
+        floor,
+        offsetX: -40,
+        image: createImage(legends.video.image),
+        onClick: () => {
+          openOverlayHandler(name, photo, url, others);
+        },
+        onMouseOver: () => {
+          document.body.style.cursor = 'pointer';
+        },
+        onMouseOut: () => {
+          document.body.style.cursor = 'auto';
+        },
+        width: 24,
+        height: 24,
+      };
+    });
+
+  setMapItems(videoLegends);
+
+  return null;
+}
+
+const MapCanvasPlugin = {
+  connect: ['mapItemStore', 'legendStore', 'openOverlayHandler', 'setMapItems', 'platform'],
+  Component: LiveViewVideoLegend,
+};
+
+export { id, MapCanvasPlugin, OverlayContentPlugin, MobileOverlayContentPlugin };
