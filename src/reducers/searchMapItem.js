@@ -35,7 +35,6 @@ export const searchMapItemPropTypes = PropTypes.shape({
   loading: PropTypes.bool.isRequired,
   failure: PropTypes.bool.isRequired,
   success: PropTypes.bool.isRequired,
-  buildingIds: PropTypes.arrayOf(PropTypes.string).isRequired,
   suggestions: PropTypes.arrayOf(
     PropTypes.shape({
       name: PropTypes.string.isRequired,
