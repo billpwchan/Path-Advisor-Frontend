@@ -1,5 +1,4 @@
 import get from 'lodash.get';
-import { list } from 'postcss';
 import calculateTextDimension from './calculateTextDimension';
 import stableSort from './stableSort';
 import addTouchEventHandler from './addTouchEventHandler';
