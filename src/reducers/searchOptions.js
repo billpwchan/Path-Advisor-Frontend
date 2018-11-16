@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import detectPlatform, { PLATFORM } from '../components/Main/detectPlatform';
 
 export const SET_SEARCH_OPTIONS = 'SET_SEARCH_OPTIONS';
 
@@ -16,7 +17,7 @@ export const searchOptionsPropTypes = PropTypes.shape({
 });
 
 const initialState = {
-  sameFloor: true,
+  sameFloor: detectPlatform() === PLATFORM.DESKTOP, // search same floor default to true for desktop app
   noStairCase: true,
   noEscalator: false,
   searchMode: SEARCH_MODES.SHORTEST_TIME,

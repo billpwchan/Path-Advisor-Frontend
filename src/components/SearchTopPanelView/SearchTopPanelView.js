@@ -32,7 +32,6 @@ class SearchTopPanelView extends Component {
   static propTypes = {
     onAutoCompleteItemClick: PropTypes.func.isRequired,
     onKeywordChange: PropTypes.func.isRequired,
-    updateSearchOptions: PropTypes.func.isRequired,
     searchMapItemStore: searchMapItemPropTypes.isRequired,
     floorStore: floorsPropTypes.isRequired,
     from: placePropTypes,
@@ -45,11 +44,6 @@ class SearchTopPanelView extends Component {
     shouldAutoCompleteDisplay: false,
     shouldInputErrorDisplay: false,
   };
-
-  constructor(props) {
-    super(props);
-    this.props.updateSearchOptions({ sameFloor: false });
-  }
 
   componentDidUpdate(prevProps) {
     const { searchMapItemStore, onAutoCompleteItemClick } = this.props;
