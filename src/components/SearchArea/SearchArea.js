@@ -11,6 +11,7 @@ import { setSearchOptionsAction, searchOptionsPropTypes } from '../../reducers/s
 import { floorsPropTypes } from '../../reducers/floors';
 import { placePropTypes } from '../Router/Url';
 import { TYPE as INPUT_TYPE, isEqual as InputIsEqual } from './Input';
+import { MODE as LOG_MODE } from '../Main/logger';
 
 class SearchArea extends Component {
   static propTypes = {
@@ -23,6 +24,7 @@ class SearchArea extends Component {
     floorStore: floorsPropTypes.isRequired,
     SearchView: PropTypes.func.isRequired,
     linkTo: PropTypes.func.isRequired,
+    logger: PropTypes.func.isRequired,
     setSearchOptionsHandler: PropTypes.func.isRequired,
     searchOptionsStore: searchOptionsPropTypes.isRequired,
     displayAdvancedSearch: PropTypes.bool,
@@ -43,10 +45,10 @@ class SearchArea extends Component {
   }
 
   componentDidMount() {
+    console.log('searchArea mount', this.props.search, this.props.to);
     if (this.props.search) {
       this.search();
     }
-    console.log('searchArea mount', this.props.to);
   }
 
   componentDidUpdate(prevProps) {
@@ -148,6 +150,7 @@ class SearchArea extends Component {
       to: {
         data: { type: toType, id: toId, floor: toFloor, value: toValue },
       },
+      logger,
     } = this.props;
 
     if ((!fromValue && !fromId) || (!toValue && !toId)) {
@@ -156,6 +159,8 @@ class SearchArea extends Component {
 
     clearSearchNearestResultHandler();
     clearSearchShortestPathResultHandler();
+
+    let logMode = LOG_MODE.NORMAL;
 
     if (fromType === INPUT_TYPE.NEAREST) {
       searchNearestHandler(toFloor, toValue, fromValue, sameFloor, toId);
@@ -173,7 +178,17 @@ class SearchArea extends Component {
           : { [toType === INPUT_TYPE.NODE_ID ? 'nodeId' : 'id']: toId, floor: toFloor };
 
       searchShortestPathHandler(searchFrom, searchTo);
+
+      if (fromId && toId) {
+        logMode = LOG_MODE.CUSTOM;
+      }
     }
+
+    logger({
+      from: fromValue,
+      to: toValue,
+      mode: logMode,
+    });
   };
 
   render() {

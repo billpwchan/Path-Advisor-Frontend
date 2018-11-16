@@ -11,6 +11,7 @@ import { parseParams, build as buildUrl } from '../Router/Url';
 import style from './Main.module.css';
 import detectPlatform, { PLATFORM } from './detectPlatform';
 import MobileOverlay from '../MobileOverlay/MobileOverlay';
+import logger from './logger';
 
 class Main extends Component {
   static propTypes = {
@@ -94,6 +95,10 @@ class Main extends Component {
     }
   }
 
+  hasQueryString() {
+    return Boolean(this.props.location.search);
+  }
+
   render() {
     const platform = detectPlatform();
     const isMobile = platform === PLATFORM.MOBILE;
@@ -118,7 +123,11 @@ class Main extends Component {
         ) : null}
         <div className={classnames(style.body, { [style.bodyMobile]: isMobile })}>
           {!isMobile ? (
-            <PrimaryPanel {...urlParams} linkTo={this.linkTo}>
+            <PrimaryPanel
+              {...urlParams}
+              linkTo={this.linkTo}
+              logger={logger(this.hasQueryString(), platform)}
+            >
               {plugins.map(
                 ({ id, PrimaryPanelPlugin, OverlayHeaderPlugin, OverlayContentPlugin }) => ({
                   id,
@@ -130,7 +139,11 @@ class Main extends Component {
             </PrimaryPanel>
           ) : (
             <>
-              <TopPanel {...urlParams} linkTo={this.linkTo} />
+              <TopPanel
+                {...urlParams}
+                linkTo={this.linkTo}
+                logger={logger(this.hasQueryString(), platform)}
+              />
               <MobileOverlay>
                 {plugins.map(({ id, MobileOverlayHeaderPlugin, MobileOverlayContentPlugin }) => ({
                   id,

@@ -19,6 +19,7 @@ class PrimaryPanel extends Component {
     overlayStore: PropTypes.shape({}).isRequired,
     closeOverlayHandler: PropTypes.func.isRequired,
     linkTo: PropTypes.func.isRequired,
+    logger: PropTypes.func.isRequired,
     ...urlPropTypes,
   };
 
@@ -36,7 +37,17 @@ class PrimaryPanel extends Component {
   };
 
   render() {
-    const { children, overlayStore, closeOverlayHandler, x, y, level, floor, linkTo } = this.props;
+    const {
+      children,
+      overlayStore,
+      closeOverlayHandler,
+      x,
+      y,
+      level,
+      floor,
+      linkTo,
+      logger,
+    } = this.props;
 
     const { selectedBuilding, displayAdvancedSearch } = this.state;
 
@@ -116,6 +127,7 @@ class PrimaryPanel extends Component {
             displayAdvancedSearch={displayAdvancedSearch}
             linkTo={linkTo}
             SearchView={SearchPrimaryPanelView}
+            logger={logger}
           />
 
           {children.map(({ id, PrimaryPanelPlugin }) => {
