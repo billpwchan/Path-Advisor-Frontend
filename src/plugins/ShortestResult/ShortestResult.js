@@ -8,13 +8,22 @@ const clickListenerMapItemIds = new Set();
 
 class ShortestResultPrimaryPanel extends Component {
   componentDidUpdate(prevProps) {
-    const { searchShortestPathStore, searchNearestStore, linkTo } = this.props;
+    const {
+      searchShortestPathStore,
+      searchNearestStore,
+      linkTo,
+      searchOptionsStore: { actionSource },
+    } = this.props;
+
+    if (actionSource === 'EXTERNAL_LINK') {
+      return;
+    }
 
     if (searchShortestPathStore === prevProps.searchShortestPathStore) {
       return;
     }
 
-    // only do auto focus to start point if user is not search for nearest item
+    // only do auto focus to start point if user is not searching for a nearest item
     if (searchNearestStore.nearest !== null) {
       return;
     }
@@ -372,6 +381,7 @@ const PrimaryPanelPlugin = {
     'searchNearestStore',
     'floorStore',
     'linkTo',
+    'searchOptionsStore',
   ],
   Component: ShortestResultPrimaryPanel,
 };

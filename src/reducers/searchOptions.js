@@ -9,6 +9,11 @@ export const SEARCH_MODES = {
   MIN_NO_OF_LIFTS: 'MIN_NO_OF_LIFTS',
 };
 
+export const ACTION_SOURCE = {
+  EXTERNAL_LINK: 'EXTERNAL_LINK',
+  BUTTON_CLICK: 'BUTTON_CLICK',
+};
+
 export const searchOptionsPropTypes = PropTypes.shape({
   sameFloor: PropTypes.bool,
   noStairCase: PropTypes.bool,
@@ -21,6 +26,7 @@ const initialState = {
   noStairCase: true,
   noEscalator: false,
   searchMode: SEARCH_MODES.SHORTEST_TIME,
+  actionSource: ACTION_SOURCE.EXTERNAL_LINK,
 };
 
 export function setSearchOptionsAction(payload) {

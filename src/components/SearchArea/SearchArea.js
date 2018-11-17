@@ -7,7 +7,11 @@ import {
   clearSearchShortestPathResultAction,
 } from '../../reducers/searchShortestPath';
 import { searchNearestAction, clearSearchNearestResultAction } from '../../reducers/searchNearest';
-import { setSearchOptionsAction, searchOptionsPropTypes } from '../../reducers/searchOptions';
+import {
+  setSearchOptionsAction,
+  searchOptionsPropTypes,
+  ACTION_SOURCE,
+} from '../../reducers/searchOptions';
 import { floorsPropTypes } from '../../reducers/floors';
 import { placePropTypes } from '../Router/Url';
 import { TYPE as INPUT_TYPE, isEqual as InputIsEqual } from './Input';
@@ -134,6 +138,9 @@ class SearchArea extends Component {
   };
 
   linkToSearch = () => {
+    this.updateSearchOptions({
+      actionSource: ACTION_SOURCE.BUTTON_CLICK,
+    });
     this.props.linkTo({ search: true });
   };
 

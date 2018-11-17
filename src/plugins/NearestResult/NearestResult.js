@@ -10,10 +10,11 @@ class NearestResult extends Component {
 
     const {
       searchNearestStore: { nearest },
+      searchOptionsStore: { actionSource },
       linkTo,
     } = this.props;
 
-    if (nearest) {
+    if (nearest && actionSource !== 'EXTERNAL_LINK') {
       linkTo(
         {
           x: nearest.coordinates[0],
@@ -99,7 +100,7 @@ class NearestResult extends Component {
 const id = 'nearestResult';
 const PrimaryPanelPlugin = {
   Component: NearestResult,
-  connect: ['searchNearestStore', 'floorStore', 'linkTo'],
+  connect: ['searchNearestStore', 'floorStore', 'linkTo', 'searchOptionsStore'],
 };
 
 export { id, PrimaryPanelPlugin };
