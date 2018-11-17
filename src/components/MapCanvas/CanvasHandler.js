@@ -1228,7 +1228,11 @@ class CanvasHandler {
             break;
           }
           case Boolean(image):
-            ctx.drawImage(image, renderedX - screenLeftX, renderedY - screenTopY, width, height);
+            try {
+              ctx.drawImage(image, renderedX - screenLeftX, renderedY - screenTopY, width, height);
+            } catch (e) {
+              console.error('Image cannot be drawn', e, image);
+            }
             break;
           case Boolean(textElement): {
             const { style, color, text, lines, lineHeight, strokeWidth, strokeStyle } = textElement;
