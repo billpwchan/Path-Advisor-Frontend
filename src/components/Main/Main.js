@@ -54,6 +54,15 @@ class Main extends Component {
   }
 
   linkTo = (params, method = 'push') => {
+    const platform = detectPlatform();
+
+    const {
+      appSettingStore: { defaultPosition, mobileDefaultPosition },
+    } = this.props;
+
+    const { level: defaultLevel } =
+      platform === PLATFORM.MOBILE ? mobileDefaultPosition : defaultPosition;
+
     const {
       level: currentLevel,
       x: currentX,
@@ -67,7 +76,7 @@ class Main extends Component {
       floor = currentFloor,
       x = currentX,
       y = currentY,
-      level = currentLevel,
+      level = currentLevel || defaultLevel,
       from = currentFrom,
       to = currentTo,
       search = currentSearch,
@@ -81,7 +90,11 @@ class Main extends Component {
 
     // init position from app settings if current position is not set
     const urlParams = this.getUrlParams(platform);
-    if ([urlParams.level, urlParams.x, urlParams.y, urlParams.floor].some(v => isNil(v))) {
+
+    if (
+      [urlParams.level, urlParams.x, urlParams.y, urlParams.floor].some(v => isNil(v)) &&
+      !urlParams.search
+    ) {
       const {
         appSettingStore: { defaultPosition, mobileDefaultPosition },
       } = this.props;
