@@ -78,7 +78,7 @@ const DEVICE_PIXEL_RATIO = window.devicePixelRatio || 1;
  * @property {mapItemListener} [onMouseOut]
  * @property {Circle} [circle]
  * @property {Rect} [rect]
- * @property {Object} [others] - additional data for plugins to attach
+ * @property {{}} [others] - additional data for plugins to attach
  */
 
 /**
@@ -302,7 +302,7 @@ class CanvasHandler {
 
   /**
    * @typedef CanvasEvent
-   * @property {object} [originalEvent]
+   * @property {{}} [originalEvent]
    * @property {number} x
    * @property {number} y
    * @property {number} leftX
