@@ -6,6 +6,7 @@
     "axios": "^0.18.0",
     "classnames": "^2.2.6",
     "core-js": "^2.5.7",
+    "env-cmd": "^8.0.2",
     "lodash.compact": "^3.0.1",
     "lodash.get": "^4.4.2",
     "lodash.isnil": "^4.0.0",
@@ -25,14 +26,19 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "GENERATE_SOURCEMAP=false react-scripts build",
+    "build:staging:dev": "env-cmd .env.staging-dev npm run build",
+    "build:staging:s3": "env-cmd .env.staging-s3 npm run build",
     "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "deploy": "npm run build && ./deploy.sh",
+    "deploy:staging:dev": "npm run build:staging:dev && ./deploy-staging-dev.sh",
+    "deploy:staging:s3": "npm run build:staging:s3 && ./deploy-staging-s3.sh",
+    "deploy:doc:staging-dev": "./deploy-doc-staging-dev.sh",
+    "deploy:doc:stating-s3": "./deploy-doc-staging-s3.sh"
   },
   "devDependencies": {
-    "babel-eslint": "^8.2.6",
     "docsify-cli": "^4.2.1",
-    "eslint": "^5.2.0",
     "eslint-config-airbnb": "^17.0.0",
     "eslint-config-prettier": "^2.9.0",
     "eslint-plugin-import": "^2.13.0",

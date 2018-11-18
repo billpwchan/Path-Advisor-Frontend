@@ -1,15 +1,9 @@
 function APIEndpoint() {
-  if (process.env.NODE_ENV === 'production') {
-    return 'http://pathadvisor.ust.hk';
-  }
-  return 'http://pathadvisor.ust.hk';
+  return process.env.REACT_APP_API_ENDPOINT_URI;
 }
 
 function SearchAPIEndpoint() {
-  if (process.env.NODE_ENV === 'production') {
-    return 'http://pathadvisor.ust.hk';
-  }
-  return 'http://pathadvisor.ust.hk';
+  return process.env.REACT_APP_API_ENDPOINT_URI;
 }
 
 export { APIEndpoint, SearchAPIEndpoint };
