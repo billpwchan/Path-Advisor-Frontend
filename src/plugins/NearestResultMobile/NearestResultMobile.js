@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import style from './NearestResultMobile.module.css';
-import calculateTextDimension from '../../components/MapCanvas/calculateTextDimension';
 
 const FONT_STYLE = 'bold 11px Verdana';
 
@@ -15,6 +14,7 @@ class NearestResultMobile extends Component {
       searchOptionsStore: { actionSource },
       linkTo,
       setMapItems,
+      calculateTextDimension,
     } = this.props;
 
     if (!nearest) {
@@ -37,7 +37,7 @@ class NearestResultMobile extends Component {
 
     const { width, height } = calculateTextDimension(FONT_STYLE, name);
 
-    const offsetHeight = 35;
+    const offsetHeight = -35;
     const paddingWidth = 20;
     const paddingHeight = 10;
     const arrowHeight = 10;
@@ -50,7 +50,8 @@ class NearestResultMobile extends Component {
       {
         id: 'NEAREST_ITEM_TAG_ID',
         x,
-        y: y - offsetHeight + arrowHeight / 2,
+        y,
+        offsetY: offsetHeight + arrowHeight / 2,
         floor,
         center: true,
         shape: {
@@ -70,7 +71,8 @@ class NearestResultMobile extends Component {
       {
         id: 'NEAREST_ITEM_TAG_TEXT_ID',
         x,
-        y: y - offsetHeight,
+        y,
+        offsetY: offsetHeight,
         floor,
         center: true,
         textElement: {
