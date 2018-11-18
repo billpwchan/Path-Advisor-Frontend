@@ -47,7 +47,7 @@ class MapCanvas extends Component {
   };
 
   componentDidMount() {
-    const { linkTo, getMapItemsHandler, appSettingsStore } = this.props;
+    const { linkTo, getMapItemsHandler } = this.props;
 
     window.canvasHandler = this.canvasHandler;
 
@@ -72,16 +72,9 @@ class MapCanvas extends Component {
     const { x, y, floor, level } = this.props;
 
     this.canvasRootRef.current.appendChild(this.canvasHandler.getCanvas());
-    this.canvasHandler.updateDimension(
-      this.canvasRootRef.current.offsetWidth,
-      this.canvasRootRef.current.offsetHeight,
-      appSettingsStore.levelToScale,
-    );
+    this.updateCanvasDimension();
 
-    this.setState({
-      width: this.canvasRootRef.current.offsetWidth,
-      height: this.canvasRootRef.current.offsetHeight,
-    });
+    window.addEventListener('resize', throttle(this.updateCanvasDimension, 500));
 
     // if incoming coordinate is out of boundary, jump back to nearest position
     this.canvasHandler.addPositionChangeListener(params => {
@@ -180,6 +173,19 @@ class MapCanvas extends Component {
       this.canvasHandler.updatePosition(x, y, floor, level);
     }
   }
+
+  updateCanvasDimension = () => {
+    this.canvasHandler.updateDimension(
+      this.canvasRootRef.current.offsetWidth,
+      this.canvasRootRef.current.offsetHeight,
+      this.props.appSettingsStore.levelToScale,
+    );
+
+    this.setState({
+      width: this.canvasRootRef.current.offsetWidth,
+      height: this.canvasRootRef.current.offsetHeight,
+    });
+  };
 
   restrictOutOfBoundary({
     newLeftX = null,

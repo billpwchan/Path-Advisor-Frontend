@@ -280,6 +280,10 @@ class CanvasHandler {
     ctx.msImageSmoothingEnabled = false;
     ctx.oImageSmoothingEnabled = false;
     this.render();
+
+    this.positionChangeListeners.forEach(listener => {
+      listener(this.getListenerParamObject());
+    });
   }
 
   updatePosition(x, y, floor = this.floor, level = this.level) {
