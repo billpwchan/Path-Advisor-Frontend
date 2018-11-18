@@ -25,8 +25,10 @@
     "redux-saga": "^0.16.0"
   },
   "scripts": {
+    "analyze": "source-map-explorer build/static/js/main.*",
     "start": "react-scripts start",
     "build": "GENERATE_SOURCEMAP=false react-scripts build",
+    "build:analyze": "react-scripts build",
     "build:staging:dev": "env-cmd .env.staging-dev npm run build",
     "build:staging:s3": "env-cmd .env.staging-s3 npm run build",
     "test": "react-scripts test --env=jsdom",
@@ -45,7 +47,8 @@
     "eslint-plugin-jsx-a11y": "^6.1.1",
     "eslint-plugin-prettier": "^2.6.2",
     "eslint-plugin-react": "^7.10.0",
-    "prettier-eslint": "^8.8.2"
+    "prettier-eslint": "^8.8.2",
+    "source-map-explorer": "^1.6.0"
   },
   "browserslist": {
     "development": [
