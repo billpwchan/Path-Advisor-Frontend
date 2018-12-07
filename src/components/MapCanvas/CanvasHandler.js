@@ -584,7 +584,19 @@ class CanvasHandler {
     this.canvas.addEventListener('wheel', e => {
       this.wheelListeners.forEach(listener => {
         const wheelDelta = Math.sign(e.deltaY);
-        listener(this.getListenerParamObject({ originalEvent: e, wheelDelta }));
+        const [clientX, clientY] = this.getCanvasXYFromMouseXY(e.clientX, e.clientY);
+        const clientMapX = this.normalizeCoordinate(clientX) + this.getLeftX();
+        const clientMapY = this.normalizeCoordinate(clientY) + this.getTopY();
+        listener(
+          this.getListenerParamObject({
+            originalEvent: e,
+            wheelDelta,
+            clientX,
+            clientY,
+            clientMapX,
+            clientMapY,
+          }),
+        );
       });
     });
 
@@ -1350,6 +1362,7 @@ class CanvasHandler {
     addCanvasMouseUpListener: listener => this.addMouseUpListener(listener),
     addCanvasMouseMoveListener: listener => this.addMouseMoveListener(listener),
     addCanvasContextMenuListener: listener => this.addContextMenuListener(listener),
+    addWheelListener: listener => this.addWheelListener(listener),
   };
 
   getProps() {
