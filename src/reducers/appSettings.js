@@ -12,13 +12,13 @@ const initialState = {
     floor: 'Overall',
     x: 936,
     y: 654,
-    level: 1,
+    level: 3,
   },
   mobileDefaultPosition: {
     floor: 'G',
-    x: 2182,
-    y: 2343,
-    level: 1,
+    x: 2162,
+    y: 1263,
+    level: 4,
   },
 };
 
