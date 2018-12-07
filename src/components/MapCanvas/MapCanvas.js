@@ -61,13 +61,15 @@ class MapCanvas extends Component {
 
     this.canvasHandler.addMouseMoveListener(props => this.restrictOutOfBoundary(props));
 
-    this.canvasHandler.addWheelListener(({ wheelDelta, x, y, floor, nextLevel, previousLevel }) => {
-      if (wheelDelta < 0) {
-        linkTo({ floor, x, y, level: nextLevel });
-      } else {
-        linkTo({ floor, x, y, level: previousLevel });
-      }
-    });
+    this.canvasHandler.addWheelListener(
+      throttle(({ wheelDelta, x, y, floor, nextLevel, previousLevel }) => {
+        if (wheelDelta < 0) {
+          linkTo({ floor, x, y, level: nextLevel });
+        } else {
+          linkTo({ floor, x, y, level: previousLevel });
+        }
+      }, 500),
+    );
 
     const { x, y, floor, level } = this.props;
 
