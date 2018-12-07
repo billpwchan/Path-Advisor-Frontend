@@ -1,9 +1,11 @@
+const levelToScale = [1.0, 0.85, 0.6, 0.5, 0.4];
 const initialState = {
   loading: false,
   failure: false,
   success: true,
-  // levelToScale: [1.0, 0.85, 0.6, 0.5, 0.4],
-  levelToScale: [1.0, 0.85, 0.6, 0.5, 0.4],
+  levelToScale,
+  highestLevel: levelToScale.length - 1,
+  lowestLevel: 0,
   meterPerPixel: 0.0455,
   minutesPerMeter: 0.015,
   defaultPosition: {
