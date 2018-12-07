@@ -63,6 +63,8 @@ class Main extends Component {
     const { level: defaultLevel } =
       platform === PLATFORM.MOBILE ? mobileDefaultPosition : defaultPosition;
 
+    const urlParams = this.getUrlParams(platform);
+
     const {
       level: currentLevel,
       x: currentX,
@@ -71,7 +73,8 @@ class Main extends Component {
       from: currentFrom,
       to: currentTo,
       search: currentSearch,
-    } = this.getUrlParams(detectPlatform());
+    } = urlParams;
+
     const {
       floor = currentFloor,
       x = currentX,
@@ -82,7 +85,17 @@ class Main extends Component {
       search = currentSearch,
     } = params;
 
-    this.props.history[method](buildUrl({ floor, x, y, level, search, from, to }));
+    const newParams = { floor, x, y, level, search, from, to };
+
+    if (
+      ['floor', 'x', 'y', 'level', 'search', 'from', 'to'].every(
+        key => newParams[key] === urlParams[key],
+      )
+    ) {
+      return;
+    }
+
+    this.props.history[method](buildUrl(newParams));
   };
 
   initPosition() {
