@@ -44,7 +44,7 @@ const initialState = {
       image: '/images/legends/sbarn.png',
     },
     satellitePrinter: { name: 'Satellite Printer', image: '/images/legends/printer.png' },
-    video: { name: 'Live view video', image: '/images/legends/video.png' },
+    liveView: { name: 'Live view video / snapshot', image: '/images/legends/live_view.png' },
   },
   legendIds: [
     'crossBuildingConnector',
@@ -62,7 +62,7 @@ const initialState = {
     'taxiStand',
     'virtualBarnWorkstation',
     'satellitePrinter',
-    'video',
+    'liveView',
   ],
 };
 

@@ -24,20 +24,22 @@ const MobileOverlay = ({ overlayStore, closeOverlayHandler, children = [] }) => 
         );
       })}
 
-      {children.map(({ id, MobileOverlayContentPlugin }) => {
-        if (!MobileOverlayContentPlugin || !MobileOverlayContentPlugin.Component) {
-          return null;
-        }
-        return (
-          <MobileOverlayContentPlugin.Component
-            key={`header_${id}`}
-            name={name}
-            photo={photo}
-            url={url}
-            others={others}
-          />
-        );
-      })}
+      <div className={style.overlayContent}>
+        {children.map(({ id, MobileOverlayContentPlugin }) => {
+          if (!MobileOverlayContentPlugin || !MobileOverlayContentPlugin.Component) {
+            return null;
+          }
+          return (
+            <MobileOverlayContentPlugin.Component
+              key={`header_${id}`}
+              name={name}
+              photo={photo}
+              url={url}
+              others={others}
+            />
+          );
+        })}
+      </div>
     </FullScreenOverlay>
   ) : null;
 };

@@ -58,6 +58,7 @@ class MapItem extends Component {
       legendStore: { legends },
       openOverlayHandler,
       platform,
+      linkTo,
     } = this.props;
 
     setMapItems(
@@ -70,6 +71,49 @@ class MapItem extends Component {
               liveView: {
                 url: 'http://liveview.ust.hk',
                 iframeUrl: '/liveview.html',
+              },
+            };
+          }
+
+          // TO-FIX: hardcoding liveview info here before there is a API for it.
+          if (name === 'Barn B, ROOM 1101') {
+            // eslint-disable-next-line no-param-reassign
+            others = {
+              liveView: {
+                url:
+                  'https://itsc.ust.hk/services/academic-teaching-support/facilities/computer-barn/snapshots-in-computer-barns/',
+                imageUrls: [
+                  'http://itsc.ust.hk/apps/realcam/barnb_1_000M.jpg',
+                  'http://itsc.ust.hk/apps/realcam/barnb_2_000M.jpg',
+                ],
+              },
+            };
+          }
+
+          if (name === 'ROOM 4403 - 4404') {
+            // eslint-disable-next-line no-param-reassign
+            others = {
+              liveView: {
+                url:
+                  'https://itsc.ust.hk/services/academic-teaching-support/facilities/computer-barn/snapshots-in-computer-barns/',
+                imageUrls: [
+                  'http://itsc.ust.hk/apps/realcam/barna_t1_000M.jpg',
+                  'http://itsc.ust.hk/apps/realcam/barna_g1_000M.jpg',
+                ],
+              },
+            };
+          }
+
+          if (name === 'BARN C ROOM 4579-4580') {
+            // eslint-disable-next-line no-param-reassign
+            others = {
+              liveView: {
+                url:
+                  'https://itsc.ust.hk/services/academic-teaching-support/facilities/computer-barn/snapshots-in-computer-barns/',
+                imageUrls: [
+                  'http://itsc.ust.hk/apps/realcam/barnc_g1_000M.jpg',
+                  'http://itsc.ust.hk/apps/realcam/barnc_t1_000M.jpg',
+                ],
               },
             };
           }
@@ -114,6 +158,28 @@ class MapItem extends Component {
             marginTop += 20;
           }
 
+          const onClick = () => {
+            if (photo || url || others) {
+              openOverlayHandler(name, photo, url, others);
+              return;
+            }
+
+            // set it to destination on click if there is no overlay menu to open
+            linkTo({
+              search: true,
+              to: {
+                name,
+                data: {
+                  id,
+                  type: 'id',
+                  floor,
+                  value: name,
+                  coordinates: [x, y],
+                },
+              },
+            });
+          };
+
           switch (type) {
             case 'maleToilet':
             case 'femaleToilet':
@@ -129,6 +195,7 @@ class MapItem extends Component {
                 ...baseMapItem,
                 image: createImage(legends[type].image),
                 ...LEGEND_DIMENSION,
+                onClick,
               });
               break;
             case 'crossBuildingConnector':
@@ -225,9 +292,7 @@ class MapItem extends Component {
                   offsetX: marginLeft,
                   offsetY: marginTop,
                   image: createImage(legends[type].image),
-                  onClick: () => {
-                    if (photo || url || others) openOverlayHandler(name, photo, url, others);
-                  },
+                  onClick,
                   onMouseOver: () => {
                     document.body.style.cursor = 'pointer';
                   },
@@ -246,11 +311,7 @@ class MapItem extends Component {
                   ...textMapItem.textElement,
                   ...extraTextStyle,
                 },
-
-                onClick: () => {
-                  if (photo || url || others) openOverlayHandler(name, photo, url, others);
-                },
-
+                onClick,
                 onMouseOver: () => {
                   document.body.style.cursor = 'pointer';
                   setMapItems([
@@ -291,7 +352,14 @@ class MapItem extends Component {
 }
 
 const MapCanvasPlugin = {
-  connect: ['mapItemStore', 'legendStore', 'openOverlayHandler', 'setMapItems', 'platform'],
+  connect: [
+    'mapItemStore',
+    'legendStore',
+    'openOverlayHandler',
+    'setMapItems',
+    'platform',
+    'linkTo',
+  ],
   Component: MapItem,
 };
 const id = 'mapItem';
