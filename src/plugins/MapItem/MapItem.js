@@ -5,6 +5,7 @@ import MapItemDesktopOverlayHeader from './MapItemDesktopOverlayHeader';
 import MapItemDesktopOverlayContent from './MapItemDesktopOverlayContent';
 import MapItemMobileOverlayHeader from './MapItemMobileOverlayHeader';
 import MapItemMobileOverlayContent from './MapItemMobileOverlayContent';
+import MapItemMenuBar from './MapItemMenuBar';
 
 const imgCached = {};
 
@@ -127,6 +128,7 @@ class MapItem extends Component {
             x,
             y,
             center: true,
+            hidden: legends[type] && !legends[type].display,
           };
           const textMapItem = {
             ...baseMapItem,
@@ -139,6 +141,7 @@ class MapItem extends Component {
           if (photo) {
             accumulator.push({
               ...baseMapItem,
+              hidden: !legends.photo.display,
               id: `${floor}_${id}_photo`,
               x,
               offsetX: marginLeft,
@@ -362,10 +365,12 @@ const MapCanvasPlugin = {
   ],
   Component: MapItem,
 };
+
 const id = 'mapItem';
 export {
   id,
   MapCanvasPlugin,
+  MapItemMenuBar as MenuBarPlugin,
   MapItemDesktopOverlayHeader as OverlayHeaderPlugin,
   MapItemDesktopOverlayContent as OverlayContentPlugin,
   MapItemMobileOverlayHeader as MobileOverlayHeaderPlugin,

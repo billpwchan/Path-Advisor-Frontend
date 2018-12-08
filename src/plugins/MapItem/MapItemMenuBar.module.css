@@ -1,0 +1,20 @@
+.body{
+  display: inline-block;
+}
+
+.menu {
+  position: absolute;
+  z-index: 1;
+  color: black;
+  border: 1px solid #cccccc;
+  background: white;
+  text-align: left;
+  height: 300px;
+  overflow-y: scroll;
+}
+
+.label {
+  display: block;
+  padding: 5px;
+  cursor: pointer;
+}
