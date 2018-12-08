@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { openOverlayAction } from '../../reducers/overlay';
+import { updateLegendDisplayAction } from '../../reducers/legends';
 
 const paramStateMap = {
   legendStore: 'legends',
@@ -36,6 +37,9 @@ const canvasParams = [
 const paramDispatchMap = {
   openOverlayHandler: dispatch => (photo, url, name, others) => {
     dispatch(openOverlayAction(photo, url, name, others));
+  },
+  updateLegendDisplayHandler: dispatch => (legendType, display) => {
+    dispatch(updateLegendDisplayAction(legendType, display));
   },
 };
 

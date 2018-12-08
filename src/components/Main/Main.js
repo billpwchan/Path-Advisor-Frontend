@@ -180,9 +180,10 @@ class Main extends Component {
           )}
           {this.props.appSettingStore.success && (
             <MapCanvas {...urlParams} linkTo={this.linkTo} platform={detectPlatform()}>
-              {plugins.map(({ id, MapCanvasPlugin }) => ({
+              {plugins.map(({ id, MapCanvasPlugin, MenuBarPlugin }) => ({
                 id,
                 MapCanvasPlugin,
+                MenuBarPlugin,
               }))}
             </MapCanvas>
           )}

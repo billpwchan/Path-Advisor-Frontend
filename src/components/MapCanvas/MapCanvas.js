@@ -255,6 +255,35 @@ class MapCanvas extends Component {
                 : floor && `${buildings[floors[floor].buildingId].name}`}
             </div>
             <div className={style.buttons}>
+              {children.map(({ id, MenuBarPlugin }) => {
+                if (!MenuBarPlugin) {
+                  return null;
+                }
+
+                const PluginComponent = getConnectedComponent(
+                  `mapCanvasMenuBar_${id}`,
+                  MenuBarPlugin.connect,
+                  MenuBarPlugin.Component,
+                );
+
+                return (
+                  <PluginComponent
+                    key={id}
+                    {...pick(
+                      {
+                        canvas: this.canvasHandler.getCanvas(),
+                        ...urlParams,
+                        ...this.state,
+                        ...this.canvasHandler.getProps(),
+                        platform,
+                        linkTo,
+                        APIEndpoint,
+                      },
+                      MenuBarPlugin.connect,
+                    )}
+                  />
+                );
+              })}
               <a
                 className={style.button}
                 href="/suggestions.html"
