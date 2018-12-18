@@ -1,0 +1,3 @@
+[submodule "pathadvisor-frontend-settings"]
+	path = pathadvisor-frontend-settings
+	url = git@gitlab.com:thenrikie/pathadvisor-frontend-settings.git
