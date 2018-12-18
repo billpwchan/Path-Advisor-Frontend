@@ -274,11 +274,15 @@ class CanvasHandler {
     this.canvas.style.height = `${height}px`;
     const ctx = this.canvas.getContext('2d');
     ctx.setTransform(DEVICE_PIXEL_RATIO, 0, 0, DEVICE_PIXEL_RATIO, 0, 0);
-    ctx.imageSmoothingEnabled = false;
-    ctx.webkitImageSmoothingEnabled = false;
-    ctx.mozImageSmoothingEnabled = false;
-    ctx.msImageSmoothingEnabled = false;
-    ctx.oImageSmoothingEnabled = false;
+
+    if (DEVICE_PIXEL_RATIO % 1 === 0) {
+      ctx.imageSmoothingEnabled = false;
+      ctx.webkitImageSmoothingEnabled = false;
+      ctx.mozImageSmoothingEnabled = false;
+      ctx.msImageSmoothingEnabled = false;
+      ctx.oImageSmoothingEnabled = false;
+    }
+
     this.render();
 
     this.positionChangeListeners.forEach(listener => {
