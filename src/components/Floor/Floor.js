@@ -67,6 +67,7 @@ class Floor extends Component {
       floor,
       level: defaultLevel,
     });
+    
   };
 
   selectBuilding = buildingId => () => {
