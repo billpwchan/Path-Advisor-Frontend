@@ -10,7 +10,7 @@ import * as ZoomButton from './ZoomButton/ZoomButton';
 import * as LegendButton from './LegendButton/LegendButton';
 import * as ContextMenu from './ContextMenu/ContextMenu';
 import * as LiveView from './LiveView/LiveView';
-
+import * as StreetViewIcon from './StreetViewIcon/StreetViewIcon'
 export default [
   MapTile,
   CampusBuildingOverlay,
@@ -24,4 +24,5 @@ export default [
   LegendButton,
   ContextMenu,
   LiveView,
+  StreetViewIcon,
 ];
