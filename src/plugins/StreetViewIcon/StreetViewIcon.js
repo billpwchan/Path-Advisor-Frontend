@@ -14,18 +14,30 @@ constructor(props){
     super(props);
     this.state = {
         srcImage : availImage,
+        manOut : false,
     };
 }
-mouseOver(){
-    let img = mouseoverImage;
+handleClick(){
+    let img = outsideImage;
     this.setState({
-        srcImage: img,
+        srcImage:img,
+        manOut:true,
     });
 }
-mouseOut(){
-    let img = availImage;
+handleMouseOver(){
+    let manOut = this.state.manOut;
+    let img = manOut? outsideImage:mouseoverImage;
     this.setState({
         srcImage: img,
+        manOut:manOut
+    });
+}
+handleMouseOut(){
+    let manOut = this.state.manOut;
+    let img = manOut? outsideImage:availImage;
+    this.setState({
+        srcImage: img,
+        manOut:manOut,
     });
 }
 render(){
@@ -42,8 +54,9 @@ return (
     <div className={style.body}>
       <button
        type="button"   
-       onMouseOver={()=>this.mouseOver()}
-       onMouseOut={()=>this.mouseOut()}
+       onClick={()=>this.handleClick()}
+       onMouseOver={()=>this.handleMouseOver()}
+       onMouseOut={()=>this.handleMouseOut()}
       >
       <img className={classnames(buttonClassName)} src ={image} alt="StreetViewIcon"/>
       </button>
