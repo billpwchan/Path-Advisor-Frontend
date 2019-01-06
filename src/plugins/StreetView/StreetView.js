@@ -1,44 +1,73 @@
 import React from 'react';
 import classnames from 'classnames';
 
-import style from './StreetViewIcon.module.css';
+import style from './StreetView.module.css';
 import availImage from "./img/Man_for_available.png";
 import mouseoverImage from "./img/Man_for_mouseover.png";
 import outsideImage from "./img/Man_already_outside.png";
+import DragMan from "./DragMan"
 
 
-const STREET_VIEW_ICON_ID = 'STREET_VIEW_ICON';
 
-class StreetViewIcon extends React.Component {
+document.onmousemove = null;
+
+class StreetView extends React.Component {
 constructor(props){
     super(props);
+
     this.state = {
         srcImage : availImage,
         manOut : false,
+        displayDragMan:false,
+        dragManX:0,
+        dragManY:0,
     };
+
 }
-handleClick(){
+
+handleDrop(){
+    console.log('dropped');
+    let img = availImage;
+    this.setState({
+        srcImage : availImage,
+        displayDragMan : false,
+    });   
+}
+
+handlePress(e){
+
     let img = outsideImage;
     this.setState({
         srcImage:img,
         manOut:true,
+        displayDragMan:true,
     });
+ 
 }
 handleMouseOver(){
-    let manOut = this.state.manOut;
-    let img = manOut? outsideImage:mouseoverImage;
+
+    let img =mouseoverImage;
     this.setState({
         srcImage: img,
-        manOut:manOut
     });
 }
 handleMouseOut(){
-    let manOut = this.state.manOut;
-    let img = manOut? outsideImage:availImage;
+   
+    let img = outsideImage;
     this.setState({
-        srcImage: img,
-        manOut:manOut,
+        srcImage: img,    
     });
+}
+renderDragMan(buttonClassName){
+    let display = this.state.displayDragMan?"block":"none";
+
+       return <DragMan 
+                display = {display}
+                buttonClassName={buttonClassName}
+                initialX={this.state.dragManX}
+                initialY={this.state.dragManY}
+                onMouseUp = {()=>this.handleDrop()}
+                />
 }
 render(){
 
@@ -50,26 +79,35 @@ const buttonClassName = classnames({
 });
 
 const image = this.state.srcImage;
+
 return (
-    <div className={style.body}>
-      <button
+    <div>      
+      <button 
+       className={classnames(style.body)}
        type="button"   
-       onClick={()=>this.handleClick()}
+       id={id}
+       onMouseDown={(e)=>this.handlePress(e)}
        onMouseOver={()=>this.handleMouseOver()}
        onMouseOut={()=>this.handleMouseOut()}
       >
       <img className={classnames(buttonClassName)} src ={image} alt="StreetViewIcon"/>
       </button>
+     
+      {   
+       this.renderDragMan(buttonClassName)
+      }
+    
     </div>
+    
   );
 
   
 }
 }
 const MapCanvasPlugin = {
-  Component: StreetViewIcon,
+  Component: StreetView,
   connect: ['platform'],
 };
 
-const id = 'StreetViewIcon';
+const id = "StreetView";
 export { id, MapCanvasPlugin };
