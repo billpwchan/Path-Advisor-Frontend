@@ -1,8 +1,19 @@
 import dragManImage from "./img/Dragman/Yellow_Figure_Right_m.png";
 import React from 'react';
-import classnames from 'classnames';
 
 
+// This is the function component for DragMan. 
+
+// It is hidden by default(display=="none"), and is displayed only when the parent component 
+// passes in display=="block". 
+
+// The DragMan follows the mouse trajectory of the client,
+// this effect is achieved by simple javascript manipulation on HTML elements(see updateDragManPosition), not using React.
+
+// When the DragMan is dropped(onMouseUp), it calls the handle function passed in by the parent.
+
+
+// Helper function to move DragMan along with client mouse.
 function updateDragManPosition(e) {
     let dragManObject = document.getElementById(DragManID);
     let height = dragManObject.clientHeight;
@@ -22,6 +33,7 @@ function DragMan({ display, buttonClassName, initialX, initialY, parentHandleDro
         left: initialX,
         display: display
     };
+
     // We need to communicate with parent when and only when DragMan is dropped.
     return (
         <img
@@ -29,7 +41,8 @@ function DragMan({ display, buttonClassName, initialX, initialY, parentHandleDro
             id={DragManID}
             className={buttonClassName}
             src={dragManImage}
-            onMouseUp={() => parentHandleDrop()}
+            onMouseUp={(e) => parentHandleDrop(e)}
+            alt="DragMan"
         />
     );
 }

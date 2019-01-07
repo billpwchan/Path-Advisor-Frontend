@@ -13,7 +13,7 @@ function Pin({ setMapItems, removeMapItem, from }) {
   if (x && y && floor) {
     const image = new Image();
     image.src = pinImage;
-
+    console.log(x,y)
     setMapItems([
       {
         id: PIN_ID,

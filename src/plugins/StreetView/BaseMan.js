@@ -6,6 +6,13 @@ import mouseoverImage from "./img/Man_for_mouseover.png";
 import outsideImage from "./img/Man_already_outside.png";
 import style from "./StreetView.module.css";
 
+// This is the class component for BaseMan.
+
+// If parent passes in available==true, BaseMan only performs mouse over effect through handleMouseOver and handleMouseOut.
+// Else if parent passes in available==false, BaseMan directly display outsideImage.
+
+// When BaseMan is pressed(onMouseDown), it calls the handle function passed down by parent.
+       
 
 class BaseMan extends React.Component {
     constructor(props) {
