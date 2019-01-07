@@ -52,7 +52,7 @@ class PrimaryPanel extends Component {
     const { selectedBuilding, displayAdvancedSearch } = this.state;
 
     const urlParams = pick(this.props, ['from', 'to', 'x', 'y', 'level', 'floor', 'search']);
-
+    
     return (
       <div className={style.body}>
         {overlayStore.open ? (
@@ -107,8 +107,9 @@ class PrimaryPanel extends Component {
               Advanced Search
             </button>
           </div>
-
+          
           {displayAdvancedSearch ? null : (
+
             <Floor
               selectedBuilding={selectedBuilding}
               selectBuildingAction={this.selectBuildingAction}
