@@ -27,6 +27,7 @@ class StreetView extends React.Component {
             baseManAvail: true,
             displayDragMan: false,
             displayPinMan: false,
+            displayPano:false,
             PinManX: 0,
             PinManY: 0,
             PinManAngle: 0,
@@ -40,6 +41,7 @@ class StreetView extends React.Component {
     This can be very helpful. Feel free to make good use of it.
     */
     getCampusXYFromMouseXY(canvas, mouseX, mouseY) {
+        console.log("normalized width", this.props.normalizedWidth);
         // Get the zoom in/out factor for current canvas display.
         const screenToCampusScale = { x: this.props.width / (this.props.normalizedWidth + 0.0001), y: this.props.height / (this.props.normalizedHeight + 0.0001) };
 
@@ -63,15 +65,15 @@ class StreetView extends React.Component {
 
     handlePanoRotate_dev(e) {
         let pinManElement;
-        for (var index in this.props.mapItemStore.mapItems){
-           const item = this.props.mapItemStore.mapItems[index];
-           console.log(item.name,item.id,item.photo);
-           if (item.id === 'PIN_MAN_ID'){
-               pinManElement = item;
-               break;
-           }
+        for (var index in this.props.mapItemStore.mapItems) {
+            const item = this.props.mapItemStore.mapItems[index];
+            console.log(item.name, item.id, item.photo);
+            if (item.id === 'PIN_MAN_ID') {
+                pinManElement = item;
+                break;
+            }
         }
-        if (pinManElement==null){
+        if (pinManElement == null) {
             console.log('Pin man id not found');
             return null;
         }
@@ -82,21 +84,33 @@ class StreetView extends React.Component {
             PinManAngle: newAngle,
         });
     }
-    handlePanoRotate(e){
+    handlePanoRotate(e) {
         this.handlePanoRotate_dev(e);
     }
 
     handleDragManDrop(e) {
         console.log("DragMan dropped, detected by parent.");
         let [x, y] = this.getCampusXYFromMouseXY(this.props.canvas, e.clientX, e.clientY);
+
+        // Shrink the canvas to make room for pano image display, if the image is not displayed.
+        // updateDimension actually takes three arguments, mention this to Henry.
+        if (!this.state.displayPano){
+        let currentWidth =parseInt(this.props.width);
+        let currentHeight =parseInt(this.props.height);
+        this.props.updateDimension(currentWidth,currentHeight*0.5,this.props.appSettingStore.levelToScale);
+    }   
+        // Move the map to centre at the the dropped location.
+        this.props.linkTo({x:x,y:y});
+        
         this.setState({
             baseManAvail: true,
             displayDragMan: false,
             displayPinMan: true,
+            displayPano:true,
             PinManX: x,
             PinManY: y,
         });
-
+        
         // this.props.addMapItemClickListener(PanoRotationListenerID, PanoRotationActivatorID, (e) => this.handlePanoRotate(e), false);
     }
     renderBaseMan(buttonClassName) {
@@ -139,7 +153,7 @@ class StreetView extends React.Component {
                     x={x}
                     y={y}
                     floor={floor}
-                    onClick = {(e)=>this.handlePanoRotate(e)}
+                    onClick={(e) => this.handlePanoRotate(e)}
                 />
             </div>
         );
@@ -154,9 +168,10 @@ class StreetView extends React.Component {
         });
         return (
             <div id={id}>
-                {this.renderBaseMan(buttonClassName)}
                 {this.renderDragMan(buttonClassName)}
                 {this.renderPinMan()}
+                {this.renderBaseMan(buttonClassName)}
+                        
             </div>
         );
     }
@@ -165,20 +180,24 @@ class StreetView extends React.Component {
 const MapCanvasPlugin = {
     Component: StreetView,
     connect: [
-        'platform', 
-        'canvas', 
-        'setMapItems', 
-        'removeMapItem', 
-        'x', 
-        'y', 
-        'floor', 
-        'height', 
-        'normalizedHeight', 
-        'width', 
-        'normalizedWidth', 
-        'addMapItemClickListener', 
+        'platform',
+        'canvas',
+        'setMapItems',
+        'removeMapItem',
+        'x',
+        'y',
+        'floor',
+        'height',
+        'normalizedHeight',
+        'width',
+        'normalizedWidth',
+        'addMapItemClickListener',
         'removeMapItemClickListener',
-        'mapItemStore'],
+        'mapItemStore',
+        'updateDimension',
+        'appSettingStore',
+        'linkTo',
+    ],
 };
 
 const id = "StreetView";
