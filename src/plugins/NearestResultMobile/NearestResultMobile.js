@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import isNil from 'lodash.isnil';
 import style from './NearestResultMobile.module.css';
 
 const FONT_STYLE = 'bold 11px Verdana';
@@ -15,6 +16,10 @@ class NearestResultMobile extends Component {
       linkTo,
       setMapItems,
       calculateTextDimension,
+      x: currentX,
+      y: currentY,
+      floor: currentFloor,
+      level: currentLevel,
     } = this.props;
 
     if (!nearest) {
@@ -27,7 +32,10 @@ class NearestResultMobile extends Component {
       name,
     } = nearest;
 
-    if (actionSource !== 'EXTERNAL_LINK') {
+    if (
+      actionSource !== 'EXTERNAL_LINK' ||
+      [currentFloor, currentX, currentY, currentLevel].some(v => isNil(v))
+    ) {
       linkTo({
         x,
         y,
@@ -113,6 +121,10 @@ const MapCanvasPlugin = {
     'setMapItems',
     'calculateTextDimension',
     'searchOptionsStore',
+    'x',
+    'y',
+    'level',
+    'floor',
   ],
   platform: ['MOBILE'],
 };

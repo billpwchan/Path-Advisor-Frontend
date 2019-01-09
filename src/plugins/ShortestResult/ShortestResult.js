@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import isNil from 'lodash.isnil';
 import style from './ShortestResult.module.css';
 import Loading from '../Loading/Loading';
 
@@ -13,9 +14,17 @@ class ShortestResultPrimaryPanel extends Component {
       searchNearestStore,
       linkTo,
       searchOptionsStore: { actionSource },
+      x: currentX,
+      y: currentY,
+      floor: currentFloor,
+      level: currentLevel,
     } = this.props;
 
-    if (actionSource === 'EXTERNAL_LINK') {
+    console.log('current', currentFloor, currentX, currentY, currentLevel);
+    if (
+      actionSource === 'EXTERNAL_LINK' &&
+      [currentFloor, currentX, currentY, currentLevel].every(v => !isNil(v))
+    ) {
       return;
     }
 
@@ -382,6 +391,10 @@ const PrimaryPanelPlugin = {
     'floorStore',
     'linkTo',
     'searchOptionsStore',
+    'x',
+    'y',
+    'level',
+    'floor',
   ],
   Component: ShortestResultPrimaryPanel,
 };
