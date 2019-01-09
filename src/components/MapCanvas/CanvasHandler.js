@@ -264,12 +264,11 @@ class CanvasHandler {
     ['click', 'mousemove'].forEach(event => this.setUpListener(event));
   }
 
-  updateDimension(width, height, levelToScale) {
+  updateDimension(width, height) {
     this.canvas.width = width * DEVICE_PIXEL_RATIO;
     this.canvas.height = height * DEVICE_PIXEL_RATIO;
     this.width = width;
     this.height = height;
-    this.levelToScale = levelToScale;
     this.canvas.style.width = `${width}px`;
     this.canvas.style.height = `${height}px`;
     const ctx = this.canvas.getContext('2d');
@@ -288,6 +287,10 @@ class CanvasHandler {
     this.positionChangeListeners.forEach(listener => {
       listener(this.getListenerParamObject());
     });
+  }
+
+  updateLevelToScale(levelToScale) {
+    this.levelToScale = levelToScale;
   }
 
   updatePosition(x, y, floor = this.floor, level = this.level) {
@@ -1348,6 +1351,7 @@ class CanvasHandler {
     removeMapItem: args => this.removeMapItem(args),
     removeAllMapTiles: () => this.removeAllMapTiles(),
     updateDimension: (...args) => this.updateDimension(...args),
+    updateLevelToScale: args => this.updateLevelToScale(args),
     calculateTextDimension,
     // map item listeners
     addMapItemClickListener: (id, mapItemId, listener, isPrepend) =>

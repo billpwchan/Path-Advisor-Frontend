@@ -177,10 +177,11 @@ class MapCanvas extends Component {
   }
 
   updateCanvasDimension = () => {
+    this.canvasHandler.updateLevelToScale(this.props.appSettingsStore.levelToScale);
+
     this.canvasHandler.updateDimension(
       this.canvasRootRef.current.offsetWidth,
       this.canvasRootRef.current.offsetHeight,
-      this.props.appSettingsStore.levelToScale,
     );
 
     this.setState({
