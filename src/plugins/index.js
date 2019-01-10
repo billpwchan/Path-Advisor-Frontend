@@ -20,10 +20,10 @@ export default [
   NearestResult,
   ShortestResult,
   Legend,
+  StreetView,
   ZoomButton,
   NearestResultMobile,
   LegendButton,
   ContextMenu,
   LiveView,
-  StreetView,
 ];
