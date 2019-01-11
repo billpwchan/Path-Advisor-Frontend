@@ -5,7 +5,7 @@ import DragMan from "./DragMan";
 import BaseMan from "./BaseMan";
 import PinMan from "./PinMan";
 import PanoDisplay from "./PanoDisplay";
-import axios from 'axios';
+// import axios from 'axios';
 
 /* 
 This is the highest level StreetView component. 
@@ -19,8 +19,8 @@ Subcomponet interactions:
 - Then when DragMan is dropped, DragMan will call handleDragManDrop function here. StreetView will then hide DragMan(displayDragMan=falese) and restore BaseMan to available(baseManAvail=true).
 */
 
-const PanoRotationActivatorID = 'PIN_MAN_ID'; // This value is temporary, for development use.
-const PanoRotationListenerID = 'PANO_ROTATE_LISTENER_ID'; // This value is fixed.
+// const PanoRotationActivatorID = 'PIN_MAN_ID'; // This value is temporary, for development use.
+// const PanoRotationListenerID = 'PANO_ROTATE_LISTENER_ID'; // This value is fixed.
 
 class StreetView extends React.Component {
     constructor(props) {
@@ -30,21 +30,12 @@ class StreetView extends React.Component {
             displayDragMan: false,
             displayPinMan: false,
             displayPano: false,
+            fullScreenPano:false,
             PinManX: 0,
             PinManY: 0,
             PinManAngle: 0,
-            // defaultCanvasHeight:0,
         };
-
-
     }
-    // componentDidMount(){
-    //     console.log(this.state.defaultCanvasHeight);
-    //     this.setState({
-    //         defaultCanvasHeight:this.props.canvas.getBoundingClientRect().height,
-    //     });
-    //     console.log(this.state.defaultCanvasHeight);
-    // }
     /* 
     Helper function to convert mouse coordinate on screen to campus coordinate in map.
     The code is modified from component/MapCanvas/CanvasHandler.js.
@@ -63,23 +54,20 @@ class StreetView extends React.Component {
         (mouseY - (canvasCoordinate.top + 0.5 * canvasCoordinate.height)) / screenToCampusScale.y + this.props.y];
     }
 
+    /* Subcomponent Handlers */
     handleBaseManPressed() {
-        console.log("BaseMan pressed, detected by parent.");
-
         this.setState({
             baseManAvail: false,
             displayDragMan: true,
             displayPinMan: false,
         });
-
-       
     }
     handleDragManDrop(e) {
-        console.log("DragMan dropped, detected by parent.");
         let [x, y] = this.getCampusXYFromMouseXY(this.props.canvas, e.clientX, e.clientY);
 
-        // Move the map to centre at the the dropped location.
-        this.props.linkTo({ x: x, y: y + this.props.height*0.5 });
+        // Move the map to centre at beneath the dropped location,
+        //  so that the PinMan is not blocked by the PanoDisplay.
+        this.props.linkTo({ x: x, y: y + this.props.height * 0.5 });
 
         this.setState({
             baseManAvail: true,
@@ -89,19 +77,19 @@ class StreetView extends React.Component {
             PinManX: x,
             PinManY: y,
         });
-
-     
     }
-    handlePanoClose(){
+    handlePanoClose() {
         console.log('pano closed');
-        if (this.state.displayPano) {
-            let currentWidth = parseInt(this.props.width);
-            let currentHeight = parseInt(this.props.height);
-            
-        }
         this.setState({
-            displayPinMan:false,
-            displayPano:false
+            displayPinMan: false,
+            displayPano: false,
+            fullScreenPano:false,
+        });
+    }
+    handlePanoResize(){
+        let fullScreen=this.state.fullScreenPano;
+        this.setState({
+            fullScreenPano:!fullScreen,
         });
     }
     handlePanoRotate_dev(e) {
@@ -118,7 +106,6 @@ class StreetView extends React.Component {
             console.log('Pin man id not found');
             return null;
         }
-
         const newAngle = this.state.PinManAngle + 22.5;
         pinManElement.photo = "./img/man/" + (Math.floor(newAngle / 22.5)) + ".png";
         this.setState({
@@ -128,7 +115,9 @@ class StreetView extends React.Component {
     handlePanoRotate(e) {
         this.handlePanoRotate_dev(e);
     }
+    /*End of Subcomponent Handlers */
 
+    /*Subcomponent Renderers */
     renderBaseMan(buttonClassName) {
         return (
             <BaseMan
@@ -176,34 +165,35 @@ class StreetView extends React.Component {
     }
 
     renderPano() {
-        let fullScreen = false;
+        let fullScreen = this.state.fullScreenPano;
         if (this.state.displayPano) {
             return <PanoDisplay
-                height={fullScreen?this.props.height:this.props.height*0.5}
+                height={fullScreen ? this.props.height : this.props.height * 0.5}
                 width={this.props.width}
-                onClick={()=>this.handlePanoClose()}
+                onCloseClick={() => this.handlePanoClose()}
+                onResizeClick={() => this.handlePanoResize()}
+                fullScreen={fullScreen}
             />;
-
         } else {
             return null;
         }
     }
-
+    /*End of Subcomponent Renderers */
+    
+    
     render() {
         const platform = this.props.platform;
         const buttonClassName = classnames({
             [style.buttonImage]: platform !== 'MOBILE',
             [style.buttonImageMobile]: platform === 'MOBILE',
         });
-       
+
         return (
-            <div style={{zIndex:-1}} id={id}>
+            <div style={{ zIndex: -1 }} id={id}>
                 {this.renderPano()}
-                
                 {this.renderPinMan()}
                 {this.renderBaseMan(buttonClassName)}
                 {this.renderDragMan(buttonClassName)}
-
             </div>
         );
     }
@@ -223,11 +213,7 @@ const MapCanvasPlugin = {
         'normalizedHeight',
         'width',
         'normalizedWidth',
-        'addMapItemClickListener',
-        'removeMapItemClickListener',
         'mapItemStore',
-        'updateDimension',
-        'appSettingStore',
         'linkTo',
     ],
 };

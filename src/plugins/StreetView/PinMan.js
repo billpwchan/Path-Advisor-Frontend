@@ -39,9 +39,9 @@ function getPinManImage_dev(angle) {
 var angle = 0;
 
 async function handleOnClick_dev({ setMapItems, eventTrigger }) {
-    var id = eventTrigger.id;
+    // var id = eventTrigger.id;
 
-    console.log('clicked', eventTrigger.id);
+    // console.log('clicked', eventTrigger.id);
 
     const image = getPinManImage(angle);
     angle = (angle + 22.5) % 360;
