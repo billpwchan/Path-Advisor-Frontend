@@ -5,6 +5,7 @@ import DragMan from "./DragMan";
 import BaseMan from "./BaseMan";
 import PinMan from "./PinMan";
 import PanoDisplay from "./PanoDisplay";
+import Axios from 'axios';
 // import axios from 'axios';
 
 /* 
@@ -149,7 +150,7 @@ class StreetView extends React.Component {
             y = this.state.PinManY;
             floor = this.props.floor;
         }
-
+        
         return (
             <div>
                 <PinMan
@@ -165,6 +166,9 @@ class StreetView extends React.Component {
     }
 
     renderPano() {
+        let x = this.state.PinManX;
+        let y = this.state.PinManY;
+        let floor = this.props.floor;
         let fullScreen = this.state.fullScreenPano;
         if (this.state.displayPano) {
             return <PanoDisplay
@@ -173,6 +177,9 @@ class StreetView extends React.Component {
                 onCloseClick={() => this.handlePanoClose()}
                 onResizeClick={() => this.handlePanoResize()}
                 fullScreen={fullScreen}
+                x={x}
+                y={y}
+                floor={floor}
             />;
         } else {
             return null;
