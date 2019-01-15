@@ -111,7 +111,12 @@ class MapCanvas extends Component {
             [leftX, topY, _width, _height].every(v => !Number.isNaN(v)) && !isNil(_floor);
 
           if (isPositionReady) {
-            getMapItemsHandler(_floor, [leftX, topY], _width, _height);
+            getMapItemsHandler(
+              _floor,
+              [parseInt(leftX, 10), parseInt(topY, 10)],
+              parseInt(_width, 10),
+              parseInt(_height, 10),
+            );
           }
         },
         1000,

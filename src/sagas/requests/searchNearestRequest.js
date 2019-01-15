@@ -1,64 +1,42 @@
 import axios from 'axios';
-import get from 'lodash.get';
-
 import { APIEndpoint } from '../../config/config';
-import searchMapItemRequest from './searchMapItemRequest';
 
-// TO-DO: remove wrapper after backend api updated
-async function searchNearestResponseWrapper(name, data) {
-  if (typeof data !== 'string') {
-    return [];
-  }
-
-  const mapItemStrings = data.split('\n');
-  const type = get(mapItemStrings, 0);
-
-  const mapItemValues = get(mapItemStrings, 2, '')
-    .trim()
-    .split(';');
-
-  const coordinates = get(mapItemValues, 2, '')
-    .split(',')
-    .map(v => parseInt(v, 10));
-
-  const {
-    data: [mapItem],
-  } = await searchMapItemRequest(name);
-
-  const { coordinates: fromCoordinates, type: fromType } = mapItem || {
-    coordinates: null,
-    type: null,
-  };
+function searchNearestResponseWrapper(data) {
+  const { from = {}, nearestItem = {} } = data;
 
   return {
     from: {
-      coordinates: fromCoordinates,
-      type: fromType,
-      name: mapItemValues[6],
-      id: mapItemValues[4],
-      floor: mapItemValues[5],
+      coordinates: from.centerCoordinates,
+      type: (from.tagIds || [])[0],
+      name: from.name,
+      // eslint-disable-next-line no-underscore-dangle
+      id: from._id,
+      floor: from.floorId,
     },
     nearest: {
-      coordinates,
-      type,
-      name: mapItemValues[0],
-      id: mapItemValues[1],
-      floor: mapItemValues[3],
+      coordinates: nearestItem.centerCoordinates,
+      type: (nearestItem.tagIds || [])[0],
+      name: nearestItem.name,
+      // eslint-disable-next-line no-underscore-dangle
+      id: nearestItem._id,
+      floor: nearestItem.floorId,
     },
   };
 }
 
-async function searchNearestRequest(floor, name, nearestType, sameFloor, id) {
-  const sameFloorQS = sameFloor ? 'yes' : 'no';
-
-  const optionalQs = id ? `&d_roomId=${id}&d_floor=${floor}` : '';
+async function searchNearestRequest(name, nearestType, sameFloor, id) {
+  const startNode = id
+    ? `startId=${encodeURIComponent(id)}`
+    : `startName=${encodeURIComponent(name)}`;
   const response = await axios.get(
-    `${APIEndpoint()}/phplib/search.php?type=${nearestType}&same_floor=${sameFloorQS}&keyword=${name}&floor=${floor}${optionalQs}`,
+    `${APIEndpoint()}/nearest-item?type=${encodeURIComponent(
+      nearestType,
+    )}&sameFloor=${sameFloor}&${startNode}`,
   );
 
   return {
     ...response,
-    data: await searchNearestResponseWrapper(name, response.data),
+    data: searchNearestResponseWrapper(response.data.data || {}),
   };
 }
 

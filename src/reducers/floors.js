@@ -238,7 +238,7 @@ const initialState = {
       mobileDefaultX: 639,
       mobileDefaultY: 575,
     },
-    NABG: {
+    LSKG: {
       name: 'G',
       buildingId: 'lsk',
       meterPerPixel: 0.0455,
@@ -252,7 +252,7 @@ const initialState = {
       mobileDefaultX: 1332,
       mobileDefaultY: 913,
     },
-    NAB1: {
+    LSK1: {
       name: '1',
       buildingId: 'lsk',
       meterPerPixel: 0.0455,
@@ -266,7 +266,7 @@ const initialState = {
       mobileDefaultX: 1089,
       mobileDefaultY: 537,
     },
-    NAB2: {
+    LSK2: {
       name: '2',
       buildingId: 'lsk',
       meterPerPixel: 0.0455,
@@ -280,7 +280,7 @@ const initialState = {
       mobileDefaultX: 1089,
       mobileDefaultY: 537,
     },
-    NAB3: {
+    LSK3: {
       name: '3',
       buildingId: 'lsk',
       meterPerPixel: 0.0455,
@@ -294,7 +294,7 @@ const initialState = {
       mobileDefaultX: 1089,
       mobileDefaultY: 537,
     },
-    NAB4: {
+    LSK4: {
       name: '4',
       buildingId: 'lsk',
       meterPerPixel: 0.0455,
@@ -308,7 +308,7 @@ const initialState = {
       mobileDefaultX: 1089,
       mobileDefaultY: 537,
     },
-    NAB5: {
+    LSK5: {
       name: '5',
       buildingId: 'lsk',
       meterPerPixel: 0.0455,
@@ -322,7 +322,7 @@ const initialState = {
       mobileDefaultX: 562,
       mobileDefaultY: 437,
     },
-    NAB6: {
+    LSK6: {
       name: '6',
       buildingId: 'lsk',
       meterPerPixel: 0.0455,
@@ -336,7 +336,7 @@ const initialState = {
       mobileDefaultX: 1089,
       mobileDefaultY: 537,
     },
-    NAB7: {
+    LSK7: {
       name: '7',
       buildingId: 'lsk',
       meterPerPixel: 0.0455,
@@ -589,7 +589,7 @@ const initialState = {
     },
     lsk: {
       name: 'LSK',
-      floorIds: ['NAB7', 'NAB6', 'NAB5', 'NAB4', 'NAB3', 'NAB2', 'NAB1', 'NABG'],
+      floorIds: ['LSK7', 'LSK6', 'LSK5', 'LSK4', 'LSK3', 'LSK2', 'LSK1', 'LSKG'],
     },
     ias: {
       name: 'IAS',

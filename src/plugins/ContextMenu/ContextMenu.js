@@ -10,7 +10,7 @@ class ContextMenu extends Component {
     clientY: null,
     clientMapX: null,
     clientMapY: null,
-    nodeId: null,
+    id: null,
   };
 
   ref = React.createRef();
@@ -31,7 +31,7 @@ class ContextMenu extends Component {
         } (${clientMapX}, ${clientMapY})`;
 
         this.setState({
-          nodeId: null,
+          id: null,
           menuTitle,
           isContextMenuDisplay: true,
           clientX,
@@ -41,10 +41,10 @@ class ContextMenu extends Component {
         });
 
         const {
-          data: { name, nodeId },
+          data: { name, id },
         } = await fetchMapItemByCoorRequest(floor, clientMapX, clientMapY);
 
-        this.setState(name ? { menuTitle: name, nodeId } : { nodeId });
+        this.setState(name ? { menuTitle: name, id } : { id });
       },
     );
 
@@ -79,15 +79,15 @@ class ContextMenu extends Component {
 
   setLocation = direction => () => {
     const { linkTo, floor } = this.props;
-    const { clientMapX, clientMapY, menuTitle, nodeId } = this.state;
+    const { clientMapX, clientMapY, menuTitle, id } = this.state;
 
     linkTo({
       search: true,
       [direction]: {
         name: menuTitle,
         data: {
-          id: nodeId,
-          type: 'nodeId',
+          id,
+          type: 'id',
           floor,
           value: menuTitle,
           coordinates: [clientMapX, clientMapY],
@@ -99,7 +99,7 @@ class ContextMenu extends Component {
   };
 
   render() {
-    const { menuTitle, isContextMenuDisplay, clientX, clientY, nodeId } = this.state;
+    const { menuTitle, isContextMenuDisplay, clientX, clientY, id } = this.state;
     return isContextMenuDisplay ? (
       <ul
         ref={this.ref}
@@ -110,7 +110,7 @@ class ContextMenu extends Component {
         }}
       >
         <li className={style.heading}>{menuTitle}</li>
-        {nodeId ? (
+        {id ? (
           <>
             <li>
               <button type="button" className={style.button} onClick={this.setLocation('from')}>

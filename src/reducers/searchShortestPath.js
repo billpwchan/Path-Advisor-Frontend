@@ -5,7 +5,7 @@ export const CLEAR_SEARCH_SHORTEST_PATH_RESULT = 'CLEAR_SEARCH_SHORTEST_PATH_RES
 
 /**
  * @typedef {object} requestNode
- * @property {string} [nodeId]
+ * @property {string} [id]
  * @property {string} [floor]
  * @property {string} [keyword]
  * @property {string} [id]

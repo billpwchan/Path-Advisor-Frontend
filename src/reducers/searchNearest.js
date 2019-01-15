@@ -7,6 +7,7 @@ export const CLEAR_SEARCH_NEAREST_RESULT = 'CLEAR_SEARCH_NEAREST_RESULT';
  * @param {string} name
  * @param {string} nearestType
  * @param {boolean} sameFloor
+ * @param {string} id
  */
 export function searchNearestAction(floor, name, nearestType, sameFloor, id) {
   return {

@@ -8,7 +8,7 @@ const CAMPUS_FLOOR_ID = 'Overall';
 const overlays = [
   ['academicBuildingOverlay', 873, 403, 300, 700, 'G'],
   ['CYTOverlay', 970, 1090, 110, 110, 'CYTG'],
-  ['LSKOverlay', 1158, 1344, 140, 200, 'NABG'],
+  ['LSKOverlay', 1158, 1344, 140, 200, 'LSKG'],
   ['IASOverlay', 1408, 1485, 110, 110, 'IASG'],
   ['UCOverlay', 1196, 973, 120, 120, 'UCG'],
 ];

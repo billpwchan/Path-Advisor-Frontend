@@ -64,7 +64,20 @@ class MapItem extends Component {
 
     setMapItems(
       mapItems.reduce(
-        (accumulator, { id, coordinates: [x, y], floor, name, type, photo, url, others }) => {
+        (
+          accumulator,
+          {
+            id,
+            coordinates: [x, y] = [0, 0],
+            floor,
+            name = '',
+            type,
+            photo,
+            url,
+            connectorId,
+            others,
+          },
+        ) => {
           // TO-FIX: hardcoding liveview info here before there is a API for it.
           if (name.toUpperCase() === 'NORTH BUS STOP') {
             // eslint-disable-next-line no-param-reassign
@@ -285,7 +298,7 @@ class MapItem extends Component {
                 },
 
                 onClick: () => {
-                  fetchAccessibleFloorsRequest(floor, name).then(({ data: accessibleFloors }) => {
+                  fetchAccessibleFloorsRequest(connectorId).then(({ data: accessibleFloors }) => {
                     openOverlayHandler(name, photo, url, {
                       ...(others || {}),
                       accessibleFloors,

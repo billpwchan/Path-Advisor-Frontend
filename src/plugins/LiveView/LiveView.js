@@ -59,7 +59,7 @@ function LiveViewVideoLegend({
         name === 'ROOM 4403 - 4404' ||
         name === 'BARN C ROOM 4579-4580',
     )
-    .map(({ id: itemId, coordinates: [x, y], floor, name, photo, url, others }) => {
+    .map(({ id: itemId, coordinates: [x, y], floor, name = '', photo, url, others }) => {
       // TO-FIX: hardcoding liveview info here before there is an API for it.
       if (name.toUpperCase() === 'NORTH BUS STOP') {
         // eslint-disable-next-line no-param-reassign

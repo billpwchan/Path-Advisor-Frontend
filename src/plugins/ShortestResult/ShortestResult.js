@@ -66,9 +66,10 @@ class ShortestResultPrimaryPanel extends Component {
       floorStore: { floors, buildings },
       linkTo,
     } = this.props;
+
     const distanceToMinutes = distance => {
-      const { meterPerPixel, minutesPerMeter } = appSettingStore;
-      return Math.ceil(distance * meterPerPixel * minutesPerMeter);
+      const { minutesPerMeter } = appSettingStore;
+      return Math.ceil(distance * minutesPerMeter);
     };
 
     const getBuildingAndFloorText = floor =>
@@ -172,7 +173,7 @@ class ShortestResultPrimaryPanel extends Component {
                     </div>
                     <div className={style.timeCol}>
                       <div>
-                        ({Math.round(distance * appSettingStore.meterPerPixel)}
+                        ({Math.round(distance)}
                         m)
                       </div>
                       <div>~{distanceToMinutes(distance)} min</div>

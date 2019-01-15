@@ -8,11 +8,11 @@ import {
 
 import { searchShortestPathAction } from '../../reducers/searchShortestPath';
 
-function* searchNearestRequestWorker({ payload: { floor, name, nearestType, sameFloor, id } }) {
+function* searchNearestRequestWorker({ payload: { name, nearestType, sameFloor, id } }) {
   try {
     const {
       data: { from, nearest },
-    } = yield call(searchNearestRequest, floor, name, nearestType, sameFloor, id);
+    } = yield call(searchNearestRequest, name, nearestType, sameFloor, id);
 
     if (!nearest.id) {
       yield put(searchNearestFailureAction());
@@ -39,9 +39,3 @@ function* searchNearestRequestWorker({ payload: { floor, name, nearestType, same
 export default function* searchNearestRequestWatcher() {
   yield takeLatest(SEARCH_NEAREST, searchNearestRequestWorker);
 }
-
-/**
-lift
-LIFT 25;p114;2544,898;3;p142;3;ROOM 3542
-http://pathadvisor.ust.hk/phplib/search.php?keyword=ROOM%203542&floor=3&type=lift&same_floor=yes&d_roomId=p142&d_floor=3
-*/
