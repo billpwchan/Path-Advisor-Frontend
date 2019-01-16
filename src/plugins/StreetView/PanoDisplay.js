@@ -18,12 +18,35 @@ function PanoServerEndPoint(){
 }
 
 
+var colors = ["#393E41", "#E94F37", "#1C89BF", "#A1D363",
+"#85FFC7", "#297373", "#FF8552", "#A40E4C"];
+
+function Circle({bgColor}){
+      var circleStyle = {
+        padding:10,
+        margin:20,
+        display:"inline-block",
+        backgroundColor: bgColor,
+        borderRadius: "50%",
+        width:100,
+        height:100,
+        position:"absolute",
+        right:50,
+        top:10
+      };
+      return (
+        <div style={circleStyle}>
+        </div>
+      );
+    
+}
 function PanoDisplay({ height, width, fullScreen, onCloseClick, onResizeClick,x,y,floor }) {
     
     getPanoURL(PanoServerEndPoint,floor,x,y);//Update the panoUrl variable.    
     
     return (
         <div style={{ position: "absolute", left: 0, bottom: 0, height: height, width: width }}>
+        
             <img
                 style={{ position: "absolute", flex: 1, height: height, width: undefined }}
                 resizeMode="cover"

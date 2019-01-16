@@ -12,6 +12,8 @@ import * as ContextMenu from './ContextMenu/ContextMenu';
 import * as LiveView from './LiveView/LiveView';
 import * as StreetView from './StreetView/StreetView'
 // import * as StreetView from './StreetView/_StreetView-dev'
+// import * as PanoDisplay from './PanoDisplay/PanoDisplay'
+import * as SmallMap from './SmallMap/SmallMap'
 export default [
   MapTile,
   CampusBuildingOverlay,
@@ -20,10 +22,14 @@ export default [
   NearestResult,
   ShortestResult,
   Legend,
+  
   StreetView,
+  // PanoDisplay,
+  
   ZoomButton,
   NearestResultMobile,
   LegendButton,
   ContextMenu,
   LiveView,
+  // SmallMap,
 ];

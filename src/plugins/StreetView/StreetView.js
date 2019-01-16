@@ -4,7 +4,8 @@ import style from './StreetView.module.css';
 import DragMan from "./DragMan";
 import BaseMan from "./BaseMan";
 import PinMan from "./PinMan";
-import PanoDisplay from "./PanoDisplay";
+import {PanoDisplay} from "../PanoDisplay/PanoDisplay";
+// import PanoDisplay from "./PanoDisplay";
 import Axios from 'axios';
 // import axios from 'axios';
 
@@ -20,8 +21,44 @@ Subcomponet interactions:
 - Then when DragMan is dropped, DragMan will call handleDragManDrop function here. StreetView will then hide DragMan(displayDragMan=falese) and restore BaseMan to available(baseManAvail=true).
 */
 
-// const PanoRotationActivatorID = 'PIN_MAN_ID'; // This value is temporary, for development use.
-// const PanoRotationListenerID = 'PANO_ROTATE_LISTENER_ID'; // This value is fixed.
+let panoUrl = "";//A global variable to store panoUrl. It is supposed to be updated in getPanoUrl().
+function getPanoURL(APIEndpoint, floor, x, y) {
+    getPanoURL_dev(APIEndpoint, floor, x, y);
+}
+function PanoServerEndPoint(){
+    return PanoServerEndPoint_dev();
+}
+function PanoServerEndPoint_dev() {
+    return 'http://localhost:380';
+}
+// A toy getPanoURL method we use for retrieveing PanoImage from slave server, given the PinMan location.
+function getPanoURL_dev(APIEndpoint, floor, x, y) {
+    let pano_id;
+    let pano_source;
+    
+    Axios.get(`${APIEndpoint()}/phplib/get_map_data_2.php?floor=${floor}&coorX=${x}&coorY=${y}`)
+        .then(
+            response => {
+                response = response.data;
+                // console.log(response);
+                
+                // The following decision making method is modified from map_interface.js, line 1070-1104
+                if (response.split(";")[0] === "area") {
+                    pano_id = response.split(";")[7];
+                    pano_source = response.split(";")[8] + ".jpg";
+                }
+                else {
+                    pano_id = response.split(";")[5];
+                    pano_source = response.split(";")[6] + ".jpg";
+                }
+                // Decision Making Ends
+
+                // Update the value of global variable panoUrl.
+                panoUrl=`${APIEndpoint()}/pano_pixel.php?floor=${floor}&photo=${pano_source}&pano_id=${pano_id}`;
+                // console.log('panoUrl',panoUrl);
+            }
+        );
+}
 
 class StreetView extends React.Component {
     constructor(props) {
@@ -165,7 +202,7 @@ class StreetView extends React.Component {
         );
     }
 
-    renderPano() {
+    renderPano_old() {
         let x = this.state.PinManX;
         let y = this.state.PinManY;
         let floor = this.props.floor;
@@ -185,6 +222,32 @@ class StreetView extends React.Component {
             return null;
         }
     }
+    renderPano_new() {
+        let x = this.state.PinManX;
+        let y = this.state.PinManY;
+        let floor = this.props.floor;
+        getPanoURL(PanoServerEndPoint,floor,x,y);//Update the panoUrl variable.    
+        if (this.state.displayPano) {
+            return <PanoDisplay
+                panoImage={panoUrl}    
+                platform={this.props.platform}
+                linkTo={this.props.linkTo}
+                x={this.props.linkTo}
+                y={this.props.y}
+                level={this.props.level}
+                canvas={this.props.canvas}
+                width={this.props.width}
+                height={this.props.height}
+                parentOffShow={() => this.handlePanoClose()}
+            />;
+        } else {
+            return null;
+        }
+    }
+    renderPano(){
+        return this.renderPano_new()
+    }
+    
     /*End of Subcomponent Renderers */
     
     
@@ -222,6 +285,7 @@ const MapCanvasPlugin = {
         'normalizedWidth',
         'mapItemStore',
         'linkTo',
+        'level'
     ],
 };
 

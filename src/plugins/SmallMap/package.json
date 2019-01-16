@@ -1,0 +1,10 @@
+{
+  "name": "@ust-pathadvisor/small-map",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "react": "^16.4.1",
+    "react-draggable":"^3.1.1"
+  }
+}
+
