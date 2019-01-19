@@ -9,12 +9,12 @@ function Legend({ legendStore: { legends, legendIds } }) {
       <ul className={style.legendList}>
         {legendIds.map(id => {
           const { name, image } = legends[id];
-          return (
+          return image ? (
             <li key={id}>
               <img className={style.image} src={image} alt={name} />
               <span className={style.text}>{name}</span>
             </li>
-          );
+          ) : null;
         })}
       </ul>
     </div>

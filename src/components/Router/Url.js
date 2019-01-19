@@ -106,11 +106,10 @@ function parseParams(params, query, platform) {
     search: Boolean(search),
   };
 
-  console.log('param parsed', parsed);
   return parsed;
 }
 
-export const placePropTypes = PropTypes.shape({
+export const placePropType = PropTypes.shape({
   name: PropTypes.string.isRequired,
   data: PropTypes.shape({
     type: PropTypes.oneOf([INPUT_TYPE.ID, INPUT_TYPE.KEYWORD, INPUT_TYPE.NEAREST]),
@@ -122,8 +121,8 @@ export const placePropTypes = PropTypes.shape({
 });
 
 const propTypes = {
-  from: placePropTypes,
-  to: placePropTypes,
+  from: placePropType,
+  to: placePropType,
   x: PropTypes.number,
   y: PropTypes.number,
   level: PropTypes.number,

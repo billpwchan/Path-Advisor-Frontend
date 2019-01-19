@@ -12,6 +12,10 @@ import style from './Main.module.css';
 import detectPlatform, { PLATFORM } from './detectPlatform';
 import MobileOverlay from '../MobileOverlay/MobileOverlay';
 import logger from './logger';
+import { floorsPropType } from '../../reducers/floors';
+import { legendsPropType } from '../../reducers/legends';
+import { getInitDataAction } from '../../reducers/initData';
+import { appSettingsPropType } from '../../reducers/appSettings';
 
 class Main extends Component {
   static propTypes = {
@@ -21,15 +25,10 @@ class Main extends Component {
     history: PropTypes.shape({
       push: PropTypes.func.isRequired,
     }).isRequired,
-    appSettingStore: PropTypes.shape({
-      success: PropTypes.bool.isRequired,
-      defaultPosition: PropTypes.shape({
-        floor: PropTypes.string.isRequired,
-        x: PropTypes.number.isRequired,
-        y: PropTypes.number.isRequired,
-        level: PropTypes.number.isRequired,
-      }).isRequired,
-    }),
+    appSettingStore: appSettingsPropType.isRequired,
+    floorStore: floorsPropType.isRequired,
+    legendStore: legendsPropType.isRequired,
+    getInitDataHandler: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
@@ -38,6 +37,7 @@ class Main extends Component {
 
   constructor(props) {
     super(props);
+    props.getInitDataHandler();
     this.initPosition();
   }
 
@@ -112,6 +112,10 @@ class Main extends Component {
         appSettingStore: { defaultPosition, mobileDefaultPosition },
       } = this.props;
 
+      if (!defaultPosition || !mobileDefaultPosition) {
+        return;
+      }
+
       const { floor, x, y, level } =
         platform === PLATFORM.MOBILE ? mobileDefaultPosition : defaultPosition;
 
@@ -129,6 +133,11 @@ class Main extends Component {
     const platform = detectPlatform();
     const isMobile = platform === PLATFORM.MOBILE;
     const urlParams = this.getUrlParams(platform);
+    const { appSettingStore, legendStore, floorStore } = this.props;
+
+    if (!appSettingStore.success || !floorStore.success || !legendStore.success) {
+      return null;
+    }
 
     return (
       <>
@@ -178,19 +187,28 @@ class Main extends Component {
               </MobileOverlay>
             </>
           )}
-          {this.props.appSettingStore.success && (
-            <MapCanvas {...urlParams} linkTo={this.linkTo} platform={detectPlatform()}>
-              {plugins.map(({ id, MapCanvasPlugin, MenuBarPlugin }) => ({
-                id,
-                MapCanvasPlugin,
-                MenuBarPlugin,
-              }))}
-            </MapCanvas>
-          )}
+          <MapCanvas {...urlParams} linkTo={this.linkTo} platform={detectPlatform()}>
+            {plugins.map(({ id, MapCanvasPlugin, MenuBarPlugin }) => ({
+              id,
+              MapCanvasPlugin,
+              MenuBarPlugin,
+            }))}
+          </MapCanvas>
         </div>
       </>
     );
   }
 }
 
-export default connect(state => ({ appSettingStore: state.appSettings }))(Main);
+export default connect(
+  state => ({
+    appSettingStore: state.appSettings,
+    floorStore: state.floors,
+    legendStore: state.legends,
+  }),
+  dispatch => ({
+    getInitDataHandler: () => {
+      dispatch(getInitDataAction());
+    },
+  }),
+)(Main);

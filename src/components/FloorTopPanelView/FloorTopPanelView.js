@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import PopUpMenu from '../PopUpMenu/PopUpMenu';
 import style from './FloorTopPanelView.module.css';
-import { floorsPropTypes } from '../../reducers/floors';
+import { floorsPropType } from '../../reducers/floors';
 
 function addFloorSuffix(floor) {
   return !Number.isNaN(Number.parseInt(floor, 10)) || (floor && floor.length === 1)
@@ -23,7 +23,7 @@ function padArray(items, divider) {
 class FloorTopPanelView extends Component {
   static propTypes = {
     currentFloorId: PropTypes.string.isRequired,
-    floorStore: floorsPropTypes.isRequired,
+    floorStore: floorsPropType.isRequired,
     selectedBuilding: PropTypes.string.isRequired,
     selectFloor: PropTypes.func.isRequired,
   };

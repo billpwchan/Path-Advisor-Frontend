@@ -2,13 +2,13 @@ import React, { Component } from 'react';
 import get from 'lodash.get';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { floorsPropTypes } from '../../reducers/floors';
+import { floorsPropType } from '../../reducers/floors';
 import { PLATFORM } from '../Main/detectPlatform';
 
 class Floor extends Component {
   static propTypes = {
     platform: PropTypes.oneOf(Object.values(PLATFORM)),
-    floorStore: floorsPropTypes,
+    floorStore: floorsPropType,
     x: PropTypes.number,
     y: PropTypes.number,
     level: PropTypes.number,

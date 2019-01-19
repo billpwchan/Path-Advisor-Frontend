@@ -8,12 +8,12 @@ import style from './SearchPrimaryPanelView.module.css';
 import switchImage from './switch.png';
 import { searchOptionsPropTypes } from '../../reducers/searchOptions';
 import { searchMapItemPropTypes } from '../../reducers/searchMapItem';
-import { floorsPropTypes } from '../../reducers/floors';
-import { placePropTypes } from '../Router/Url';
+import { floorsPropType } from '../../reducers/floors';
+import { placePropType } from '../Router/Url';
 
 class SearchPrimaryPanelView extends React.Component {
   static propTypes = {
-    floorStore: floorsPropTypes.isRequired,
+    floorStore: floorsPropType.isRequired,
     searchMapItemStore: searchMapItemPropTypes.isRequired,
     searchOptionsStore: searchOptionsPropTypes.isRequired,
     onKeywordChange: PropTypes.func.isRequired,
@@ -25,8 +25,8 @@ class SearchPrimaryPanelView extends React.Component {
     displayAdvancedSearch: PropTypes.bool.isRequired,
     updateSearchOptions: PropTypes.func.isRequired,
     searchInputOrders: PropTypes.arrayOf(PropTypes.string).isRequired,
-    from: placePropTypes,
-    to: placePropTypes,
+    from: placePropType,
+    to: placePropType,
   };
 
   state = {

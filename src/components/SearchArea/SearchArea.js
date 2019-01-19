@@ -12,8 +12,8 @@ import {
   searchOptionsPropTypes,
   ACTION_SOURCE,
 } from '../../reducers/searchOptions';
-import { floorsPropTypes } from '../../reducers/floors';
-import { placePropTypes } from '../Router/Url';
+import { floorsPropType } from '../../reducers/floors';
+import { placePropType } from '../Router/Url';
 import { TYPE as INPUT_TYPE, isEqual as InputIsEqual } from './Input';
 import { MODE as LOG_MODE } from '../Main/logger';
 
@@ -25,15 +25,15 @@ class SearchArea extends Component {
     searchNearestHandler: PropTypes.func.isRequired,
     clearSearchNearestResultHandler: PropTypes.func.isRequired,
     searchMapItemStore: searchMapItemPropTypes.isRequired,
-    floorStore: floorsPropTypes.isRequired,
+    floorStore: floorsPropType.isRequired,
     SearchView: PropTypes.func.isRequired,
     linkTo: PropTypes.func.isRequired,
     logger: PropTypes.func.isRequired,
     setSearchOptionsHandler: PropTypes.func.isRequired,
     searchOptionsStore: searchOptionsPropTypes.isRequired,
     displayAdvancedSearch: PropTypes.bool,
-    from: placePropTypes,
-    to: placePropTypes,
+    from: placePropType,
+    to: placePropType,
     search: PropTypes.bool.isRequired,
   };
 

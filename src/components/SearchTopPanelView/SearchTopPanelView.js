@@ -7,8 +7,8 @@ import SearchInput from '../SearchInput/SearchInput';
 import PopUpMenu from '../PopUpMenu/PopUpMenu';
 import OverlayMessageBox from '../OverlayMessageBox/OverlayMessageBox';
 import { searchMapItemPropTypes } from '../../reducers/searchMapItem';
-import { floorsPropTypes } from '../../reducers/floors';
-import { placePropTypes } from '../Router/Url';
+import { floorsPropType } from '../../reducers/floors';
+import { placePropType } from '../Router/Url';
 
 const INPUT_DIRECTION = 'from';
 const NEAREST_DIRECTION = 'to';
@@ -33,9 +33,9 @@ class SearchTopPanelView extends Component {
     onAutoCompleteItemClick: PropTypes.func.isRequired,
     onKeywordChange: PropTypes.func.isRequired,
     searchMapItemStore: searchMapItemPropTypes.isRequired,
-    floorStore: floorsPropTypes.isRequired,
-    from: placePropTypes,
-    to: placePropTypes,
+    floorStore: floorsPropType.isRequired,
+    from: placePropType,
+    to: placePropType,
   };
 
   state = {

@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import style from './FloorPrimaryPanelView.module.css';
-import { floorsPropTypes } from '../../reducers/floors';
+import { floorsPropType } from '../../reducers/floors';
 
 const FloorPrimaryPanelView = ({
   floorStore: { buildingIds, buildings, floors },
@@ -40,7 +40,7 @@ const FloorPrimaryPanelView = ({
 );
 
 FloorPrimaryPanelView.propTypes = {
-  floorStore: floorsPropTypes.isRequired,
+  floorStore: floorsPropType.isRequired,
   selectedBuilding: PropTypes.string.isRequired,
   selectBuilding: PropTypes.func.isRequired,
   selectFloor: PropTypes.func.isRequired,

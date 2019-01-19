@@ -3,6 +3,7 @@ import searchMapItemRequestWatcher from './watchers/searchMapItemRequestWatcher'
 import mapItemsRequestWatcher from './watchers/mapItemsRequestWatcher';
 import searchNearestRequestWatcher from './watchers/searchNearestRequestWatcher';
 import searchShortestPathRequestWatcher from './watchers/searchShortestPathRequestWatcher';
+import fetchInitDataRequestWatcher from './watchers/fetchInitDataRequestWatcher';
 
 export default function* rootSaga() {
   yield all([
@@ -10,5 +11,6 @@ export default function* rootSaga() {
     mapItemsRequestWatcher(),
     searchNearestRequestWatcher(),
     searchShortestPathRequestWatcher(),
+    fetchInitDataRequestWatcher(),
   ]);
 }
