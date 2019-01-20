@@ -117,6 +117,11 @@ const initialState = {
       name: 'Live view video / snapshot',
       image: '/images/legends/live_view.png',
     },
+    kiosk: {
+      display: true,
+      name: 'KMB / Coin Exchange Kiosk',
+      image: '/images/legends/kiosk.png',
+    },
   },
   legendIds: [
     'crossBuildingConnector',
@@ -135,6 +140,7 @@ const initialState = {
     'virtualBarnWorkstation',
     'satellitePrinter',
     'liveView',
+    'kiosk',
   ],
 };
 

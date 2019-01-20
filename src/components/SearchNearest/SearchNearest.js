@@ -80,6 +80,14 @@ const rootMenuOptions = direction => [
       nearestOptions.restaurant,
       nearestOptions.virtualBarnStation,
       nearestOptions.satellitePrinter,
+      {
+        name: 'KMB Fare Saver Kiosk',
+        data: { type: INPUT_TYPE.KEYWORD, value: 'KMB Fare Saver Kiosk' },
+      },
+      {
+        name: 'Coin Exchange Kiosk',
+        data: { type: INPUT_TYPE.KEYWORD, value: 'Coin Exchange Kiosk' },
+      },
     ],
   },
 ];

@@ -138,7 +138,7 @@ class MapItem extends Component {
             },
           };
 
-          if (photo) {
+          if (photo && (type !== 'restaurant' && type !== 'kiosk')) {
             accumulator.push({
               ...baseMapItem,
               hidden: !legends.photo.display,
@@ -286,7 +286,7 @@ class MapItem extends Component {
               break;
             }
             default: {
-              if (type === 'restaurant') {
+              if (type === 'restaurant' || type === 'kiosk') {
                 accumulator.push({
                   ...baseMapItem,
                   id: `${floor}_${id}_${type}`,
