@@ -27,6 +27,11 @@ async function searchShortestPathResponseWrapper(data) {
       if (mapItemString.startsWith('DEBUG:')) {
         return null;
       }
+
+      if (mapItemString.startsWith('ERROR')) {
+        throw new Error('Not path found');
+      }
+
       const mapItemValues = mapItemString.split(';');
 
       return {

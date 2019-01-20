@@ -187,6 +187,15 @@ class ShortestResultPrimaryPanel extends Component {
           </div>
         );
       }
+
+      case searchShortestPathStore.failure: {
+        return (
+          <div className={style.body}>
+            {shortestPathHead}
+            <div className={style.content}>Sorry, no result found.</div>
+          </div>
+        );
+      }
       default:
         return null;
     }
