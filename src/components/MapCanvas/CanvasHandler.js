@@ -261,7 +261,7 @@ class CanvasHandler {
     this.canvas = document.createElement('canvas');
     addTouchEventHandler(this.getCanvas());
     this.setUpCanvasListeners();
-    ['click', 'mousemove'].forEach(event => this.setUpListener(event));
+    ['mouseup', 'mousemove'].forEach(event => this.setUpListener(event));
   }
 
   updateDimension(width, height) {
@@ -666,6 +666,13 @@ class CanvasHandler {
   }
 
   setUpListener(event) {
+    let lastClientCoordinates = null;
+
+    this.getCanvas().addEventListener('mousedown', e => {
+      const { clientX, clientY } = e;
+      lastClientCoordinates = [clientX, clientY];
+    });
+
     this.getCanvas().addEventListener(event, e => {
       const { clientX, clientY } = e;
       let [x, y] = this.getCanvasXYFromMouseXY(clientX, clientY);
@@ -704,10 +711,13 @@ class CanvasHandler {
         );
 
         switch (event) {
-          case 'click':
-            if (itemHit) mapItemEvent = event;
-
+          case 'mouseup': {
+            const [lastClientX, lastClientY] = lastClientCoordinates;
+            if (itemHit && clientX === lastClientX && clientY === lastClientY)
+              mapItemEvent = 'click';
             break;
+          }
+
           case 'mousemove':
             if (itemHit && !this.mapItemsMouseOvering[id]) {
               mapItemEvent = 'mouseover';
