@@ -1,4 +1,6 @@
 import get from 'lodash.get';
+import throttle from 'lodash.throttle';
+
 import calculateTextDimension from './calculateTextDimension';
 import stableSort from './stableSort';
 import addTouchEventHandler from './addTouchEventHandler';
@@ -673,84 +675,87 @@ class CanvasHandler {
       lastClientCoordinates = [clientX, clientY];
     });
 
-    this.getCanvas().addEventListener(event, e => {
-      const { clientX, clientY } = e;
-      let [x, y] = this.getCanvasXYFromMouseXY(clientX, clientY);
-      x += this.getScreenLeftX();
-      y += this.getScreenTopY();
+    this.getCanvas().addEventListener(
+      event,
+      throttle(e => {
+        const { clientX, clientY } = e;
+        let [x, y] = this.getCanvasXYFromMouseXY(clientX, clientY);
+        x += this.getScreenLeftX();
+        y += this.getScreenTopY();
 
-      const visitedItemIds = new Set();
+        const visitedItemIds = new Set();
 
-      revForEach(this.mapItemIds, id => {
-        const mapItem = this.mapItems[id];
-        if (mapItem.floor !== this.floor) {
-          return;
-        }
-
-        visitedItemIds.add(id);
-
-        let mapItemEvent;
-        const {
-          hitX,
-          hitY,
-          hitWidth,
-          hitHeight,
-          scaleDimension,
-          scalePosition,
-          offsetX,
-          offsetY,
-        } = mapItem;
-
-        const itemHit = hitTest(
-          x,
-          y,
-          (scalePosition ? this.scaleCoordinate(hitX) : hitX) + offsetX,
-          (scalePosition ? this.scaleCoordinate(hitY) : hitY) + offsetY,
-          scaleDimension ? this.scaleCoordinate(hitWidth) : hitWidth,
-          scaleDimension ? this.scaleCoordinate(hitHeight) : hitHeight,
-        );
-
-        switch (event) {
-          case 'mouseup': {
-            const [lastClientX, lastClientY] = lastClientCoordinates;
-            if (itemHit && clientX === lastClientX && clientY === lastClientY)
-              mapItemEvent = 'click';
-            break;
+        revForEach(this.mapItemIds, id => {
+          const mapItem = this.mapItems[id];
+          if (mapItem.floor !== this.floor) {
+            return;
           }
 
-          case 'mousemove':
-            if (itemHit && !this.mapItemsMouseOvering[id]) {
-              mapItemEvent = 'mouseover';
-              this.mapItemsMouseOvering[id] = true;
-            } else if (!itemHit && this.mapItemsMouseOvering[id]) {
-              mapItemEvent = 'mouseout';
-              delete this.mapItemsMouseOvering[id];
+          visitedItemIds.add(id);
+
+          let mapItemEvent;
+          const {
+            hitX,
+            hitY,
+            hitWidth,
+            hitHeight,
+            scaleDimension,
+            scalePosition,
+            offsetX,
+            offsetY,
+          } = mapItem;
+
+          const itemHit = hitTest(
+            x,
+            y,
+            (scalePosition ? this.scaleCoordinate(hitX) : hitX) + offsetX,
+            (scalePosition ? this.scaleCoordinate(hitY) : hitY) + offsetY,
+            scaleDimension ? this.scaleCoordinate(hitWidth) : hitWidth,
+            scaleDimension ? this.scaleCoordinate(hitHeight) : hitHeight,
+          );
+
+          switch (event) {
+            case 'mouseup': {
+              const [lastClientX, lastClientY] = lastClientCoordinates;
+              if (itemHit && clientX === lastClientX && clientY === lastClientY)
+                mapItemEvent = 'click';
+              break;
             }
-            break;
-          default:
-        }
 
-        if (mapItemEvent) {
-          (get(this.mapItemListenerIds[mapItemEvent], id) || []).some(
-            listenerId =>
-              this.mapItemListeners[mapItemEvent][id][listenerId]({ ...this.mapItems[id] }) ===
-              false,
-          );
-        }
-      });
+            case 'mousemove':
+              if (itemHit && !this.mapItemsMouseOvering[id]) {
+                mapItemEvent = 'mouseover';
+                this.mapItemsMouseOvering[id] = true;
+              } else if (!itemHit && this.mapItemsMouseOvering[id]) {
+                mapItemEvent = 'mouseout';
+                delete this.mapItemsMouseOvering[id];
+              }
+              break;
+            default:
+          }
 
-      Object.keys(this.mapItemsMouseOvering).forEach(mapItemId => {
-        if (!visitedItemIds.has(mapItemId)) {
-          (get(this.mapItemListenerIds.mouseout, mapItemId) || []).some(
-            listenerId =>
-              this.mapItemListeners.mouseout[mapItemId][listenerId]({
-                ...this.mapItems[mapItemId],
-              }) === false,
-          );
-          delete this.mapItemsMouseOvering[mapItemId];
-        }
-      });
-    });
+          if (mapItemEvent) {
+            (get(this.mapItemListenerIds[mapItemEvent], id) || []).some(
+              listenerId =>
+                this.mapItemListeners[mapItemEvent][id][listenerId]({ ...this.mapItems[id] }) ===
+                false,
+            );
+          }
+        });
+
+        Object.keys(this.mapItemsMouseOvering).forEach(mapItemId => {
+          if (!visitedItemIds.has(mapItemId)) {
+            (get(this.mapItemListenerIds.mouseout, mapItemId) || []).some(
+              listenerId =>
+                this.mapItemListeners.mouseout[mapItemId][listenerId]({
+                  ...this.mapItems[mapItemId],
+                }) === false,
+            );
+            delete this.mapItemsMouseOvering[mapItemId];
+          }
+        });
+      }, 30),
+    );
   }
 
   scaleCoordinate(v) {
