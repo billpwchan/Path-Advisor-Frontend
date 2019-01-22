@@ -3,13 +3,13 @@ import style from './PanoDisplay.module.css';
 import closeIcon from "./close.png";
 import expandIcon from "./expand.png";
 import toSplitIcon from "./toSplit.png";
-import panoImage from "./Atrium02.jpg";
+// import panoImage from "./ESCALATOR_LEFT_CORNER.jpg";
 import rotateLeftImg from "./rotate_left.png";
 import rotateRightImg from "./rotate_right.png";
 import rotateLeftOnClickImg from "./rotate_left_onclick.png";
 import rotateRightOnClickImg from "./rotate_right_onclick.png";
-import compassImg from "./compass.png";
-import panoImage2 from "./Atrium01.jpg";
+import compassImg from './compass.png';
+//import panoImage from "./stitchedImage.png"
 
 const timeoutSpeed = 150; //the speed in whcih holding on the button turn
 const ovalTimeoutSpeed = 5000;
@@ -25,12 +25,13 @@ const scaleX = 1; //pixel scale to mouse drag other words, sensitivity
  * - have the image as background and on repeat, so it will show the same image. (ADOPTED)
  * (can be convenient when you have features placed on it.)
  * 
- * 3) add the pointint to north compass(DONE)
+ * 3) add the pointint to north compass
  * - find width of image
  * 
  * 4) Create a smooth drag (DONE)
  * - change cursor when dragging
  */
+
 
 const colors = ["#393E41", "#E94F37", "#1C89BF", "#A1D363",
     "#85FFC7", "#297373", "#FF8552", "#A40E4C"];
@@ -63,15 +64,14 @@ class PanoDisplay extends React.Component {
         rightButton: rotateRightImg,
         isDrag: false,
         scrollLeft: 0, //show how much is turned.
-        degree: 0,
         clientX: 0,
-        panoImage: null,
+        clientY: 0,
         displayOval: false,
     };
-
     ovalTimeout = null;
 
-    setImageDimension = (imageSrc) => {
+    componentDidMount = () => {
+        let imageSrc = this.refs.panoDisplay.style.backgroundImage;
         let urlRegex = /url\((["'])(.*?)\1\)/;
         let match = urlRegex.exec(imageSrc);
         let image = new Image();
@@ -84,23 +84,13 @@ class PanoDisplay extends React.Component {
             widthImage: image.width,
             heightImage: image.height,
             scaledWidth: image.width / (image.height / (this.props.height / 2))
-        })
+        });
+
     }
 
-    componentDidMount = () => {
-        this.setState({
-            panoImage: panoImage
-        })
-        let imageSrc = this.refs.panoDisplay.style.backgroundImage;
-        this.setImageDimension(imageSrc);
-    }
-
-    componentDidUpdate = (prevProps, prevState) => {
-        if (this.state.panoImage !== prevState.panoImage) {
-            let imageSrc = this.refs.panoDisplay.style.backgroundImage;
-            this.setImageDimension(imageSrc);
-        }
-    }
+    //zeroPosition can be affected by both the button and on scroll
+    //for button, it sets a limit to the most left and most right to be display,
+    //for mouse, there is no limit, need to indicate the direction of drag, done with offset as well
 
     toggleFullScreen = () => {
         let newWidth = 0;
@@ -112,13 +102,16 @@ class PanoDisplay extends React.Component {
         this.setState({
             fullScreen: !this.state.fullScreen,
             scaledWidth: newWidth
-        })
+        });
     }
 
     offShow = () => {
+
         this.setState({
             show: false
-        })
+        });
+        // Must notify parent when the show is done. 
+        // The parent call must be done AFTER this.setState().
         this.props.parentOffShow();
     };
 
@@ -130,7 +123,7 @@ class PanoDisplay extends React.Component {
             clientX: e.clientX,
             isDrag: true,
             scrollLeft: this.state.scrollLeft
-        })
+        });
     }
 
     handleDrag = (e) => {
@@ -178,80 +171,60 @@ class PanoDisplay extends React.Component {
             offsetX: 0,
             isDrag: false,
             cursor: 'grab',
-        })
+        });
     }
 
     //HANDLERS FOR LEFT AND RIGHT ROTATE BUTTONS
 
     t = undefined; //to keep track so you can clear timeout later
-    rotateLeft = (increment) => {
+    rotateLeft = () => {
         //8clicks will go back to starting point. since the width is 3400/8, 
         //take the scaledWidth/8
+        let increment = this.state.scaledWidth / 8;
         let newx = this.state.scrollLeft - increment;
         this.setState({
             scrollLeft: newx
-        })
-        this.t = setTimeout(() => this.rotateLeft(increment), timeoutSpeed); //set how fast you want it to turn;
+        });
+        this.t = setTimeout(this.rotateLeft, timeoutSpeed); //set how fast you want it to turn;
     }
 
     handleRotateLeft = async () => {
+        console.log('handling rotate left,scroll left=', this.state.scrollLeft);
         await this.setState({
             leftButton: rotateLeftOnClickImg
-        })
-        let increment = this.state.scaledWidth / 8;
-        await this.rotateLeft(increment);
+        });
+        await this.rotateLeft();
     }
 
-    rotateRight = (increment) => {
+    rotateRight = async () => {
+        let increment = this.state.scaledWidth / 8;
         let newx = this.state.scrollLeft + increment;
 
         this.setState({
             scrollLeft: newx
-        })
-        this.t = setTimeout(() => this.rotateRight(increment), timeoutSpeed); //set how fst you want it to turn
+        });
+        this.t = setTimeout(this.rotateRight, timeoutSpeed); //set how fst you want it to turn
     }
 
     handleRotateRight = async () => {
         await this.setState({
             rightButton: rotateRightOnClickImg
-        })
-        let increment = this.state.scaledWidth / 8;
-        await this.rotateRight(increment);
+        });
+        await this.rotateRight();
     }
 
     resetRotateLeft = () => {
         this.setState({
             leftButton: rotateLeftImg
-        })
+        });
         clearTimeout(this.t);
     }
 
     resetRotateRight = () => {
         this.setState({
             rightButton: rotateRightImg
-        })
+        });
         clearTimeout(this.t);
-    }
-
-    handleKeyDown = async (e) => {
-        if (e.keyCode === 37) {
-            this.rotateLeft(30);
-            clearTimeout(this.t);
-        }
-        else if (e.keyCode === 39) {
-            this.rotateRight(30);
-            clearTimeout(this.t);
-        } else if (e.keyCode === 38) {
-            this.setState({
-                degree: (this.state.scrollLeft % this.state.scaledWidth) / this.state.scaledWidth * 360,
-                panoImage: panoImage2
-            });
-        } else if (e.keyCode === 40) {
-            this.setState({
-                degree: (this.state.scrollLeft % this.state.scaledWidth) / this.state.scaledWidth * 360,
-                panoImage: panoImage
-            });
-        }
     }
     /**The Helper function to get the size of the small oval. */
     getSmallOvalDim() {
@@ -272,20 +245,21 @@ class PanoDisplay extends React.Component {
         let panoImage = this.props.panoImage;
         const backgroundStyle = {
             display: this.state.show ? 'block' : 'none',
-            backgroundImage: `url(${this.state.panoImage})`,
+            backgroundImage: `url(${panoImage})`,
             backgroundPosition: -this.state.scrollLeft,
             cursor: this.state.cursor
         };
-        console.log(this.state.scaledWidth);
+
         let degree = (this.state.scrollLeft % this.state.scaledWidth) / this.state.scaledWidth * 360;
-        //let scrollLeft = degree/360 * this.state.scaledWidth
+        
         let { dx, dy } = this.getSmallOvalDim();
 
 
         return (
-            <div ref="panoDisplay" className={this.state.fullScreen ? style.fullScreen : style.panoScreen} style={backgroundStyle} onMouseDown={this.handleStart} onMouseMove={this.handleDrag} onMouseUp={this.handleStop} onMouseLeave={this.handleStop} tabIndex="0" onKeyDown={this.handleKeyDown} >
-                <Circle x={this.state.clientX} y={this.state.clientY} dx={dx} dy={dy} display={this.state.displayOval}></Circle>
+            <div ref="panoDisplay" className={this.state.fullScreen ? style.fullScreen : style.panoScreen} style={backgroundStyle} onMouseDown={this.handleStart} onMouseMove={this.handleDrag} onMouseUp={this.handleStop} onMouseLeave={this.handleStop}>
 
+                <Circle x={this.state.clientX} y={this.state.clientY} dx={dx} dy={dy} display={this.state.displayOval}></Circle>
+                
                 <img className={style.compass} src={compassImg} alt="compass" style={{ transform: `rotate(${degree + "deg"})` }} />
                 <button type="button" className={style.rotateButtonLeft} onMouseDown={this.handleRotateLeft} onMouseLeave={this.resetRotateLeft} onMouseUp={this.resetRotateLeft} >
                     <img src={this.state.leftButton} alt="Rotate-Left Button" />
@@ -311,3 +285,4 @@ class PanoDisplay extends React.Component {
 
 const id = 'panoDisplay';
 export { PanoDisplay };
+// export default PanoDisplay;

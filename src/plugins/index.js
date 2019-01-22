@@ -22,10 +22,8 @@ export default [
   NearestResult,
   ShortestResult,
   Legend,
-  
   StreetView,
   // PanoDisplay,
-  
   ZoomButton,
   NearestResultMobile,
   LegendButton,
