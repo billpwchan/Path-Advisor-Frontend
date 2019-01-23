@@ -40,8 +40,7 @@ function getPanoURL_dev(APIEndpoint, floor, x, y) {
         .then(
             response => {
                 response = response.data;
-                // console.log(response);
-                
+                        
                 // The following decision making method is modified from map_interface.js, line 1070-1104
                 if (response.split(";")[0] === "area") {
                     pano_id = response.split(";")[7];
@@ -80,7 +79,6 @@ class StreetView extends React.Component {
     This can be very helpful. Feel free to make good use of it.
     */
     getCampusXYFromMouseXY(canvas, mouseX, mouseY) {
-        console.log("normalized width", this.props.normalizedWidth);
         // Get the zoom in/out factor for current canvas display.
         const screenToCampusScale = { x: this.props.width / (this.props.normalizedWidth + 0.0001), y: this.props.height / (this.props.normalizedHeight + 0.0001) };
 
@@ -117,7 +115,6 @@ class StreetView extends React.Component {
         });
     }
     handlePanoClose() {
-        console.log('pano closed');
         this.setState({
             displayPinMan: false,
             displayPano: false,
@@ -130,22 +127,7 @@ class StreetView extends React.Component {
             fullScreenPano:!fullScreen,
         });
     }
-    handlePanoRotate_dev(e) {
-        let pinManElement;
-        for (var index in this.props.mapItemStore.mapItems) {
-            const item = this.props.mapItemStore.mapItems[index];
-            console.log(item.name, item.id, item.photo);
-            if (item.id === 'PIN_MAN_ID') {
-                pinManElement = item;
-                break;
-            }
-        }
-        if (pinManElement == null) {
-            console.log('Pin man id not found');
-            return null;
-        }
-        const newAngle = this.state.PinManAngle + 22.5;
-        pinManElement.photo = "./img/man/" + (Math.floor(newAngle / 22.5)) + ".png";
+    handlePanoRotate_dev(newAngle) {
         this.setState({
             PinManAngle: newAngle,
         });
@@ -196,32 +178,33 @@ class StreetView extends React.Component {
                     x={x}
                     y={y}
                     floor={floor}
+                    angle={this.state.PinManAngle}
                     onClick={(e) => this.handlePanoRotate(e)}
                 />
             </div>
         );
     }
 
-    renderPano_old() {
-        let x = this.state.PinManX;
-        let y = this.state.PinManY;
-        let floor = this.props.floor;
-        let fullScreen = this.state.fullScreenPano;
-        if (this.state.displayPano) {
-            return <PanoDisplay
-                height={fullScreen ? this.props.height : this.props.height * 0.5}
-                width={this.props.width}
-                onCloseClick={() => this.handlePanoClose()}
-                onResizeClick={() => this.handlePanoResize()}
-                fullScreen={fullScreen}
-                x={x}
-                y={y}
-                floor={floor}
-            />;
-        } else {
-            return null;
-        }
-    }
+    // renderPano_old() {
+    //     let x = this.state.PinManX;
+    //     let y = this.state.PinManY;
+    //     let floor = this.props.floor;
+    //     let fullScreen = this.state.fullScreenPano;
+    //     if (this.state.displayPano) {
+    //         return <PanoDisplay
+    //             height={fullScreen ? this.props.height : this.props.height * 0.5}
+    //             width={this.props.width}
+    //             onCloseClick={() => this.handlePanoClose()}
+    //             onResizeClick={() => this.handlePanoResize()}
+    //             fullScreen={fullScreen}
+    //             x={x}
+    //             y={y}
+    //             floor={floor}
+    //         />;
+    //     } else {
+    //         return null;
+    //     }
+    // }
     renderPano_new() {
         let x = this.state.PinManX;
         let y = this.state.PinManY;
@@ -239,6 +222,7 @@ class StreetView extends React.Component {
                 width={this.props.width}
                 height={this.props.height}
                 parentOffShow={() => this.handlePanoClose()}
+                parentHandleUpdate={(e)=>this.handlePanoRotate(e)}
             />;
         } else {
             return null;

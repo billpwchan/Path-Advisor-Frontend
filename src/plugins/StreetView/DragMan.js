@@ -26,7 +26,6 @@ function updateDragManPosition(e) {
 
 function DragMan({ display, buttonClassName, initialX, initialY, parentHandleDrop }) {
     document.onmousemove = updateDragManPosition;
-    console.log("Drag Man Rendered");
     const styles = {
         position: 'fixed',
         top: initialY,

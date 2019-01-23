@@ -54,6 +54,14 @@ function Circle(props) {
         </div>
     );
 }
+function positiveModulo(number, modulo) {
+    if (number >= 0) {
+        return Math.floor(number % modulo);
+    }
+    else {
+        return Math.floor(number % modulo + modulo);
+    }
+}
 
 class PanoDisplay extends React.Component {
     state = {
@@ -84,6 +92,7 @@ class PanoDisplay extends React.Component {
             widthImage: image.width,
             heightImage: image.height,
             scaledWidth: image.width / (image.height / (this.props.height / 2))
+            // scaledWidth: image.width / (image.height / (this.props.height))
         })
     }
 
@@ -140,9 +149,13 @@ class PanoDisplay extends React.Component {
             offsetX = offsetX * scaleX;
             //need to set refinement to the offset.
             this.setState({
-                scrollLeft: this.state.scrollLeft - offsetX,
+                scrollLeft: positiveModulo(this.state.scrollLeft - offsetX, this.state.scaledWidth),
                 cursor: 'grabbing',
             });
+            let degree = (this.state.scrollLeft % this.state.scaledWidth) / this.state.scaledWidth * 360;
+            this.props.parentHandleUpdate(degree);
+
+
         }
         this.setState({
             clientX: e.clientX,
@@ -187,10 +200,13 @@ class PanoDisplay extends React.Component {
     rotateLeft = (increment) => {
         //8clicks will go back to starting point. since the width is 3400/8, 
         //take the scaledWidth/8
-        let newx = this.state.scrollLeft - increment;
+        let newx = positiveModulo(this.state.scrollLeft - increment, this.state.scaledWidth);
         this.setState({
             scrollLeft: newx
         })
+        let degree = (this.state.scrollLeft % this.state.scaledWidth) / this.state.scaledWidth * 360;
+        this.props.parentHandleUpdate(degree);
+
         this.t = setTimeout(() => this.rotateLeft(increment), timeoutSpeed); //set how fast you want it to turn;
     }
 
@@ -203,11 +219,14 @@ class PanoDisplay extends React.Component {
     }
 
     rotateRight = (increment) => {
-        let newx = this.state.scrollLeft + increment;
+        let newx = positiveModulo(this.state.scrollLeft + increment, this.state.scaledWidth);
 
         this.setState({
             scrollLeft: newx
         })
+        let degree = (this.state.scrollLeft % this.state.scaledWidth) / this.state.scaledWidth * 360;
+        this.props.parentHandleUpdate(degree);
+
         this.t = setTimeout(() => this.rotateRight(increment), timeoutSpeed); //set how fst you want it to turn
     }
 
@@ -270,14 +289,15 @@ class PanoDisplay extends React.Component {
 
     render() {
         let panoImage = this.props.panoImage;
+        // let panoImage = this.state.panoImage;
+        console.log("scrollLeft value", this.state.scrollLeft);
         const backgroundStyle = {
             display: this.state.show ? 'block' : 'none',
-            backgroundImage: `url(${this.state.panoImage})`,
+            backgroundImage: `url(${panoImage})`,
             backgroundPosition: -this.state.scrollLeft,
             cursor: this.state.cursor
         };
-        console.log(this.state.scaledWidth);
-        let degree = (this.state.scrollLeft % this.state.scaledWidth) / this.state.scaledWidth * 360;
+        let degree = (-this.state.scrollLeft % this.state.scaledWidth) / this.state.scaledWidth * 360;
         //let scrollLeft = degree/360 * this.state.scaledWidth
         let { dx, dy } = this.getSmallOvalDim();
 
@@ -309,5 +329,5 @@ class PanoDisplay extends React.Component {
 // 	connect: ['platform','linkTo','x','y','level','canvas', 'width', 'height'],
 // }
 
-const id = 'panoDisplay';
+// const id = 'panoDisplay';
 export { PanoDisplay };

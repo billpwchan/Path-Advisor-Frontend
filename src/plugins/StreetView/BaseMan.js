@@ -37,7 +37,6 @@ class BaseMan extends React.Component {
     }
     
     render() {
-        console.log("Base Man Rendered");
         let buttonClassName = this.props.buttonClassName;
         
         // If parent passes in available==true, handle mouse over effect by myself.
