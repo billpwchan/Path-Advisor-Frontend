@@ -13,7 +13,7 @@ import * as LiveView from './LiveView/LiveView';
 import * as StreetView from './StreetView/StreetView'
 // import * as StreetView from './StreetView/_StreetView-dev'
 // import * as PanoDisplay from './PanoDisplay/PanoDisplay'
-import * as SmallMap from './SmallMap/SmallMap'
+// import * as SmallMap from './SmallMap/SmallMap'
 export default [
   MapTile,
   CampusBuildingOverlay,

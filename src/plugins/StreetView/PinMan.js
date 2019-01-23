@@ -18,6 +18,7 @@ const PIN_MAN_ID = 'PIN_MAN_ID';
 //     return;
 // }
 function getPinManImage(angle) {
+    console.log("pin man angle",angle);
     return getPinManImage_dev(angle);
 }
 
@@ -28,7 +29,7 @@ function getPinManImage(angle) {
 
 
 function getPinManImage_dev(angle) {
-    angle = angle+90;// In PanoDisplay, angle 0 means facing north. Here, index 0 means facing west.
+    
     if (angle>=0){
     	angle = angle%360;
     }
@@ -37,6 +38,7 @@ function getPinManImage_dev(angle) {
     }
     const index = Math.floor(angle / 22.5);
     const image = new Image();
+    
     image.src = PinManImages[index];
     // const image = ""
     return image;
@@ -64,7 +66,7 @@ function getPinManImage_dev(angle) {
 
 // }
 
-function PinMan({ setMapItems, removeMapItem, x, y, floor, angle, onClick }) {
+function PinMan({ setMapItems, removeMapItem, x, y, floor, angle }) {
 
     // put a read pin man in map if user specified the 'from' value in input field
     if (x && y && floor) {
@@ -84,8 +86,6 @@ function PinMan({ setMapItems, removeMapItem, x, y, floor, angle, onClick }) {
                 center: true,
                 scalePosition: true,
                 scaleDimension: true,
-                // onClick:(e)=>onClick(e),
-                // onClick: (eventTrigger) => handleOnClick({ setMapItems, eventTrigger }),
             },
         ]);
 
