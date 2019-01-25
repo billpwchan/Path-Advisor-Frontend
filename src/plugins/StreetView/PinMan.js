@@ -7,16 +7,13 @@ const PIN_MAN_ID = 'PIN_MAN_ID';
 
 /*
     This is the pin man component after drag man is dropped on map.
-    It sets an map item on the location on map where mouse is released.
     
-    If you want to retrieve information about PinMan, for example its location, 
+    It sets an map item on the location on map where mouse is released, the location is passed in by parent.
+    
+    It accepts an angle passed in by the parent, then display the small man image corresponding to the angle.
+
 */
 
-
-// function handleOnClick({ setMapItems, eventTrigger }) {
-//     handleOnClick_dev({setMapItems,eventTrigger});
-//     return;
-// }
 function getPinManImage(angle) {
     console.log("pin man angle",angle);
     return getPinManImage_dev(angle);
@@ -44,31 +41,9 @@ function getPinManImage_dev(angle) {
     return image;
 }
 
-/*
- This is a toy handle click function we developed to test the turning feature.
- If you click on the small man, it will turn in clickwise direction.
- */
-// var angle = 0;
-
-// async function handleOnClick_dev({ setMapItems, eventTrigger }) {
-//     // var id = eventTrigger.id;
-
-//     // console.log('clicked', eventTrigger.id);
-
-//     const image = getPinManImage(angle);
-//     angle = (angle + 22.5) % 360;
-//     setMapItems([
-//         {
-//             ...eventTrigger,
-//             image: image,
-//         },
-//     ]);
-
-// }
 
 function PinMan({ setMapItems, removeMapItem, x, y, floor, angle }) {
 
-    // put a read pin man in map if user specified the 'from' value in input field
     if (x && y && floor) {
         
         angle = angle == null ? 0 : angle;

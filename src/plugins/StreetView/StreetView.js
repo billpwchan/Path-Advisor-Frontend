@@ -5,9 +5,7 @@ import DragMan from "./DragMan";
 import BaseMan from "./BaseMan";
 import PinMan from "./PinMan";
 import { PanoDisplay } from "../PanoDisplay/PanoDisplay";
-// import PanoDisplay from "./PanoDisplay";
 import Axios from 'axios';
-// import axios from 'axios';
 
 /* 
 This is the highest level StreetView component. 
@@ -28,7 +26,7 @@ function PanoServerEndPoint() {
 function PanoServerEndPoint_dev() {
     return 'http://localhost:380';
 }
-// A toy getPanoURL method we use for retrieveing PanoImage from slave server, given the PinMan location.
+
 class StreetView extends React.Component {
     constructor(props) {
         super(props);
@@ -47,9 +45,11 @@ class StreetView extends React.Component {
 
         };
     }
+    
     getPanoURL(APIEndpoint) {
         return this.getPanoURL_dev(APIEndpoint);
     }
+    // A toy getPanoURL method we use for retrieveing PanoImage from slave server, given the PinMan location.
     getPanoURL_dev(APIEndpoint) {
         let pano_id;
         let pano_source;
