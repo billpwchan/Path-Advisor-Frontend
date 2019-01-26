@@ -60,7 +60,7 @@ class StreetView extends React.Component {
             .then(
                 response => {
                     response = response.data;
-                    console.log("get_map_data_2.php response", response);
+                    // console.log("get_map_data_2.php response", response);
                     // The following decision making method is modified from map_interface.js, line 1070-1104
                     if (response.split(";")[0] === "area") {
                         pano_id = response.split(";")[7];
@@ -139,7 +139,7 @@ class StreetView extends React.Component {
                     displayDragMan: false,
                     displayPinMan: true,
                     displayPano: true,
-                    PinManAngle:0,
+                    // PinManAngle:0,
                 });              
             });
     }

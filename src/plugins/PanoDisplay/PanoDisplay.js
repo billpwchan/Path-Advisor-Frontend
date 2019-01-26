@@ -67,6 +67,11 @@ function positiveModulo(number, modulo) {
 class PanoDisplay extends React.Component {
     constructor(props) {
         super(props);
+        /**
+         * scollLeft: it represents the number of pixels dragged left away from the initial position. It is solely dependent of mouse drag event.
+         * degree: it represents the degree of the centre of pano image away from North direction in clockwise orientation. 
+         * 
+         */
         this.state = {
             show: true,
             fullScreen: false,
@@ -101,12 +106,12 @@ class PanoDisplay extends React.Component {
             });
         }
     }
-    
-    degreeToScaledOffset(deg){
+
+    degreeToScaledOffset(deg) {
         return deg / 360 * this.getScaledWidth();
     }
-    scaledOffsetToDegree(scaledOffset){
-        return 360 * scaledOffset/this.getScaledWidth();
+    scaledOffsetToDegree(scaledOffset) {
+        return 360 * scaledOffset / this.getScaledWidth();
     }
     /**
      * The actual width entire pano image after loading, including the part overflowing outof the container.
@@ -126,9 +131,10 @@ class PanoDisplay extends React.Component {
         this.setState({
             panoImage: this.props.panoImage
         });
-        console.log("did mount pano");
+        // console.log("did mount pano");
         let imageSrc = this.refs.panoDisplay.style.backgroundImage;
         this.setImageDimension(imageSrc);
+
 
     }
 
@@ -137,6 +143,8 @@ class PanoDisplay extends React.Component {
         if (this.props.panoImage !== prevProps.panoImage) {
             let imageSrc = this.refs.panoDisplay.style.backgroundImage;
             this.setImageDimension(imageSrc);
+
+            this.props.parentHandleUpdate(this.state.degree);
         }
     }
 
@@ -167,7 +175,7 @@ class PanoDisplay extends React.Component {
         this.setState({
             clientX: e.clientX,
             isDrag: true,
-            
+
         });
     }
 
@@ -178,15 +186,15 @@ class PanoDisplay extends React.Component {
             offsetX = offsetX * scaleX;
             //need to set refinement to the offset.
             const scaledWidth = this.getScaledWidth();
-            console.log(this.state.widthImage, this.state.heightImage);
+            // console.log(this.state.widthImage, this.state.heightImage);
             const newx = this.state.scrollLeft - offsetX;
             let degree = (newx % scaledWidth) / scaledWidth * 360;
             this.setState({
                 scrollLeft: newx, scaledWidth,
                 cursor: 'grabbing',
-                degree:degree
+                degree: degree
             });
-            
+
             this.props.parentHandleUpdate(degree);
         }
 
@@ -334,29 +342,29 @@ class PanoDisplay extends React.Component {
         let panoImage = this.props.panoImage;
         // let panoImage = this.state.panoImage;
         const pixelOffset = this.getScaledDefaultOffset();
-        console.log('scaled pixel offset', pixelOffset);
+        // console.log('scaled pixel offset', pixelOffset);
         const angleOffset = this.props.defaultClockwiseAngleFromNorth;
-        console.log('scaled default angle from north',angleOffset);
-        
+        // console.log('scaled default angle from north', angleOffset);
+
         let degree = this.state.degree;
-        console.log("current degree",degree);
+        // console.log("current degree", degree);
         let { dx, dy } = this.getSmallOvalDim();
-        
+
         const backgroundStyle = {
             display: this.state.show ? 'block' : 'none',
             backgroundImage: `url(${panoImage})`,
             // backgroundPosition: - offset - this.state.scrollLeft,
-            backgroundPosition: - pixelOffset- this.degreeToScaledOffset(degree),
+            backgroundPosition: - pixelOffset - this.degreeToScaledOffset(-angleOffset + degree),
             // backgroundPosition: - this.state.scrollLeft,
             cursor: this.state.cursor
         };
-        console.log('background image postition', -pixelOffset-this.degreeToScaledOffset(degree));
+        // console.log('background image postition', -pixelOffset - this.degreeToScaledOffset(-angleOffset + degree));
         return (
             <div ref="panoDisplay" className={this.state.fullScreen ? style.fullScreen : style.panoScreen} style={backgroundStyle} onMouseDown={this.handleStart} onMouseMove={this.handleDrag} onMouseUp={this.handleStop} onMouseLeave={this.handleStop} tabIndex="0" onKeyDown={this.handleKeyDown} >
 
                 <Circle x={this.state.clientX} y={this.state.clientY} dx={dx} dy={dy} display={this.state.displayOval}></Circle>
 
-                <img className={style.compass} src={compassImg} alt="compass" style={{ transform: `rotate(${degree + "deg"})` }} />
+                <img className={style.compass} src={compassImg} alt="compass" style={{ transform: `rotate(${-degree + "deg"})` }} />
                 <button type="button" className={style.rotateButtonLeft} onMouseDown={this.handleRotateLeft} onMouseLeave={this.resetRotateLeft} onMouseUp={this.resetRotateLeft} >
                     <img src={this.state.leftButton} alt="Rotate-Left Button" />
                 </button>

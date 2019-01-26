@@ -15,7 +15,7 @@ const PIN_MAN_ID = 'PIN_MAN_ID';
 */
 
 function getPinManImage(angle) {
-    console.log("pin man angle",angle);
+    // console.log("pin man angle",angle);
     return getPinManImage_dev(angle);
 }
 
