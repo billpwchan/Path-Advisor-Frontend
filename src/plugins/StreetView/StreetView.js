@@ -36,37 +36,49 @@ class StreetView extends React.Component {
             displayPinMan: false,
             displayPano: false,
             fullScreenPano: false,
-            PinManX: 0,
-            PinManY: 0,
             PinManAngle: 0,
-            panoUrl :"",//A global variable to store panoUrl. It is supposed to be updated in getPanoUrl().
-            panoDefaultAngle : 0,
-            panoDefaultOffset : 0
+            panoX:0,
+            panoY:0,
+            panoUrl: "",//A global variable to store panoUrl. It is supposed to be updated in getPanoUrl().
+            panoDefaultAngle: 0,
+            panoDefaultOffset: 0
 
         };
     }
-    
-    getPanoURL(APIEndpoint) {
-        return this.getPanoURL_dev(APIEndpoint);
+
+    getPanoInfo(APIEndpoint,floor, x, y) {
+        return this.getPanoInfo_dev(APIEndpoint,floor, x, y);
     }
     // A toy getPanoURL method we use for retrieveing PanoImage from slave server, given the PinMan location.
-    getPanoURL_dev(APIEndpoint) {
+    getPanoInfo_dev(APIEndpoint,floor, x, y) {
         let pano_id;
         let pano_source;
+        let pano_x;
+        let pano_y;
 
-        return Axios.get(`${APIEndpoint()}/phplib/get_map_data_2.php?floor=${this.props.floor}&coorX=${this.props.x}&coorY=${this.props.y}`)
+        return Axios.get(`${APIEndpoint()}/phplib/get_map_data_2.php?floor=${floor}&coorX=${x}&coorY=${y}`)
             .then(
                 response => {
                     response = response.data;
+                    console.log("get_map_data_2.php response", response);
                     // The following decision making method is modified from map_interface.js, line 1070-1104
                     if (response.split(";")[0] === "area") {
                         pano_id = response.split(";")[7];
                         pano_source = response.split(";")[8] + ".jpg";
+                        pano_x = response.split(";")[9];
+                        pano_y = response.split(";")[10];
                     }
                     else {
                         pano_id = response.split(";")[5];
                         pano_source = response.split(";")[6] + ".jpg";
+                        pano_x = parseInt(response.split(";")[7]);
+                        pano_y =parseInt(response.split(";")[8]);
                     }
+                    
+                    this.setState({
+                        panoX: pano_x,
+                        panoY: pano_y
+                    });
                     // Decision Making Ends
                     // Update the value of global variable panoUrl.
                     // panoUrl = `${APIEndpoint()}/pano_pixel.php?floor=${this.props.floor}&photo=${pano_source}&pano_id=${pano_id}`;
@@ -76,11 +88,11 @@ class StreetView extends React.Component {
                             response => {
                                 response = response.data;
                                 this.setState({
-                                    panoUrl:`${APIEndpoint()}/pano_pixel.php?floor=${this.props.floor}&photo=${pano_source}&pano_id=${pano_id}`,
+                                    panoUrl: `${APIEndpoint()}/pano_pixel.php?floor=${this.props.floor}&photo=${pano_source}&pano_id=${pano_id}`,
                                     panoDefaultOffset: response.split(';')[0],
-                                    panoDefaultAngle: response.split(';')[1]
+                                    panoDefaultAngle: response.split(';')[1],
                                 })
-                               
+                              
                             });
                 }
             );
@@ -113,24 +125,31 @@ class StreetView extends React.Component {
             // displayPano:false
         });
     }
+    getNearestPanoXY(x, y) {
+
+
+    }
     handleDragManDrop(e) {
         let [x, y] = this.getCampusXYFromMouseXY(this.props.canvas, e.clientX, e.clientY);
 
+
+
         // Move the map to centre at beneath the dropped location,
         //  so that the PinMan is not blocked by the PanoDisplay.
-        this.props.linkTo({ x: x, y: y + this.props.height * 0.5 });
-        
-        this.getPanoURL(PanoServerEndPoint).then(//Update the panoUrl variable.    
+
+        this.getPanoInfo(PanoServerEndPoint,this.props.floor,x, y).then(//Update the panoUrl variable.    
             () => {
                 this.setState({
                     baseManAvail: true,
                     displayDragMan: false,
                     displayPinMan: true,
                     displayPano: true,
-                    PinManX: x,
-                    PinManY: y,
                     PinManAngle: this.state.panoDefaultAngle
+
                 });
+                
+                this.props.linkTo({ x: this.state.panoX, y: this.state.panoY + this.props.height * 0.5 });
+
             });
     }
     handlePanoClose() {
@@ -184,8 +203,8 @@ class StreetView extends React.Component {
         let floor;
 
         if (this.state.displayPinMan) {
-            x = this.state.PinManX;
-            y = this.state.PinManY;
+            x = this.state.panoX;
+            y = this.state.panoY;
             floor = this.props.floor;
         }
         return (
@@ -212,8 +231,7 @@ class StreetView extends React.Component {
                 defaultAngle={this.state.panoDefaultAngle}
                 defaultOffset={this.state.panoDefaultOffset}
                 platform={this.props.platform}
-                linkTo={this.props.linkTo}
-                x={this.props.linkTo}
+                x={this.props.x}
                 y={this.props.y}
                 level={this.props.level}
                 canvas={this.props.canvas}
