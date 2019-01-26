@@ -125,14 +125,8 @@ class StreetView extends React.Component {
             // displayPano:false
         });
     }
-    getNearestPanoXY(x, y) {
-
-
-    }
     handleDragManDrop(e) {
         let [x, y] = this.getCampusXYFromMouseXY(this.props.canvas, e.clientX, e.clientY);
-
-
 
         // Move the map to centre at beneath the dropped location,
         //  so that the PinMan is not blocked by the PanoDisplay.
@@ -216,7 +210,6 @@ class StreetView extends React.Component {
                     y={y}
                     floor={floor}
                     angle={this.state.PinManAngle}
-                // onClick={(e) => this.handlePanoRotate(e)}
                 />
             </div>
         );
@@ -230,11 +223,6 @@ class StreetView extends React.Component {
                 panoImage={this.state.panoUrl}
                 defaultAngle={this.state.panoDefaultAngle}
                 defaultOffset={this.state.panoDefaultOffset}
-                platform={this.props.platform}
-                x={this.props.x}
-                y={this.props.y}
-                level={this.props.level}
-                canvas={this.props.canvas}
                 width={this.props.width}
                 height={this.props.height}
                 parentOffShow={() => this.handlePanoClose()}
