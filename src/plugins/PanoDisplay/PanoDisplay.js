@@ -10,6 +10,7 @@ import rotateLeftOnClickImg from "./rotate_left_onclick.png";
 import rotateRightOnClickImg from "./rotate_right_onclick.png";
 import compassImg from "./compass.png";
 import panoImage2 from "./Atrium01.jpg";
+import { off } from 'rsvp';
 
 const timeoutSpeed = 150; //the speed in whcih holding on the button turn
 const ovalTimeoutSpeed = 5000;
@@ -73,8 +74,7 @@ class PanoDisplay extends React.Component {
             rightButton: rotateRightImg,
             isDrag: false,
             scrollLeft: 0, //show how much is turned.
-            degree: props.defaultAngle,
-            defaultOffset: props.defaultOffset,
+            degree: 0,
             clientX: 0,
             panoImage: props.panoImage,
             displayOval: false,
@@ -101,32 +101,24 @@ class PanoDisplay extends React.Component {
             });
         }
     }
+    
+    degreeToScaledOffset(deg){
+        return deg / 360 * this.getScaledWidth();
+    }
+    scaledOffsetToDegree(scaledOffset){
+        return 360 * scaledOffset/this.getScaledWidth();
+    }
+    /**
+     * The actual width entire pano image after loading, including the part overflowing outof the container.
+     */
     getScaledWidth() {
-        // let imageSrc = this.refs.panoDisplay.style.backgroundImage;
-        // let urlRegex = /url\((["'])(.*?)\1\)/;
-        // let match = urlRegex.exec(imageSrc);
-        // let image = new Image();
-        // image.src = match[2];
-        // //gives you the width of background image.
-        //need to get the width of canvas screen
-        //if panoHeight is the full canvas heihgt, then the image will be original scale
-        //if panoHeight is half the full canvas height, then 
 
         const scaledWidth = this.state.widthImage / (this.state.heightImage) * (this.props.height / 2);
         return scaledWidth;
     }
-    getScaledOffset() {
-        let imageSrc = this.refs.panoDisplay.style.backgroundImage;
-        let urlRegex = /url\((["'])(.*?)\1\)/;
-        let match = urlRegex.exec(imageSrc);
-        let image = new Image();
-        image.src = match[2];
-        //gives you the width of background image.
-        //need to get the width of canvas screen
-        //if panoHeight is the full canvas heihgt, then the image will be original scale
-        //if panoHeight is half the full canvas height, then 
+    getScaledDefaultOffset() {
 
-        const scaledOffset = this.props.defaultOffset / (image.height) * (this.props.height / 2);
+        const scaledOffset = this.props.defaultOffset / (this.state.heightImage) * (this.props.height / 2);
         return scaledOffset;
     }
 
@@ -175,8 +167,7 @@ class PanoDisplay extends React.Component {
         this.setState({
             clientX: e.clientX,
             isDrag: true,
-            defaultOffset: this.getScaledOffset()
-            // scrollLeft: this.state.scrollLeft
+            
         });
     }
 
@@ -188,11 +179,14 @@ class PanoDisplay extends React.Component {
             //need to set refinement to the offset.
             const scaledWidth = this.getScaledWidth();
             console.log(this.state.widthImage, this.state.heightImage);
+            const newx = this.state.scrollLeft - offsetX;
+            let degree = (newx % scaledWidth) / scaledWidth * 360;
             this.setState({
-                scrollLeft: this.state.scrollLeft - offsetX, scaledWidth,
+                scrollLeft: newx, scaledWidth,
                 cursor: 'grabbing',
+                degree:degree
             });
-            let degree = (this.state.scrollLeft % scaledWidth) / scaledWidth * 360;
+            
             this.props.parentHandleUpdate(degree);
         }
 
@@ -241,7 +235,7 @@ class PanoDisplay extends React.Component {
         //take the scaledWidth/8
         const scaledWidth = this.getScaledWidth()
         let newx = this.state.scrollLeft - increment;
-        let degree = (this.state.scrollLeft % scaledWidth) / scaledWidth * 360;
+        let degree = (newx % scaledWidth) / scaledWidth * 360;
 
         this.setState({
             scrollLeft: newx,
@@ -266,7 +260,7 @@ class PanoDisplay extends React.Component {
         const scaledWidth = this.getScaledWidth();
         let newx = this.state.scrollLeft + increment;
 
-        let degree = (this.state.scrollLeft % scaledWidth) / scaledWidth * 360;
+        let degree = (newx % scaledWidth) / scaledWidth * 360;
 
         this.setState({
             scrollLeft: newx,
@@ -339,27 +333,24 @@ class PanoDisplay extends React.Component {
     render() {
         let panoImage = this.props.panoImage;
         // let panoImage = this.state.panoImage;
+        const pixelOffset = this.getScaledDefaultOffset();
+        console.log('scaled pixel offset', pixelOffset);
+        const angleOffset = this.props.defaultClockwiseAngleFromNorth;
+        console.log('scaled default angle from north',angleOffset);
+        
+        let degree = this.state.degree;
+        console.log("current degree",degree);
+        let { dx, dy } = this.getSmallOvalDim();
+        
         const backgroundStyle = {
             display: this.state.show ? 'block' : 'none',
             backgroundImage: `url(${panoImage})`,
-            backgroundPosition: -this.state.defaultOffset - this.state.scrollLeft,
+            // backgroundPosition: - offset - this.state.scrollLeft,
+            backgroundPosition: - pixelOffset- this.degreeToScaledOffset(degree),
+            // backgroundPosition: - this.state.scrollLeft,
             cursor: this.state.cursor
         };
-        console.log('background image postition', this.props.defaultOffset - this.state.scrollLeft);
-        // const backgroundStyle = {
-        //     // display: this.state.show ? 'block' : 'none',
-        //     // backgroundImage: `url(${panoImage})`,
-        //     // backgroundPosition: -this.state.scrollLeft,
-        //     cursor: this.state.cursor
-        // };
-        // const PanoStyle = {
-        //     position:'absolute',
-        //     left:-this.state.scrollLeft
-        // }
-
-        // let degree = (-this.state.scrollLeft % this.state.scaledWidth) / this.state.scaledWidth * 360;
-        let degree = this.state.degree;
-        let { dx, dy } = this.getSmallOvalDim();
+        console.log('background image postition', -pixelOffset-this.degreeToScaledOffset(degree));
         return (
             <div ref="panoDisplay" className={this.state.fullScreen ? style.fullScreen : style.panoScreen} style={backgroundStyle} onMouseDown={this.handleStart} onMouseMove={this.handleDrag} onMouseUp={this.handleStop} onMouseLeave={this.handleStop} tabIndex="0" onKeyDown={this.handleKeyDown} >
 

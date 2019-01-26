@@ -40,8 +40,8 @@ class StreetView extends React.Component {
             panoX:0,
             panoY:0,
             panoUrl: "",//A global variable to store panoUrl. It is supposed to be updated in getPanoUrl().
-            panoDefaultAngle: 0,
-            panoDefaultOffset: 0
+            panoDefaultOffset: 0,
+            panoDefaultClockwiseAngleFromNorth:0,
 
         };
     }
@@ -79,6 +79,7 @@ class StreetView extends React.Component {
                         panoX: pano_x,
                         panoY: pano_y
                     });
+                    this.props.linkTo({ x: pano_x, y: pano_y + this.props.height * 0.5 });
                     // Decision Making Ends
                     // Update the value of global variable panoUrl.
                     // panoUrl = `${APIEndpoint()}/pano_pixel.php?floor=${this.props.floor}&photo=${pano_source}&pano_id=${pano_id}`;
@@ -89,8 +90,8 @@ class StreetView extends React.Component {
                                 response = response.data;
                                 this.setState({
                                     panoUrl: `${APIEndpoint()}/pano_pixel.php?floor=${this.props.floor}&photo=${pano_source}&pano_id=${pano_id}`,
-                                    panoDefaultOffset: response.split(';')[0],
-                                    panoDefaultAngle: response.split(';')[1],
+                                    panoDefaultOffset: parseInt(response.split(';')[0]),
+                                    panoDefaultClockwiseAngleFromNorth:parseFloat(response.split(';')[1]) 
                                 })
                               
                             });
@@ -138,12 +139,8 @@ class StreetView extends React.Component {
                     displayDragMan: false,
                     displayPinMan: true,
                     displayPano: true,
-                    PinManAngle: this.state.panoDefaultAngle
-
-                });
-                
-                this.props.linkTo({ x: this.state.panoX, y: this.state.panoY + this.props.height * 0.5 });
-
+                    PinManAngle:0,
+                });              
             });
     }
     handlePanoClose() {
@@ -218,11 +215,11 @@ class StreetView extends React.Component {
     renderPano() {
 
         if (this.state.displayPano) {
-
+            
             return <PanoDisplay
                 panoImage={this.state.panoUrl}
-                defaultAngle={this.state.panoDefaultAngle}
                 defaultOffset={this.state.panoDefaultOffset}
+                defaultClockwiseAngleFromNorth={this.state.panoDefaultClockwiseAngleFromNorth}
                 width={this.props.width}
                 height={this.props.height}
                 parentOffShow={() => this.handlePanoClose()}
