@@ -138,7 +138,7 @@ class Main extends Component {
             <div className={style.social}>
               <iframe
                 title="facebook"
-                src="http://www.facebook.com/plugins/like.php?href=http%3A%2F%2Fpathadvisor.ust.hk%2F&amp;send=false&amp;layout=button_count&amp;width=90&amp;show_faces=true&amp;action=like&amp;colorscheme=light&amp;font=arial&amp;height=21"
+                src="https://www.facebook.com/plugins/like.php?href=http%3A%2F%2Fpathadvisor.ust.hk%2F&amp;send=false&amp;layout=button_count&amp;width=90&amp;show_faces=true&amp;action=like&amp;colorscheme=light&amp;font=arial&amp;height=21"
                 scrolling="no"
                 frameBorder="0"
                 style={{ border: 'none', overflow: 'hidden', width: '90px', height: '21px' }}

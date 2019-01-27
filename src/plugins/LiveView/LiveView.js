@@ -61,12 +61,22 @@ function LiveViewVideoLegend({
     )
     .map(({ id: itemId, coordinates: [x, y], floor, name, photo, url, others }) => {
       // TO-FIX: hardcoding liveview info here before there is an API for it.
-      if (name.toUpperCase() === 'NORTH BUS STOP' || name.toUpperCase() === 'SOUTH BUS STOP') {
+      if (name.toUpperCase() === 'NORTH BUS STOP') {
         // eslint-disable-next-line no-param-reassign
         others = {
           liveView: {
-            url: 'http://liveview.ust.hk',
-            iframeUrl: '/liveview.html',
+            url: 'http://wowza.ust.hk/Northgate/',
+            iframeUrl: '/liveview/liveview-north.html',
+          },
+        };
+      }
+
+      if (name.toUpperCase() === 'SOUTH BUS STOP') {
+        // eslint-disable-next-line no-param-reassign
+        others = {
+          liveView: {
+            url: 'http://wowza.ust.hk/Southgate/',
+            iframeUrl: '/liveview/liveview-south.html',
           },
         };
       }

@@ -66,12 +66,22 @@ class MapItem extends Component {
       mapItems.reduce(
         (accumulator, { id, coordinates: [x, y], floor, name, type, photo, url, others }) => {
           // TO-FIX: hardcoding liveview info here before there is a API for it.
-          if (name.toUpperCase() === 'NORTH BUS STOP' || name.toUpperCase() === 'SOUTH BUS STOP') {
-            // eslint-disable-next-line
+          if (name.toUpperCase() === 'NORTH BUS STOP') {
+            // eslint-disable-next-line no-param-reassign
             others = {
               liveView: {
-                url: 'http://liveview.ust.hk',
-                iframeUrl: '/liveview.html',
+                url: 'http://wowza.ust.hk/Northgate/',
+                iframeUrl: '/liveview/liveview-north.html',
+              },
+            };
+          }
+
+          if (name.toUpperCase() === 'SOUTH BUS STOP') {
+            // eslint-disable-next-line no-param-reassign
+            others = {
+              liveView: {
+                url: 'http://wowza.ust.hk/Southgate/',
+                iframeUrl: '/liveview/liveview-south.html',
               },
             };
           }
