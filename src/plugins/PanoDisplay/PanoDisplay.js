@@ -70,7 +70,7 @@ class PanoDisplay extends React.Component {
         /**
          * scollLeft: it represents the number of pixels dragged left away from the initial position. It is solely dependent of mouse drag event.
          * degree: it represents the degree of the centre of pano image away from North direction in clockwise orientation. 
-         * 
+         * defaultOffset:
          */
         this.state = {
             show: true,

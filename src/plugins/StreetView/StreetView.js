@@ -126,13 +126,8 @@ class StreetView extends React.Component {
             // displayPano:false
         });
     }
-    handleDragManDrop(e) {
-        let [x, y] = this.getCampusXYFromMouseXY(this.props.canvas, e.clientX, e.clientY);
-
-        // Move the map to centre at beneath the dropped location,
-        //  so that the PinMan is not blocked by the PanoDisplay.
-
-        this.getPanoInfo(PanoServerEndPoint,this.props.floor,x, y).then(//Update the panoUrl variable.    
+    placePinManAt(PanoServerEndPoint,floor,x,y){
+        this.getPanoInfo(PanoServerEndPoint,floor,x, y).then(//Update the panoUrl variable.    
             () => {
                 this.setState({
                     baseManAvail: true,
@@ -142,6 +137,23 @@ class StreetView extends React.Component {
                     // PinManAngle:0,
                 });              
             });
+    }
+    handleDragManDrop(e) {
+        let [x, y] = this.getCampusXYFromMouseXY(this.props.canvas, e.clientX, e.clientY);
+        placePinManAt(PanoServerEndPoint,this.props.floor,x,y);
+        // Move the map to centre at beneath the dropped location,
+        //  so that the PinMan is not blocked by the PanoDisplay.
+
+        // this.getPanoInfo(PanoServerEndPoint,this.props.floor,x, y).then(//Update the panoUrl variable.    
+        //     () => {
+        //         this.setState({
+        //             baseManAvail: true,
+        //             displayDragMan: false,
+        //             displayPinMan: true,
+        //             displayPano: true,
+        //             // PinManAngle:0,
+        //         });              
+        //     });
     }
     handlePanoClose() {
         this.setState({
