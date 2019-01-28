@@ -27,6 +27,14 @@ function PanoServerEndPoint_dev() {
     return 'http://localhost:380';
 }
 
+function positiveModulo(number, modulo) {
+    if (number >= 0) {
+        return number % modulo;
+    }
+    else {
+        return number % modulo + modulo;
+    }
+}
 class StreetView extends React.Component {
     constructor(props) {
         super(props);
@@ -37,20 +45,27 @@ class StreetView extends React.Component {
             displayPano: false,
             fullScreenPano: false,
             PinManAngle: 0,
-            panoX:0,
-            panoY:0,
+            panoX: 0,
+            panoY: 0,
             panoUrl: "",//A global variable to store panoUrl. It is supposed to be updated in getPanoUrl().
             panoDefaultOffset: 0,
-            panoDefaultClockwiseAngleFromNorth:0,
+            panoDefaultClockwiseAngleFromNorth: 0,
 
         };
     }
-
-    getPanoInfo(APIEndpoint,floor, x, y) {
-        return this.getPanoInfo_dev(APIEndpoint,floor, x, y);
+    /**
+     * @param {number} forwardAngle , an angle counted clockwise from North direction.
+     */
+    getNextPano(APIEndpoint, floor, currX, currY, forwardAngle) {
+        return;
     }
+    getPanoInfo(APIEndpoint, floor, x, y) {
+        return this.getPanoInfo_dev(APIEndpoint, floor, x, y);
+    }
+
     // A toy getPanoURL method we use for retrieveing PanoImage from slave server, given the PinMan location.
-    getPanoInfo_dev(APIEndpoint,floor, x, y) {
+    // panoX,panoY,panoURL,panoDefaultOffset,panoDefaultClockwiseAngleFromNorth are updated in this method.
+    getPanoInfo_dev(APIEndpoint, floor, x, y) {
         let pano_id;
         let pano_source;
         let pano_x;
@@ -61,7 +76,7 @@ class StreetView extends React.Component {
                 response => {
                     response = response.data;
                     // console.log("get_map_data_2.php response", response);
-                    // The following decision making method is modified from map_interface.js, line 1070-1104
+                    /* The following decision making method is modified from map_interface.js, line 1070-1104*/
                     if (response.split(";")[0] === "area") {
                         pano_id = response.split(";")[7];
                         pano_source = response.split(";")[8] + ".jpg";
@@ -72,17 +87,19 @@ class StreetView extends React.Component {
                         pano_id = response.split(";")[5];
                         pano_source = response.split(";")[6] + ".jpg";
                         pano_x = parseInt(response.split(";")[7]);
-                        pano_y =parseInt(response.split(";")[8]);
+                        pano_y = parseInt(response.split(";")[8]);
                     }
-                    
+
                     this.setState({
                         panoX: pano_x,
                         panoY: pano_y
                     });
+                    /* Move the map to centre at beneath the dropped location,
+                        so that the PinMan is not blocked by the PanoDisplay.*/
                     this.props.linkTo({ x: pano_x, y: pano_y + this.props.height * 0.5 });
-                    // Decision Making Ends
-                    // Update the value of global variable panoUrl.
-                    // panoUrl = `${APIEndpoint()}/pano_pixel.php?floor=${this.props.floor}&photo=${pano_source}&pano_id=${pano_id}`;
+                    /* Decision Making Ends
+                     Update the value of global variable panoUrl.
+                     panoUrl = `${APIEndpoint()}/pano_pixel.php?floor=${this.props.floor}&photo=${pano_source}&pano_id=${pano_id}`;*/
 
                     Axios.get(`${APIEndpoint()}/pano_info.php?floor=${this.props.floor}&photo=${pano_source}&pano_id=${pano_id}`)
                         .then(
@@ -91,9 +108,9 @@ class StreetView extends React.Component {
                                 this.setState({
                                     panoUrl: `${APIEndpoint()}/pano_pixel.php?floor=${this.props.floor}&photo=${pano_source}&pano_id=${pano_id}`,
                                     panoDefaultOffset: parseInt(response.split(';')[0]),
-                                    panoDefaultClockwiseAngleFromNorth:parseFloat(response.split(';')[1]) 
+                                    panoDefaultClockwiseAngleFromNorth: parseFloat(response.split(';')[1])
                                 })
-                              
+
                             });
                 }
             );
@@ -126,8 +143,8 @@ class StreetView extends React.Component {
             // displayPano:false
         });
     }
-    placePinManAt(PanoServerEndPoint,floor,x,y){
-        this.getPanoInfo(PanoServerEndPoint,floor,x, y).then(//Update the panoUrl variable.    
+    placePinManAt(PanoServerEndPoint, floor, x, y) {
+        this.getPanoInfo(PanoServerEndPoint, floor, x, y).then(//Update the panoUrl variable.    
             () => {
                 this.setState({
                     baseManAvail: true,
@@ -135,25 +152,30 @@ class StreetView extends React.Component {
                     displayPinMan: true,
                     displayPano: true,
                     // PinManAngle:0,
-                });              
+                });
             });
     }
     handleDragManDrop(e) {
         let [x, y] = this.getCampusXYFromMouseXY(this.props.canvas, e.clientX, e.clientY);
-        placePinManAt(PanoServerEndPoint,this.props.floor,x,y);
-        // Move the map to centre at beneath the dropped location,
-        //  so that the PinMan is not blocked by the PanoDisplay.
+        this.placePinManAt(PanoServerEndPoint, this.props.floor, x, y);
 
-        // this.getPanoInfo(PanoServerEndPoint,this.props.floor,x, y).then(//Update the panoUrl variable.    
-        //     () => {
-        //         this.setState({
-        //             baseManAvail: true,
-        //             displayDragMan: false,
-        //             displayPinMan: true,
-        //             displayPano: true,
-        //             // PinManAngle:0,
-        //         });              
-        //     });
+    }
+    /**
+     *@param {number} forwardDirection , a string in {"Forward","Backward"}, or an angle counted clockwise from North direction.
+     */
+    handleNavigation(movementDirection) {
+        let deg = 0;
+        if (movementDirection === "Forward") {
+            deg = this.state.PinManAngle;
+        }
+        else if (movementDirection === "Backward") {
+            deg = positiveModulo( 180 + this.state.PinManAngle, 360);
+        }
+        else {
+            deg = Math.parseFloat(movementDirection);
+        }
+        console.log("movementDirection", movementDirection, "deg", deg);
+        this.getNextPano(PanoServerEndPoint, this.props.floor, this.state.panoX, this.state.panoY, deg);
     }
     handlePanoClose() {
         this.setState({
@@ -227,7 +249,7 @@ class StreetView extends React.Component {
     renderPano() {
 
         if (this.state.displayPano) {
-            
+
             return <PanoDisplay
                 panoImage={this.state.panoUrl}
                 defaultOffset={this.state.panoDefaultOffset}
@@ -236,6 +258,7 @@ class StreetView extends React.Component {
                 height={this.props.height}
                 parentOffShow={() => this.handlePanoClose()}
                 parentHandleUpdate={(e) => this.handlePanoRotate(e)}
+                parentHandleNavigation={(forwardDirection) => this.handleNavigation(forwardDirection)}
             />;
         } else {
             return null;
