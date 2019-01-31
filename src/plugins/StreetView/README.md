@@ -58,6 +58,11 @@ The DragMan follows the mouse trajectory of the client, this effect is achieved 
 
 When the DragMan is dropped(onMouseUp), it calls the handle function passed in by the parent.
 
+### updateDragManPosition(e)
+The function takes an event object(e), obtain the clientX and clientY coordinates for the event, and place the DragMan html element to the postion of user's mouse cursor using Javascript.
+
+### DragMan({ display, buttonClassName, initialX, initialY, parentHandleDrop })
+The function which actually renders the DragMan icon. It defines a global event listener of onmousemove and assign its value to reference to [updateDragManPosition(e)](#updateDragManPosition(e)) function.
 
 ## class PinMan
 This is the pin man component after drag man is dropped on map.
