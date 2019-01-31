@@ -9,7 +9,7 @@ StreetView mediates the communication between four subcomponents:
 - [PinMan](#class-pinman), which handles the display of the small man when it is dropped onto the map. It rotates in response to the rotation of panoramic image.
 - PanoDisplay, which displays the panoramic image and handles image rotation and navigation effect. It is much more complex than the three small man classes.
 
-### class StreetView
+## class StreetView
 This is the highest level StreetView component. 
 
 It calls the render functions of BaseMan, DragMan and PinMan in its render function.
@@ -22,9 +22,9 @@ Subcomponet interactions:
 - Then when BaseMan is pressed, BaseMan will call handleBaseManPressed function in StreetView. StreetView then set BaseMan as unavailable(baseManAvail=false) and display DragMan(displayDragMan=true).
 - Then when DragMan is dropped, DragMan will call handleDragManDrop function in StreetView. StreetView will then hide DragMan(displayDragMan=falese) and restore BaseMan to available(baseManAvail=true). StreetView will also call the render function of PanoDisplay to show the panoramic image.
 
-### class BaseMan
+## class BaseMan
 
-This is the class component for BaseMan.
+This is the class component for BaseMan. It is an icon displayed at the bottom left of the canvas indicating the availibility of street view feature.
 
 If parent passes in available==true, BaseMan only performs mouse over effect through handleMouseOver and handleMouseOut.
 
@@ -32,7 +32,23 @@ Else if parent passes in available==false, BaseMan directly display outsideImage
 
 When BaseMan is pressed(onMouseDown), it calls the [handle function](#class-streetview) passed down by parent.
 
-### class DragMan
+### componet state
+{
+    imageForAvail: an image data url or a website url.
+}
+### constructor
+Initializes the component state. 
+
+### handleMouseOver
+Handler of mouse over event on BaseMan. It changes the imageForAvail to be displayed to mouseoverImage.
+
+### handleMouseOut
+Handler of mouse out event on BaseMan. It changes the imageForAvail to be displayed to availImage. 
+
+### render
+Parent controls whether the BaseMan now is availible, by passing in props.availible. If props.availible is false, always display outsideImage. Otherwise, display state.imageForAvail.
+
+## class DragMan
 
 This is the function component for DragMan. 
 
@@ -43,12 +59,12 @@ The DragMan follows the mouse trajectory of the client, this effect is achieved 
 When the DragMan is dropped(onMouseUp), it calls the handle function passed in by the parent.
 
 
-### class PinMan
+## class PinMan
 This is the pin man component after drag man is dropped on map.
 
 It sets an map item on the location on map where mouse is released, the location is passed in by parent.
 
 It accepts an angle passed in by the parent, then display the small man image corresponding to the angle.
 
-### class PanoDisplay
+## class PanoDisplay
 Please provide details below.

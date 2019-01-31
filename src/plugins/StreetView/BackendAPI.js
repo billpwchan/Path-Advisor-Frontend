@@ -1,9 +1,19 @@
 import Axios from 'axios';
+
+function PanoServerEndPoint() {
+    return PanoServerEndPoint_dev();
+}
+function PanoServerEndPoint_dev() {
+    return 'http://localhost:380';
+}
+
+
 /**
  *  The expected behavior of getPanoInfo in backendAPI.
  *  Input: PanoServerEndPoint, floor, x, y
- *  Response: { pano_x, pano_y, panoUrl, panoDefaultOffset, panoDefaultClockwiseAngleFromNorth } 
+ *  Response: { pano_x(number), pano_y(number), panoUrl(string), panoDefaultOffset(number), panoDefaultClockwiseAngleFromNorth(number, between 0 and 360) } 
  */
+
 
 function getPanoInfo(APIEndpoint, floor, x, y) {
     return getPanoInfo_dev(APIEndpoint, floor, x, y);
@@ -127,4 +137,4 @@ function getNextPano_dev(APIEndpoint, floor, currX, currY, forwardAngle) {
     });
 
 }
-export {getPanoInfo,getNextPano}
+export {getPanoInfo,getNextPano,PanoServerEndPoint}

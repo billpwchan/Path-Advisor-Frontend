@@ -26,8 +26,6 @@ function getPinManImage(angle) {
 
 
 function getPinManImage_dev(angle) {
-    const default_starting_angle = 0;
-    angle = angle +  default_starting_angle;
     if (angle>=0){
     	angle = angle%360;
     }

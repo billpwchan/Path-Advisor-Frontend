@@ -5,7 +5,7 @@ import DragMan from "./DragMan";
 import BaseMan from "./BaseMan";
 import PinMan from "./PinMan";
 import { PanoDisplay } from "../PanoDisplay/PanoDisplay";
-import {getPanoInfo,getNextPano} from "./BackendAPI";
+import { getPanoInfo, getNextPano, PanoServerEndPoint } from "./BackendAPI";
 
 /* 
 This is the highest level StreetView component. 
@@ -20,12 +20,6 @@ Subcomponet interactions:
 */
 
 
-function PanoServerEndPoint() {
-    return PanoServerEndPoint_dev();
-}
-function PanoServerEndPoint_dev() {
-    return 'http://localhost:380';
-}
 
 function positiveModulo(number, modulo) {
     if (number >= 0) {
@@ -53,7 +47,7 @@ class StreetView extends React.Component {
 
         };
     }
-    
+
     /* 
     Helper function to convert mouse coordinate on screen to campus coordinate in map.
     The code is modified from component/MapCanvas/CanvasHandler.js.
@@ -70,17 +64,15 @@ class StreetView extends React.Component {
         return [(mouseX - (canvasCoordinate.left + 0.5 * canvasCoordinate.width)) / screenToCampusScale.x + this.props.x,
         (mouseY - (canvasCoordinate.top + 0.5 * canvasCoordinate.height)) / screenToCampusScale.y + this.props.y];
     }
-    componentDidUpdate(prevProps,prevState){
-        if(prevProps.floor!==this.props.floor){
+    componentDidUpdate(prevProps, prevState) {
+        if (prevProps.floor !== this.props.floor) {
             // alert("Floor changes");
             this.handleFloorChange();
         }
     }
-    handleFloorChange(){
-        this.setState({
-            displayPano:false,
-            displayPinMan:false
-        });
+    handleFloorChange() {
+        // Close the pano display when the user switches floor.
+        this.handlePanoClose();
     }
     /* Subcomponent Handlers */
     handleBaseManPressed() {
@@ -95,9 +87,9 @@ class StreetView extends React.Component {
         return getPanoInfo(PanoServerEndPoint, floor, x, y).then(
             response => {
                 const { pano_x, pano_y, panoUrl, panoDefaultOffset, panoDefaultClockwiseAngleFromNorth } = response;
-                
+
                 this.props.linkTo({ x: parseFloat(pano_x), y: parseFloat(pano_y) + this.props.height * 0.5 });
-                console.log("Pin Man Location Link TO", parseFloat(pano_x), parseFloat(pano_y) + this.props.height * 0.5 );
+                console.log("Pin Man Location Link TO", parseFloat(pano_x), parseFloat(pano_y) + this.props.height * 0.5);
                 this.setState({
                     baseManAvail: true,
                     displayDragMan: false,
@@ -135,7 +127,7 @@ class StreetView extends React.Component {
                 if (res !== null) {
                     const [targetX, targetY] = res;
                     // console.log(targetX, targetY);
-                    this.placePinManAt(PanoServerEndPoint, this.props.floor, targetX, targetY);
+                    this.placePinManAt(PanoServerEndPoint, this.props.floor, parseFloat(targetX), parseFloat(targetY));
                 }
             });
     }
