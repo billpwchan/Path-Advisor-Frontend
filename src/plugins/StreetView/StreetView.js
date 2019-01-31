@@ -84,7 +84,9 @@ class StreetView extends React.Component {
         return getPanoInfo(PanoServerEndPoint, floor, x, y).then(
             response => {
                 const { pano_x, pano_y, panoUrl, panoDefaultOffset, panoDefaultClockwiseAngleFromNorth } = response;
-                this.props.linkTo({ x: pano_x, y: pano_y + this.props.height * 0.5 });
+                
+                this.props.linkTo({ x: parseFloat(pano_x), y: parseFloat(pano_y) + this.props.height * 0.5 });
+                console.log("Pin Man Location Link TO", parseFloat(pano_x), parseFloat(pano_y) + this.props.height * 0.5 );
                 this.setState({
                     baseManAvail: true,
                     displayDragMan: false,
