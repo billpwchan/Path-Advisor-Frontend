@@ -70,7 +70,18 @@ class StreetView extends React.Component {
         return [(mouseX - (canvasCoordinate.left + 0.5 * canvasCoordinate.width)) / screenToCampusScale.x + this.props.x,
         (mouseY - (canvasCoordinate.top + 0.5 * canvasCoordinate.height)) / screenToCampusScale.y + this.props.y];
     }
-
+    componentDidUpdate(prevProps,prevState){
+        if(prevProps.floor!==this.props.floor){
+            // alert("Floor changes");
+            this.handleFloorChange();
+        }
+    }
+    handleFloorChange(){
+        this.setState({
+            displayPano:false,
+            displayPinMan:false
+        });
+    }
     /* Subcomponent Handlers */
     handleBaseManPressed() {
         this.setState({
