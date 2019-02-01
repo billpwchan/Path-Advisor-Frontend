@@ -61,6 +61,21 @@ Inherited from React.Component.
  panoDefaultClockwiseAngleFromNorth: 0,
 };
 ```
+#### parent props connected
+```Javascript
+platform,
+canvas,
+setMapItems,
+removeMapItem,
+x,
+y,
+floor,
+height,
+normalizedHeight,
+width,
+normalizedWidth,
+linkTo
+```
 #### constructor(props)
 Initialize StreetView comonent.
 #### getCampusXYFromMouseXY(canvas, mouseX, mouseY) 
@@ -114,7 +129,56 @@ It sets the current fullScreenPano flag to its negation.
 The handler function to handle a panoramic rotation event.
 
 It simply sets the PinManAngle state to newAngle.
-        
+####  renderBaseMan(buttonClassName) 
+Returns the React markup for a BaseMan component.
+
+The props passed in to the BaseMan object:
+```Javascript
+available={this.state.baseManAvail}
+buttonClassName={buttonClassName}
+parentHandlePressed={() => this.handleBaseManPressed()}
+```
+#### renderDragMan(buttonClassName)
+Returns the React markup for a DragMan component.
+
+The props passed in to the DragMan component:
+```Javascript
+display={this.state.displayDragMan ? "block" : "none";}
+buttonClassName={buttonClassName}
+parentHandleDrop={(e) => this.handleDragManDrop(e)}
+```
+
+#### renderPinMan() 
+If the displayPinMan flag is off, return null.
+Else, return the React markup for a PinMan component.
+The props passed in to the PinMan component:
+```Javascript
+setMapItems={this.props.setMapItems}
+removeMapItem={this.props.removeMapItem}
+x = {this.state.panoX}
+y = {this.state.panoY}
+floor = {this.props.floor}
+angle={this.state.PinManAngle}
+```
+#### renderPano() 
+If the displayPano flag is off, return null.
+Otherwise return the React markup for a PanoDisplay component.
+
+Props passed to PanoDisplay:
+```Javascript
+panoImage={this.state.panoUrl}
+defaultOffset={this.state.panoDefaultOffset}
+defaultClockwiseAngleFromNorth={this.state.panoDefaultClockwiseAngleFromNorth}
+width={this.props.width}
+height={this.props.height}
+parentOffShow={() => this.handlePanoClose()}
+parentHandleUpdate={(e) => this.handlePanoRotate(e)}
+parentHandleNavigation={(forwardDirection) => this.handleNavigation(forwardDirection)}
+```
+#### render() 
+Call [renderPano()](#renderPano()),[renderPinMan()](#renderPinMan()),[renderBaseMan()](#renderBaseMan(buttonClassName)),[renderDragMan()](#renderDragMan(buttonClassName)) in sequence to render the StreetView plugin.
+
+
 #### placePinManAt(PanoServerEndPoint, floor, x, y)
 Set component state such that 
 1. PinMan is placed on *floor* at a position that has a panoramic image and is closest to *(x,y)* position on campus map, through *PanoServerEndPoint* url. 

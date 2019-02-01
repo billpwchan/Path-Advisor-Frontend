@@ -24,12 +24,10 @@ function updateDragManPosition(e) {
 
 }
 
-function DragMan({ display, buttonClassName, initialX, initialY, parentHandleDrop }) {
+function DragMan({ display, buttonClassName, parentHandleDrop }) {
     document.onmousemove = updateDragManPosition;
     const styles = {
         position: 'fixed',
-        top: initialY,
-        left: initialX,
         display: display
     };
 

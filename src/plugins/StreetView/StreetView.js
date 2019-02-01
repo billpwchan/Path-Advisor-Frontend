@@ -170,8 +170,6 @@ class StreetView extends React.Component {
             <DragMan
                 display={display}
                 buttonClassName={buttonClassName}
-                initialX={this.state.dragManX}
-                initialY={this.state.dragManY}
                 parentHandleDrop={(e) => this.handleDragManDrop(e)}
             />
         );
@@ -254,9 +252,7 @@ const MapCanvasPlugin = {
         'normalizedHeight',
         'width',
         'normalizedWidth',
-        'mapItemStore',
-        'linkTo',
-        'level'
+        'linkTo'
     ],
 };
 
