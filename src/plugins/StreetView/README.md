@@ -194,7 +194,9 @@ This module specifies the communication interface functions between frontend and
 The expected behavior of getPanoInfo in backendAPI:
 
 Input: PanoServerEndPoint, floor, x, y
+
 Returns: a promise.
+
 Response: 
 ```Javascript
 { 
@@ -276,7 +278,7 @@ It accepts an angle passed in by the parent, then display the small man image co
 All PinMan images are imported statically when the program compiles.
 
 
-### function getPinManImage(angle)
+### getPinManImage(angle)
 A helper function outside for PinMan.
 
 Input: angle, a number between 0 and 360. Refer to [conceptual definition of angle](#how-angle-is-defined-in-the-plugin) for how angle is formally defined in this plugin.
@@ -287,7 +289,7 @@ Expected behavior:
 There are 16 PinMan images availible. angle=0 should correspond to the image facing left. As angle increases, the PinMan rotates in clockwise orientation.
 
 
-### function PinMan({ setMapItems, removeMapItem, x, y, floor, angle })
+### PinMan({ setMapItems, removeMapItem, x, y, floor, angle })
 The function which acutally renders PinMan icon.
 
 The actual rendering parameters are passed in from parent component, including floor, x-y coordinate on campus map, angle for the PinMan.
