@@ -92,6 +92,29 @@ The behaviors is set StreetView state such that BaseMan is not availible, displa
 Event handler when PinMan is dropped onto the map.
 
 It fist call [getCampusXYFromMouseXY()](#getCampusXYFromMouseXY(canvas, mouseX, mouseY)) to convert the user's mouse coordinate to the corresponding coordinate on campus map. Then call [placePinManAt()](#placePinManAt(PanoServerEndPoint, floor, x, y)) to place a PinMan to the correct location.
+
+#### handleNavigation(movementDirection)
+Input: movementDirection , a string in {"Forward","Backward"}, or an angle counted clockwise from North direction, representing the movement direction of the user of navigation function.
+
+It calls [placePinManAt()](#placePinManAt(PanoServerEndPoint, floor, x, y)) to place the PinMan to the next location.
+
+It relies on [getNextPano()](#getNextPano(APIEndpoint,floor,currX,currY,forwardAngle)) exposed by [backend API](#backendapi) to retrive the coordinates of next node to place the PinMan. 
+
+#### handlePanoClose() 
+The handler function to close the PanoDisplay. 
+
+It sets componet state such that PinMan and PanoDisplay are both not displayed, and reset fullScreenPano mode to false.
+
+#### handlePanoResize() 
+The handler function to handle a resize event of PanoDisplay.
+
+It sets the current fullScreenPano flag to its negation.
+
+#### handlePanoRotate(newAngle)
+The handler function to handle a panoramic rotation event.
+
+It simply sets the PinManAngle state to newAngle.
+        
 #### placePinManAt(PanoServerEndPoint, floor, x, y)
 Set component state such that 
 1. PinMan is placed on *floor* at a position that has a panoramic image and is closest to *(x,y)* position on campus map, through *PanoServerEndPoint* url. 

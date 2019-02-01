@@ -147,13 +147,10 @@ class StreetView extends React.Component {
             fullScreenPano: !fullScreen,
         });
     }
-    handlePanoRotate_dev(newAngle) {
+    handlePanoRotate(newAngle) {
         this.setState({
             PinManAngle: newAngle,
         });
-    }
-    handlePanoRotate(e) {
-        this.handlePanoRotate_dev(e);
     }
     /*End of Subcomponent Handlers */
 
