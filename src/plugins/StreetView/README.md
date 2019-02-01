@@ -130,7 +130,7 @@ This module specifies the communication interface functions between frontend and
 The expected behavior of getPanoInfo in backendAPI:
 
 Input: PanoServerEndPoint, floor, x, y
-
+Returns: a promise.
 Response: 
 ```Javascript
 { 
@@ -141,6 +141,18 @@ Response:
     panoDefaultClockwiseAngleFromNorth, // a number, between 0 and 360. The angle in physical world corresponding to the zero-degree. For example if the panoramic image deems East direction as its zero-degree position, then this field should be 90. If North direction is the zero-degree position, then this filed should be 0.
      } 
 ```
+
+
+### getNextPano(APIEndpoint,floor,currX,currY,forwardAngle){
+
+The expected behavior of getNextPano in backendAPI.
+
+Input: PanoServerEndPoint, floor, currX, currY, forwardAngle.
+
+Returns: a promise.
+
+Response: {targetX,targetY,targetId}. They are the attributes of the next node to move to from *floor*, *(currX,currY)* on campus map facing *forwardAngle*. See [conceptual definition of angle](#how-angle-is-defined-in-the-plugin) for how angle is formally defined in this plugin.           
+    
 
 
 ## BaseMan

@@ -90,7 +90,7 @@ class StreetView extends React.Component {
         return getPanoInfo(PanoServerEndPoint, floor, x, y).then(
             response => {
                 const { pano_x, pano_y, panoUrl, panoDefaultOffset, panoDefaultClockwiseAngleFromNorth } = response;
-
+                console.log(response);
                 this.props.linkTo({ x: parseFloat(pano_x), y: parseFloat(pano_y) + this.props.height * 0.5 });
                 
                 this.setState({
@@ -98,8 +98,8 @@ class StreetView extends React.Component {
                     displayDragMan: false,
                     displayPinMan: true,
                     displayPano: true,
-                    panoX: pano_x,
-                    panoY: pano_y,
+                    panoX: parseFloat(pano_x),
+                    panoY: parseFloat(pano_y),
                     panoUrl: panoUrl,
                     panoDefaultOffset: panoDefaultOffset,
                     panoDefaultClockwiseAngleFromNorth: panoDefaultClockwiseAngleFromNorth
