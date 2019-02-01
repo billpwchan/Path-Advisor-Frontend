@@ -26,6 +26,100 @@ Subcomponet interactions:
 - Then when BaseMan is pressed, BaseMan will call handleBaseManPressed function in StreetView. StreetView then set BaseMan as unavailable(baseManAvail=false) and display DragMan(displayDragMan=true).
 - Then when DragMan is dropped, DragMan will call handleDragManDrop function in StreetView. StreetView will then hide DragMan(displayDragMan=falese) and restore BaseMan to available(baseManAvail=true). StreetView will also call the render function of PanoDisplay to show the panoramic image.
 
+### positiveModulo(number, modulo)
+A helper function which implements the mathematical modulo function.
+
+Examples:
+``` Javascript
+positiveModulo(17, 5); // 2
+
+positiveModulo(15, 3); // 0
+
+positiveModulo(-2, 5); // 3
+
+positiveModulo(-7, 3); // 2
+
+positiveModulo(3, -5); // none
+```
+
+### class StreetView
+Inherited from React.Component.
+
+#### componet state(upon initialization)
+```Javascript
+{
+ baseManAvail: true,
+ displayDragMan: false,
+ displayPinMan: false,
+ displayPano: false,
+ fullScreenPano: false,
+ PinManAngle: 0,
+ panoX: 0,
+ panoY: 0,
+ panoUrl: "",
+ panoDefaultOffset: 0,
+ panoDefaultClockwiseAngleFromNorth: 0,
+};
+```
+#### constructor(props)
+Initialize StreetView comonent.
+#### getCampusXYFromMouseXY(canvas, mouseX, mouseY) 
+Input: user mouse coordinate on screen (normally event.clientX and event.clientY) 
+
+Returns: campus coordinate in map.
+
+It relies on *canvas* property passed in from parent component.
+
+This can be very helpful. Feel free to make good use of it.
+
+#### componentDidUpdate(prevProps, prevState)
+Event handler for general updates in StreetView component.
+
+List of attributes monitored and corresponding handlers called when attributes changed:
+-  props.floor, [handleFloorChange()](#handleFloorChange()) is called when changed.
+
+#### handleFloorChange()
+Event handler when the user changes floor. 
+
+Now simply call [handlePanoClose()](#handlePanoClose()) to close the PanoDisplay.
+
+#### handleBaseManPressed() 
+Event handler when BaseMan signifies it is been pressed.
+
+The behaviors is set StreetView state such that BaseMan is not availible, display DragMan and do not display PinMan.
+
+#### handleDragManDrop(e) 
+Event handler when PinMan is dropped onto the map.
+
+It fist call [getCampusXYFromMouseXY()](#getCampusXYFromMouseXY(canvas, mouseX, mouseY)) to convert the user's mouse coordinate to the corresponding coordinate on campus map. Then call [placePinManAt()](#placePinManAt(PanoServerEndPoint, floor, x, y)) to place a PinMan to the correct location.
+#### placePinManAt(PanoServerEndPoint, floor, x, y)
+Set component state such that 
+1. PinMan is placed on *floor* at a position that has a panoramic image and is closest to *(x,y)* position on campus map, through *PanoServerEndPoint* url. 
+2. The PanoDisplay shows the correct panoramic image corresponds to the location of PinMan.
+3. Move the campus map so that the PinMan is displayed at the centre of the canvas.
+
+It relies on [getPanoInfo()](#getPanoInfo(APIEndpoint, floor, x, y) ) exposed by [backend API](#backendapi) to retrieve the position to place PinMan and the correct panoramic image to display.
+
+## BackendAPI
+This module specifies the communication interface functions between frontend and backend.
+
+### getPanoInfo(APIEndpoint, floor, x, y) 
+The expected behavior of getPanoInfo in backendAPI:
+
+Input: PanoServerEndPoint, floor, x, y
+
+Response: 
+```Javascript
+{ 
+    pano_x, //a number, the x-coordinate of the nearest panoramic node to (x,y) on campus map.
+    pano_y, //a number, the y-coordinate of the nearest panoramic node to (x,y) on campus map.
+    panoUrl, //a string, the panoramic image url at (pano_x,pano_y) on campus map.
+    panoDefaultOffset, //a number, the initial offset for the panoramic image corresponds to the zero-degree. Used in PanoDisplay.
+    panoDefaultClockwiseAngleFromNorth, // a number, between 0 and 360. The angle in physical world corresponding to the zero-degree. For example if the panoramic image deems East direction as its zero-degree position, then this field should be 90. If North direction is the zero-degree position, then this filed should be 0.
+     } 
+```
+
+
 ## BaseMan
 
 This is the class component for BaseMan. It is an icon displayed at the bottom left of the canvas indicating the availibility of street view feature.
@@ -37,11 +131,13 @@ Else if parent passes in props.available==false, BaseMan directly display outsid
 When BaseMan is pressed(onMouseDown), it calls the [handle function](#class-streetview) passed down by parent.
 
 ### class BaseMan
-
+Inherited from React.Component.
 #### componet state
+```Javascript
 {
     imageForAvail: an image data url or a website url. It is initialzed to avaiImage.
 }
+```
 #### constructor(props)
 Initializes the component state. 
 

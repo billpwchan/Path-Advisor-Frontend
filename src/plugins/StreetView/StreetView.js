@@ -22,6 +22,9 @@ Subcomponet interactions:
 
 
 function positiveModulo(number, modulo) {
+    if (modulo<=0){
+        return;
+    }
     if (number >= 0) {
         return number % modulo;
     }
@@ -89,7 +92,7 @@ class StreetView extends React.Component {
                 const { pano_x, pano_y, panoUrl, panoDefaultOffset, panoDefaultClockwiseAngleFromNorth } = response;
 
                 this.props.linkTo({ x: parseFloat(pano_x), y: parseFloat(pano_y) + this.props.height * 0.5 });
-                console.log("Pin Man Location Link TO", parseFloat(pano_x), parseFloat(pano_y) + this.props.height * 0.5);
+                
                 this.setState({
                     baseManAvail: true,
                     displayDragMan: false,
