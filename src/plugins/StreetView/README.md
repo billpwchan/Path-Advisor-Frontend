@@ -4,10 +4,10 @@ The plugin is controlled by a master class called StreetView. StreetView is the 
 
 StreetView mediates the communication between four subcomponents:
 
-- [BaseMan](#class-baseman), which can be clicked by the user to pull out the small man.
-- [DragMan](#class-dragman), which handles the small man display when the user has clicked BaseMan and dragged the small man out by not yet dropped the small man onto the map.
-- [PinMan](#class-pinman), which handles the display of the small man when it is dropped onto the map. It rotates in response to the rotation of panoramic image.
-- PanoDisplay, which displays the panoramic image and handles image rotation and navigation effect. It is much more complex than the three small man classes.
+- [BaseMan](#baseman), which can be clicked by the user to pull out the small man.
+- [DragMan](#dragman), which handles the small man display when the user has clicked BaseMan and dragged the small man out by not yet dropped the small man onto the map.
+- [PinMan](#pinman), which handles the display of the small man when it is dropped onto the map. It rotates in response to the rotation of panoramic image.
+- [PanoDisplay](#panodisplay), which displays the panoramic image and handles image rotation and navigation effect. It is much more complex than the three small man classes.
 
 ## How angle is defined in the plugin
 For all angle quantities in StreetView, angle=0 corresponds to **North** direction in campus map. An **increment** in the value of angle corresponds to rotation in **clockwise** orientation.
@@ -91,45 +91,47 @@ This can be very helpful. Feel free to make good use of it.
 Event handler for general updates in StreetView component.
 
 List of attributes monitored and corresponding handlers called when attributes changed:
--  props.floor, [handleFloorChange()](#handleFloorChange()) is called when changed.
+-  props.floor, [handleFloorChange()](#handlefloorchange) is called when changed.
 
-#### handleFloorChange()
+#### handleFloorChange
 Event handler when the user changes floor. 
 
-Now simply call [handlePanoClose()](#handlePanoClose()) to close the PanoDisplay.
+Now simply call [handlePanoClose()](#handlepanoclose) to close the PanoDisplay.
 
-#### handleBaseManPressed() 
+#### handleBaseManPressed
 Event handler when BaseMan signifies it is been pressed.
 
 The behaviors is set StreetView state such that BaseMan is not availible, display DragMan and do not display PinMan.
 
-#### handleDragManDrop(e) 
+#### handleDragManDrop
 Event handler when PinMan is dropped onto the map.
 
-It fist call [getCampusXYFromMouseXY()](#getCampusXYFromMouseXY(canvas, mouseX, mouseY)) to convert the user's mouse coordinate to the corresponding coordinate on campus map. Then call [placePinManAt()](#placePinManAt(PanoServerEndPoint, floor, x, y)) to place a PinMan to the correct location.
+It fist call [getCampusXYFromMouseXY()](#getcampusxyfrommousexy) to convert the user's mouse coordinate to the corresponding coordinate on campus map. Then call [placePinManAt()](#placepinmanat) to place a PinMan to the correct location.
 
-#### handleNavigation(movementDirection)
+#### handleNavigation
 Input: movementDirection , a string in {"Forward","Backward"}, or an angle counted clockwise from North direction, representing the movement direction of the user of navigation function.
 
-It calls [placePinManAt()](#placePinManAt(PanoServerEndPoint, floor, x, y)) to place the PinMan to the next location.
+It calls [placePinManAt()](#placepinManat) to place the PinMan to the next location.
 
-It relies on [getNextPano()](#getNextPano(APIEndpoint,floor,currX,currY,forwardAngle)) exposed by [backend API](#backendapi) to retrive the coordinates of next node to place the PinMan. 
+It relies on [getNextPano()](#getnextpano) exposed by [backend API](#backendapi) to retrive the coordinates of next node to place the PinMan. 
 
-#### handlePanoClose() 
+#### handlePanoClose
 The handler function to close the PanoDisplay. 
 
 It sets componet state such that PinMan and PanoDisplay are both not displayed, and reset fullScreenPano mode to false.
 
-#### handlePanoResize() 
+#### handlePanoResize 
 The handler function to handle a resize event of PanoDisplay.
 
 It sets the current fullScreenPano flag to its negation.
 
-#### handlePanoRotate(newAngle)
+#### handlePanoRotate
+Input: newAngle
 The handler function to handle a panoramic rotation event.
 
 It simply sets the PinManAngle state to newAngle.
-####  renderBaseMan(buttonClassName) 
+####  renderBaseMan
+Input: buttonClassName
 Returns the React markup for a BaseMan component.
 
 The props passed in to the BaseMan object:
@@ -138,7 +140,8 @@ available={this.state.baseManAvail}
 buttonClassName={buttonClassName}
 parentHandlePressed={() => this.handleBaseManPressed()}
 ```
-#### renderDragMan(buttonClassName)
+#### renderDragMan
+Input: buttonClassName
 Returns the React markup for a DragMan component.
 
 The props passed in to the DragMan component:
@@ -148,7 +151,7 @@ buttonClassName={buttonClassName}
 parentHandleDrop={(e) => this.handleDragManDrop(e)}
 ```
 
-#### renderPinMan() 
+#### renderPinMan
 If the displayPinMan flag is off, return null.
 Else, return the React markup for a PinMan component.
 The props passed in to the PinMan component:
@@ -160,7 +163,7 @@ y = {this.state.panoY}
 floor = {this.props.floor}
 angle={this.state.PinManAngle}
 ```
-#### renderPano() 
+#### renderPano
 If the displayPano flag is off, return null.
 Otherwise return the React markup for a PanoDisplay component.
 
@@ -175,22 +178,25 @@ parentOffShow={() => this.handlePanoClose()}
 parentHandleUpdate={(e) => this.handlePanoRotate(e)}
 parentHandleNavigation={(forwardDirection) => this.handleNavigation(forwardDirection)}
 ```
-#### render() 
-Call [renderPano()](#renderPano()),[renderPinMan()](#renderPinMan()),[renderBaseMan()](#renderBaseMan(buttonClassName)),[renderDragMan()](#renderDragMan(buttonClassName)) in sequence to render the StreetView plugin.
+#### render
+Call [renderPano()](#renderpano),[renderPinMan()](#renderpinman),[renderBaseMan()](#renderbaseman),[renderDragMan()](#renderdragman) in sequence to render the StreetView plugin.
 
 
-#### placePinManAt(PanoServerEndPoint, floor, x, y)
+#### placePinManAt
+Input: PanoServerEndPoint, floor, x, y
+
 Set component state such that 
 1. PinMan is placed on *floor* at a position that has a panoramic image and is closest to *(x,y)* position on campus map, through *PanoServerEndPoint* url. 
 2. The PanoDisplay shows the correct panoramic image corresponds to the location of PinMan.
 3. Move the campus map so that the PinMan is displayed at the centre of the canvas.
 
-It relies on [getPanoInfo()](#getPanoInfo(APIEndpoint, floor, x, y) ) exposed by [backend API](#backendapi) to retrieve the position to place PinMan and the correct panoramic image to display.
+It relies on [getPanoInfo()](#getpanoinfo) exposed by [backend API](#backendapi) to retrieve the position to place PinMan and the correct panoramic image to display.
 
 ## BackendAPI
 This module specifies the communication interface functions between frontend and backend.
 
-### getPanoInfo(APIEndpoint, floor, x, y) 
+### getPanoInfo
+
 The expected behavior of getPanoInfo in backendAPI:
 
 Input: PanoServerEndPoint, floor, x, y
@@ -209,7 +215,7 @@ Response:
 ```
 
 
-### getNextPano(APIEndpoint,floor,currX,currY,forwardAngle){
+### getNextPano
 
 The expected behavior of getNextPano in backendAPI.
 
@@ -229,7 +235,7 @@ If parent passes in props.available==true, BaseMan only performs mouse over effe
 
 Else if parent passes in props.available==false, BaseMan directly display outsideImage.
 
-When BaseMan is pressed(onMouseDown), it calls the [handle function](#class-streetview) passed down by parent.
+When BaseMan is pressed(onMouseDown), it calls the [handle function](#handlebasemanpressed) passed down by parent.
 
 ### class BaseMan
 Inherited from React.Component.
@@ -261,11 +267,11 @@ The DragMan follows the mouse trajectory of the client, this effect is achieved 
 
 When the DragMan is dropped(onMouseUp), it calls the handle function passed in by the parent.
 
-### updateDragManPosition(e)
+### updateDragManPosition
 The function takes an event object(e), obtain the clientX and clientY coordinates for the event, and place the DragMan html element to the postion of user's mouse cursor using Javascript.
 
 ### DragMan({ display, buttonClassName, initialX, initialY, parentHandleDrop })
-The function which actually renders the DragMan icon. It defines a global event listener of onmousemove and assign its value to reference to [updateDragManPosition(e)](#updateDragManPosition(e)) function.
+The function which actually renders the DragMan icon. It defines a global event listener of onmousemove and assign its value to reference to [updateDragManPosition(e)](#updatedragmanposition) function.
 
 
 ## PinMan
@@ -298,6 +304,6 @@ If all in {*angle,x,y*} are defined, the setMapItems() function is called to pla
 
 If one in {*angle,x,y*} is none, the removeMapItem() function is called to remove the current PinMan icon from the campus map(if any).
 
-## class PanoDisplay
+## PanoDisplay
 Please provide details below.
 
