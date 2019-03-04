@@ -30,7 +30,7 @@ export default function fetchMapItemsRequest(floor, [startX, startY], width, hei
           floor: floorId,
           coordinates: centerCoordinates,
           type: (tagIds || [])[0],
-          photo: imageUrl ? `${APIEndpoint()}/map_image/${floorId}/${imageUrl}.jpg` : null,
+          photo: imageUrl || null,
           url,
           connectorId,
           others,

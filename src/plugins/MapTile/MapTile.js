@@ -43,7 +43,7 @@ function createImage(id, src) {
 }
 
 function getMapTileUrl(APIEndpoint, x, y, floor, level) {
-  return `${APIEndpoint()}/map_pixel.php?x=${x}&y=${y}&floor=${floor}&level=${level + 1}`;
+  return `${APIEndpoint()}/floors/${floor}/map-tiles?x=${x}&y=${y}&zoomLevel=${level}`;
 }
 
 function generateMapTiles(APIEndpoint, canvasOffsetX, canvasOffsetY, width, height, floor, level) {
