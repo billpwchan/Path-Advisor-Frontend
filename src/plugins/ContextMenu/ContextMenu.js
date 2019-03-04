@@ -123,9 +123,7 @@ class ContextMenu extends Component {
               </button>
             </li>
           </>
-        ) : (
-          <li className={style.heading}> Loading location... </li>
-        )}
+        ) : null}
         <li>
           <button type="button" className={style.button} onClick={this.suggestLocation}>
             Suggests a location here
