@@ -4,11 +4,7 @@ import PropTypes from 'prop-types';
 function MapItemOverlayContent({ style, name, photo, url, others: { accessibleFloors } }) {
   return (
     <div className={style.body}>
-      {photo && (
-        <div className={style.photo}>
-          <img src={photo} alt={name} />
-        </div>
-      )}
+      {photo && <img className={style.photo} src={photo} alt={name} />}
 
       {url && (
         <div className={style.url}>
