@@ -13,6 +13,7 @@ import { propTypes as urlPropTypes } from '../Router/Url';
 import getConnectedComponent from '../ConnectedComponent/getConnectedComponent';
 import { getMapItemsAction } from '../../reducers/mapItems';
 import { PLATFORM } from '../Main/detectPlatform';
+import { TABS } from '../Suggestion/constants';
 
 class MapCanvas extends Component {
   canvasRootRef = createRef();
@@ -290,14 +291,15 @@ class MapCanvas extends Component {
                   />
                 );
               })}
-              <a
+              <button
                 className={style.button}
-                href="/suggestions.html"
-                rel="noopener noreferrer"
-                target="_blank"
+                type="button"
+                onClick={() => {
+                  linkTo({ suggestion: TABS.INDEX });
+                }}
               >
                 Suggestion
-              </a>
+              </button>
               <button className={style.button} type="button" onClick={window.print}>
                 Print
               </button>

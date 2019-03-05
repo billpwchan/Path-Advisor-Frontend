@@ -68,12 +68,12 @@ class ContextMenu extends Component {
 
   suggestLocation = () => {
     const { clientMapX, clientMapY } = this.state;
-    const { APIEndpoint, floor } = this.props;
-    window.open(
-      `${APIEndpoint()}/suggest.php?type=location&floor=${floor}&x=${clientMapX}&y=${clientMapY}`,
-      '_blank',
-      'height=300,width=350',
-    );
+    const { linkTo } = this.props;
+    linkTo({
+      suggestion: 'location',
+      suggestionX: clientMapX,
+      suggestionY: clientMapY,
+    });
     this.hideContextMenu();
   };
 
