@@ -5,7 +5,7 @@ import FullScreenOverlay from '../FullScreenOverlay/FullScreenOverlay';
 import style from './PopUpMenu.module.css';
 
 const PopUpMenu = ({ title, items, onClose, selectedIndex = undefined, className = undefined }) => (
-  <FullScreenOverlay onClick={onClose} center>
+  <FullScreenOverlay onBodyClick={onClose} center>
     <div className={classnames(style.body, className)}>
       <div className={style.header}>{title}</div>
       <ul>

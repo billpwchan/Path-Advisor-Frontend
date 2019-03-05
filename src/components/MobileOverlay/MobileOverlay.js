@@ -8,7 +8,7 @@ import { closeOverlayAction } from '../../reducers/overlay';
 const MobileOverlay = ({ overlayStore, closeOverlayHandler, children = [] }) => {
   const { open, photo, name, url, others } = overlayStore;
   return open ? (
-    <FullScreenOverlay className={style.overlayBody} onClick={closeOverlayHandler}>
+    <FullScreenOverlay className={style.overlayBody} onBodyClick={closeOverlayHandler}>
       {children.map(({ id, MobileOverlayHeaderPlugin }) => {
         if (!MobileOverlayHeaderPlugin || !MobileOverlayHeaderPlugin.Component) {
           return null;

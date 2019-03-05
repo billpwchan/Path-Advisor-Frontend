@@ -17,7 +17,7 @@ class LegendButton extends Component {
     return (
       <>
         {this.state.shouldLengendPopUpDisplay && (
-          <FullScreenOverlay onClick={this.setLengendPopUpDisplay(false)} center>
+          <FullScreenOverlay onBodyClick={this.setLengendPopUpDisplay(false)} center>
             <div className={style.body}>
               <div className={style.header}>Legends</div>
               <div className={style.content}>

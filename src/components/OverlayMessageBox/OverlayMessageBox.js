@@ -5,7 +5,7 @@ import FullScreenOverlay from '../FullScreenOverlay/FullScreenOverlay';
 import style from './OverlayMessageBox.module.css';
 
 const OverlayMessageBox = ({ className = undefined, children, onClose }) => (
-  <FullScreenOverlay className={style.overlayBody} onClick={onClose} center>
+  <FullScreenOverlay className={style.overlayBody} onBodyClick={onClose} center>
     <div className={classnames(style.body, className)}>{children}</div>
   </FullScreenOverlay>
 );
