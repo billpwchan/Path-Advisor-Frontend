@@ -8,7 +8,7 @@ import FloorPrimaryPanelView from '../FloorPrimaryPanelView/FloorPrimaryPanelVie
 import PanelOverlay from '../PanelOverlay/PanelOverlay';
 import Floor from '../Floor/Floor';
 import getConnectedComponent from '../ConnectedComponent/getConnectedComponent';
-
+import Suggestion from '../Suggestion/Suggestion';
 import style from './PrimaryPanel.module.css';
 import { closeOverlayAction } from '../../reducers/overlay';
 import { propTypes as urlPropTypes } from '../Router/Url';
@@ -47,50 +47,96 @@ class PrimaryPanel extends Component {
       floor,
       linkTo,
       logger,
+      suggestion,
+      suggestionX,
+      suggestionY,
     } = this.props;
 
     const { selectedBuilding, displayAdvancedSearch } = this.state;
 
-    const urlParams = pick(this.props, ['from', 'to', 'x', 'y', 'level', 'floor', 'search']);
+    const urlParams = pick(this.props, [
+      'from',
+      'to',
+      'x',
+      'y',
+      'level',
+      'floor',
+      'search',
+      'suggestion',
+      'suggestionX',
+      'suggestionY',
+    ]);
+
+    let displaySearchPanel = false;
 
     return (
       <div className={style.body}>
-        {overlayStore.open ? (
-          <PanelOverlay
-            closeOverlayHandler={closeOverlayHandler}
-            headerElements={children.map(({ id, OverlayHeaderPlugin }) => {
-              if (!OverlayHeaderPlugin || !OverlayHeaderPlugin.Component) {
-                return null;
-              }
-              const { photo, name, url, others } = overlayStore;
+        {(() => {
+          switch (true) {
+            case overlayStore.open:
               return (
-                <OverlayHeaderPlugin.Component
-                  key={`header_${id}`}
-                  name={name}
-                  photo={photo}
-                  url={url}
-                  others={others}
+                <PanelOverlay
+                  closeOverlayHandler={closeOverlayHandler}
+                  headerElements={children.map(({ id, OverlayHeaderPlugin }) => {
+                    if (!OverlayHeaderPlugin || !OverlayHeaderPlugin.Component) {
+                      return null;
+                    }
+                    const { photo, name, url, others } = overlayStore;
+                    return (
+                      <OverlayHeaderPlugin.Component
+                        key={`header_${id}`}
+                        name={name}
+                        photo={photo}
+                        url={url}
+                        others={others}
+                      />
+                    );
+                  })}
+                  contentElements={children.map(({ id, OverlayContentPlugin }) => {
+                    if (!OverlayContentPlugin || !OverlayContentPlugin.Component) {
+                      return null;
+                    }
+                    const { photo, name, url, others } = overlayStore;
+                    return (
+                      <OverlayContentPlugin.Component
+                        key={`content_${id}`}
+                        name={name}
+                        photo={photo}
+                        url={url}
+                        others={others}
+                      />
+                    );
+                  })}
                 />
               );
-            })}
-            contentElements={children.map(({ id, OverlayContentPlugin }) => {
-              if (!OverlayContentPlugin || !OverlayContentPlugin.Component) {
-                return null;
-              }
-              const { photo, name, url, others } = overlayStore;
+            case Boolean(suggestion):
               return (
-                <OverlayContentPlugin.Component
-                  key={`content_${id}`}
-                  name={name}
-                  photo={photo}
-                  url={url}
-                  others={others}
+                <PanelOverlay
+                  closeOverlayHandler={() =>
+                    linkTo({
+                      suggestion: null,
+                      suggestionX: null,
+                      suggestionY: null,
+                    })
+                  }
+                  contentElements={
+                    <Suggestion
+                      tab={suggestion}
+                      x={suggestionX}
+                      y={suggestionY}
+                      floor={floor}
+                      linkTo={linkTo}
+                    />
+                  }
                 />
               );
-            })}
-          />
-        ) : null}
-        <div style={{ display: overlayStore.open ? 'none' : '' }}>
+            default:
+              displaySearchPanel = true;
+              return null;
+          }
+        })()}
+
+        <div style={{ display: !displaySearchPanel ? 'none' : '' }}>
           <div className={style.tab}>
             <button
               type="button"

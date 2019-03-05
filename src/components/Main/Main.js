@@ -16,6 +16,8 @@ import { floorsPropType } from '../../reducers/floors';
 import { legendsPropType } from '../../reducers/legends';
 import { getInitDataAction } from '../../reducers/initData';
 import { appSettingsPropType } from '../../reducers/appSettings';
+import FullScreenOverlay from '../FullScreenOverlay/FullScreenOverlay';
+import Suggestion from '../Suggestion/Suggestion';
 
 class Main extends Component {
   static propTypes = {
@@ -65,33 +67,13 @@ class Main extends Component {
 
     const urlParams = this.getUrlParams(platform);
 
-    const {
-      level: currentLevel,
-      x: currentX,
-      y: currentY,
-      floor: currentFloor,
-      from: currentFrom,
-      to: currentTo,
-      search: currentSearch,
-    } = urlParams;
+    const newParams = {
+      ...urlParams,
+      level: urlParams.level || defaultLevel,
+      ...params,
+    };
 
-    const {
-      floor = currentFloor,
-      x = currentX,
-      y = currentY,
-      level = currentLevel || defaultLevel,
-      from = currentFrom,
-      to = currentTo,
-      search = currentSearch,
-    } = params;
-
-    const newParams = { floor, x, y, level, search, from, to };
-
-    if (
-      ['floor', 'x', 'y', 'level', 'search', 'from', 'to'].every(
-        key => newParams[key] === urlParams[key],
-      )
-    ) {
+    if (Object.keys(newParams).every(key => newParams[key] === urlParams[key])) {
       return;
     }
 
@@ -185,6 +167,22 @@ class Main extends Component {
                   MobileOverlayContentPlugin,
                 }))}
               </MobileOverlay>
+              {urlParams.suggestion ? (
+                <FullScreenOverlay
+                  className={style.suggestionOverlayBody}
+                  onCloseIconClick={() => {
+                    this.linkTo({ suggestion: null });
+                  }}
+                >
+                  <Suggestion
+                    tab={urlParams.suggestion}
+                    x={urlParams.suggestionX}
+                    y={urlParams.suggestionY}
+                    floor={urlParams.floor}
+                    linkTo={this.linkTo}
+                  />
+                </FullScreenOverlay>
+              ) : null}
             </>
           )}
           <MapCanvas {...urlParams} linkTo={this.linkTo} platform={detectPlatform()}>
