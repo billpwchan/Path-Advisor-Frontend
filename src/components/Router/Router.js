@@ -4,6 +4,7 @@ import Main from '../Main/Main';
 import NotFoundPage from '../NotFoundPage/NotFoundPage';
 
 const position = ':floorPath(floor/[^/]+)?/:coordinatePath(at/[^/]+)?';
+const suggestion = ':suggestionPath(suggestion/[^/]+)?/:suggestionCoordinatePath(at/[^/]+)?';
 
 const Router = () => (
   <BrowserRouter>
@@ -26,16 +27,26 @@ const Router = () => (
         render={({ location }) => <Redirect to={{ ...location, pathname: '/' }} />}
         exact
       />
-      <Route path="/" component={Main} exact />
-      <Route path={`/${position}`} component={Main} exact />
-      <Route path={`/:search?/from/:fromPlace?/to/:toPlace?/${position}`} component={Main} exact />
+      {/* legacy route name */}
       <Route
-        path={`/:search?/nearest/:toNearestType/from/:fromPlace?/${position}`}
+        path="/suggestions.html"
+        render={({ location }) => <Redirect to={{ ...location, pathname: '/suggestion/list' }} />}
+        exact
+      />
+      <Route path="/" component={Main} exact />
+      <Route path={`/${position}/${suggestion}`} component={Main} exact />
+      <Route
+        path={`/:search?/from/:fromPlace?/to/:toPlace?/${position}/${suggestion}`}
         component={Main}
         exact
       />
       <Route
-        path={`/:search?/nearest/:fromNearestType/to/:toPlace?/${position}`}
+        path={`/:search?/nearest/:toNearestType/from/:fromPlace?/${position}/${suggestion}`}
+        component={Main}
+        exact
+      />
+      <Route
+        path={`/:search?/nearest/:fromNearestType/to/:toPlace?/${position}/${suggestion}`}
         component={Main}
         exact
       />

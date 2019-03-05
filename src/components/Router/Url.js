@@ -9,6 +9,7 @@ import {
 } from '../SearchArea/Input';
 import { nearestOptions } from '../SearchNearest/SearchNearest';
 import { PLATFORM } from '../Main/detectPlatform';
+import { TABS as SUGGESTION_TABS } from '../Suggestion/constants';
 
 function formPlaceUrl(place) {
   const {
@@ -49,7 +50,16 @@ function parsePlace(place) {
 function parseParams(params, query, platform) {
   const queryParams = qs.parse(query);
 
-  const { fromPlace, toPlace, fromNearestType, toNearestType, coordinatePath, floorPath } = params;
+  const {
+    fromPlace,
+    toPlace,
+    fromNearestType,
+    toNearestType,
+    coordinatePath,
+    floorPath,
+    suggestionPath,
+    suggestionCoordinatePath,
+  } = params;
 
   let { search } = params;
 
@@ -96,6 +106,13 @@ function parseParams(params, query, platform) {
     [from, to] = [to, from];
   }
 
+  const suggestion = get((suggestionPath || '').split('/'), 1);
+  const suggestionCoordinatesString = get((suggestionCoordinatePath || '').split('/'), 1);
+
+  const [suggestionX = null, suggestionY = null] = suggestionCoordinatesString
+    ? suggestionCoordinatesString.split(',').map(v => parseFloat(v))
+    : [];
+
   const parsed = {
     from,
     to,
@@ -104,6 +121,9 @@ function parseParams(params, query, platform) {
     level,
     floor,
     search: Boolean(search),
+    suggestion,
+    suggestionX,
+    suggestionY,
   };
 
   return parsed;
@@ -128,9 +148,23 @@ const propTypes = {
   level: PropTypes.number,
   floor: PropTypes.string,
   search: PropTypes.bool.isRequired,
+  suggestion: PropTypes.oneOf(Object.values(SUGGESTION_TABS)),
+  suggestionX: PropTypes.number,
+  suggestionY: PropTypes.number,
 };
 
-function build({ floor, x, y, level, search = false, from = null, to = null }) {
+function build({
+  floor,
+  x,
+  y,
+  level,
+  search = false,
+  from = null,
+  to = null,
+  suggestion = null,
+  suggestionX = null,
+  suggestionY = null,
+}) {
   const position = `/floor/${floor}/at/${x},${y},${level}`;
 
   if (from && from.data.type === INPUT_TYPE.NEAREST && to && to.data.type === INPUT_TYPE.NEAREST) {
@@ -160,7 +194,17 @@ function build({ floor, x, y, level, search = false, from = null, to = null }) {
   }
 
   const searchUrl = inputHasContent(from) && inputHasContent(to) && search ? '/search' : '';
-  return `${searchUrl}${nearest}${fromPlace}${toPlace}${position}`;
+
+  let suggestionUrl = '';
+
+  if (suggestion) {
+    suggestionUrl = `/suggestion/${suggestion}`;
+    if (suggestionX !== null && suggestionY !== null) {
+      suggestionUrl += `/at/${suggestionX},${suggestionY}`;
+    }
+  }
+
+  return `${searchUrl}${nearest}${fromPlace}${toPlace}${position}${suggestionUrl}`;
 }
 
 export { parseParams, propTypes, build };
