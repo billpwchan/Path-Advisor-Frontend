@@ -69,7 +69,7 @@ class Main extends Component {
 
     const newParams = {
       ...urlParams,
-      level: urlParams.level || defaultLevel,
+      level: 'level' in urlParams ? urlParams.level : defaultLevel,
       ...params,
     };
 
