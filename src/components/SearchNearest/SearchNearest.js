@@ -7,19 +7,19 @@ export const nearestOptions = {
   lift: { name: 'Nearest Lift', data: { type: INPUT_TYPE.NEAREST, value: 'lift' } },
   maleToilet: {
     name: 'Nearest male toilet',
-    data: { type: INPUT_TYPE.NEAREST, value: 'male toilet' },
+    data: { type: INPUT_TYPE.NEAREST, value: 'maleToilet' },
   },
   femaleToilet: {
     name: 'Nearest female toilet',
-    data: { type: INPUT_TYPE.NEAREST, value: 'female toilet' },
+    data: { type: INPUT_TYPE.NEAREST, value: 'femaleToilet' },
   },
   expressStation: {
     name: 'Nearest express station',
-    data: { type: INPUT_TYPE.NEAREST, value: 'express station' },
+    data: { type: INPUT_TYPE.NEAREST, value: 'expressStation' },
   },
   drinkingFountain: {
     name: 'Nearest drinking fountain',
-    data: { type: INPUT_TYPE.NEAREST, value: 'drinking fountain' },
+    data: { type: INPUT_TYPE.NEAREST, value: 'drinkingFountain' },
   },
   atm: { name: 'Nearest ATM', data: { type: INPUT_TYPE.NEAREST, value: 'ATM' } },
   mailbox: { name: 'Nearest mailbox', data: { type: INPUT_TYPE.NEAREST, value: 'mailbox' } },
@@ -29,11 +29,11 @@ export const nearestOptions = {
   },
   virtualBarnStation: {
     name: 'Nearest virtual barn workstation',
-    data: { type: INPUT_TYPE.NEAREST, value: 'virtual barn station' },
+    data: { type: INPUT_TYPE.NEAREST, value: 'virtualBarnWorkstation' },
   },
   satellitePrinter: {
     name: 'Nearest satellite printer',
-    data: { type: INPUT_TYPE.NEAREST, value: 'satellite printer' },
+    data: { type: INPUT_TYPE.NEAREST, value: 'satellitePrinter' },
   },
 };
 
