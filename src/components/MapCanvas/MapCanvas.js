@@ -209,29 +209,38 @@ class MapCanvas extends Component {
     if (!floorData) {
       return [this.props.x, this.props.y];
     }
-    const { mapWidth, mapHeight } = floorData;
+    const { mapWidth, mapHeight, startX, startY } = floorData;
 
     return [
-      [newX, newLeftX, normalizedWidth, mapWidth],
-      [newY, newTopY, normalizedHeight, mapHeight],
+      [startX, newX, newLeftX, normalizedWidth, mapWidth],
+      [startY, newY, newTopY, normalizedHeight, mapHeight],
     ]
-      .map(([originalCoordinate, cornerCoordinate, normalizedDimension, totalDimension]) => {
-        if (totalDimension <= normalizedDimension) {
-          return normalizedDimension / 2;
-        }
+      .map(
+        ([
+          startCoordinate,
+          originalCoordinate,
+          cornerCoordinate,
+          normalizedDimension,
+          totalDimension,
+        ]) => {
+          if (totalDimension <= normalizedDimension) {
+            return normalizedDimension / 2 + startCoordinate;
+          }
 
-        if (cornerCoordinate < 0) {
-          return normalizedDimension / 2;
-        }
+          if (cornerCoordinate < startCoordinate) {
+            return normalizedDimension / 2 + startCoordinate;
+          }
 
-        if (cornerCoordinate + normalizedDimension > totalDimension) {
-          let restricted = totalDimension - normalizedDimension / 2;
-          restricted = restricted < 0 ? normalizedDimension / 2 : restricted;
-          return restricted;
-        }
+          if (cornerCoordinate + normalizedDimension > totalDimension + startCoordinate) {
+            let restricted = totalDimension + startCoordinate - normalizedDimension / 2;
+            restricted =
+              restricted < startCoordinate ? normalizedDimension / 2 + startCoordinate : restricted;
+            return restricted;
+          }
 
-        return originalCoordinate;
-      })
+          return originalCoordinate;
+        },
+      )
       .map(v => Math.round(v));
   }
 

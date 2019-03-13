@@ -190,7 +190,9 @@ An object storing the all the floor and building data.
       ratio: number, /* Ratio of the map to the mini map of this floor */
       defaultX: number, /* Default x position for this floor */
       defaultY: number, /* Default y position for this floor */
-      defaultLevel: number /* Default level for this floor */
+      defaultLevel: number, /* Default level for this floor */
+      startX: number, /* The start coordinate x for this floor, end coordinate will be startX + mapWidth */
+      startY: number /* The start coordinate y for this floor, end coordinate will be startY + mapHeight */
     }
   },
   buildingIds: [string], /* An array of all available building ids */
