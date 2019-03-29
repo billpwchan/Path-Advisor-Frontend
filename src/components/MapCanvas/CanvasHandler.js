@@ -792,35 +792,35 @@ class CanvasHandler {
   }
 
   getLeftX() {
-    return this.x - this.getNormalizedWidth() / 2;
+    return this.x - Math.round(this.getNormalizedWidth() / 2);
   }
 
   getTopY() {
-    return this.y - this.getNormalizedHeight() / 2;
+    return this.y - Math.round(this.getNormalizedHeight() / 2);
   }
 
   getRightX() {
-    return this.x + this.getNormalizedWidth() / 2;
+    return this.x + Math.round(this.getNormalizedWidth() / 2);
   }
 
   getBottomY() {
-    return this.y + this.getNormalizedHeight() / 2;
+    return this.y + Math.round(this.getNormalizedHeight() / 2);
   }
 
   getScreenLeftX() {
-    return this.getScaledX() - this.getWidth() / 2;
+    return this.getScaledX() - Math.round(this.getWidth() / 2);
   }
 
   getScreenTopY() {
-    return this.getScaledY() - this.getHeight() / 2;
+    return this.getScaledY() - Math.round(this.getHeight() / 2);
   }
 
   getScreenRightX() {
-    return this.getScaledX() + this.getWidth() / 2;
+    return this.getScaledX() + Math.round(this.getWidth() / 2);
   }
 
   getScreenBottomY() {
-    return this.getScaledY() + this.getHeight() / 2;
+    return this.getScaledY() + Math.round(this.getHeight() / 2);
   }
 
   /**
