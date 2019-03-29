@@ -133,8 +133,8 @@ class ShortestResultPrimaryPanel extends Component {
           <div className={style.body}>
             {shortestPathHead}
             <div className={style.content}>
-              {instructions.map(({ floor, nextFloor, from, to, distance }) => (
-                <div key={floor}>
+              {instructions.map(({ floor, nextFloor, from, to, distance }, i) => (
+                <div key={i}>
                   <div className={style.floorTitle}>{getBuildingAndFloorText(floor)}</div>
                   <div className={style.row}>
                     <div className={style.instructionCol}>
@@ -235,11 +235,22 @@ function ShortestResultMapCanvas({
 
   clickListenerMapItemIds.clear();
 
+  let continueIndex = -1;
+
   paths.forEach(({ floor, coordinates, id, photo }, i) => {
-    if (!mapItems[floor]) {
-      addedMapItemIds.add(`${floor}_line`);
-      mapItems[floor] = {
-        id: `${floor}_line`,
+    const prevPath = i === 0 ? null : paths[i - 1];
+
+    if (!prevPath || prevPath.floor !== floor) {
+      continueIndex += 1;
+    }
+
+    const mapItemId = `${floor}_${continueIndex}`;
+
+    // Draw shortest path line
+    if (!mapItems[mapItemId]) {
+      addedMapItemIds.add(`${mapItemId}_line`);
+      mapItems[mapItemId] = {
+        id: `${mapItemId}_line`,
         floor,
         line: {
           ...lineStyle,
@@ -248,11 +259,10 @@ function ShortestResultMapCanvas({
         zIndex: -1,
       };
     } else {
-      mapItems[floor].line.coordinates.push(coordinates);
+      mapItems[mapItemId].line.coordinates.push(coordinates);
     }
 
-    const prevPath = i === 0 ? null : paths[i - 1];
-
+    // Add click listener to connector to follow the path to go up/down floor
     if (prevPath && prevPath.floor !== floor) {
       addMapItemClickListener(
         LISTENER_ID,
