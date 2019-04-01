@@ -3,7 +3,7 @@ import { APIEndpoint } from '../../config/config';
 
 export const MODE = {
   NORMAL: 'normal',
-  CUSTOM: 'quickCustom',
+  NEAREST: 'nearest',
 };
 
 const logger = (hasQueryString, platform) => ({ from, to, mode }) => {

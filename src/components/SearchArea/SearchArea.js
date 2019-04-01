@@ -171,8 +171,10 @@ class SearchArea extends Component {
 
     if (fromType === INPUT_TYPE.NEAREST) {
       searchNearestHandler(toFloor, toValue, fromValue, sameFloor, toId);
+      logMode = LOG_MODE.NEAREST;
     } else if (toType === INPUT_TYPE.NEAREST) {
       searchNearestHandler(fromFloor, fromValue, toValue, sameFloor, fromId);
+      logMode = LOG_MODE.NEAREST;
     } else {
       // point to point search
       const searchFrom =
@@ -181,10 +183,6 @@ class SearchArea extends Component {
         toType === INPUT_TYPE.KEYWORD ? { keyword: toValue } : { id: toId, floor: toFloor };
 
       searchShortestPathHandler(searchFrom, searchTo);
-
-      if (fromId && toId) {
-        logMode = LOG_MODE.CUSTOM;
-      }
     }
 
     logger({
