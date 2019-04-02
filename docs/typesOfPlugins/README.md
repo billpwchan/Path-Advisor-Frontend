@@ -160,10 +160,12 @@ An object storing map items with in the currently viewport. Note that these map 
         number, /* coordinate x of the map item */
         number  /* coordinate y of the map item */
       ],
-      id: string /* Id of the map item */
-      type: string /* Map item type */
-      photo: string|null /* photo url of the map item */,
-      url: string|null /* url of the map item */
+      id: string, /* Id of the map item */
+      type: string, /* Map item type */
+      photo: string|null, /* photo url of the map item */
+      url: string|null, /* url of the map item */
+      geoLocs: object|null, /* A geoJSON object describing the node if it is a room */
+      others: object|null /* extra information attached to this node by external sources */
     }
   ]
 }
