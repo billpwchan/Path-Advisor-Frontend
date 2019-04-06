@@ -309,7 +309,7 @@ class MapItem extends Component {
               break;
             }
             default: {
-              if (type === 'restaurant' || type === 'kiosk') {
+              if (legends[type] && legends[type].image) {
                 accumulator.push({
                   ...baseMapItem,
                   id: `${floor}_${id}_${type}`,
