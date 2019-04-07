@@ -179,17 +179,17 @@ class SearchTopPanelView extends Component {
               makeButton({
                 image: '/images/legends/malewc.png',
                 label: 'Male Toilet',
-                onClick: () => this.searchNearest('male toilet'),
+                onClick: () => this.searchNearest('maleToilet'),
               }),
               makeButton({
                 image: '/images/legends/femalewc.png',
                 label: 'Female Toilet',
-                onClick: () => this.searchNearest('female toilet'),
+                onClick: () => this.searchNearest('femaleToilet'),
               }),
               makeButton({
                 image: '/images/legends/fountain.png',
                 label: 'Drinking Fountain',
-                onClick: () => this.searchNearest('drinking fountain'),
+                onClick: () => this.searchNearest('drinkingFountain'),
               }),
             ]}
             onClose={() => this.setNearestPopUpDisplay(false)}
