@@ -685,9 +685,12 @@ class CanvasHandler {
 
         const visitedItemIds = new Set();
 
+        // freeze floor value as it may be changed while triggering listeners
+        const floor = this.floor;
+
         revForEach(this.mapItemIds, id => {
           const mapItem = this.mapItems[id];
-          if (mapItem.floor !== this.floor) {
+          if (mapItem.floor !== floor) {
             return;
           }
 
