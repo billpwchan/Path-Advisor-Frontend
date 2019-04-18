@@ -26,6 +26,7 @@ function parsePlace(place) {
     return null;
   }
 
+  const legacyIdPattern = /^[n|p][0-9]{1,3}$/;
   const [name, id, floor, coordinates] = place.split(';');
   const [x, y] = coordinates
     ? coordinates
@@ -33,7 +34,7 @@ function parsePlace(place) {
         .map(v => Number.parseInt(v, 10))
         .map(v => (Number.isNaN(v) ? null : v))
     : [null, null];
-  return [id, floor, x, y].every(v => !isNil(v))
+  return [id, floor, x, y].every(v => !isNil(v)) && !legacyIdPattern.test(id)
     ? {
         name,
         data: {
