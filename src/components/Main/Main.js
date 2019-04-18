@@ -33,6 +33,8 @@ class Main extends Component {
     getInitDataHandler: PropTypes.func.isRequired,
   };
 
+  platform = detectPlatform();
+
   static defaultProps = {
     match: { params: {} },
   };
@@ -51,26 +53,24 @@ class Main extends Component {
     this.initPosition();
   }
 
-  getUrlParams(platform) {
+  getUrlParams() {
     return parseParams(
       this.props.match.params,
       this.props.location.search,
-      platform,
+      this.platform,
       this.props.floorStore.floors,
     );
   }
 
   linkTo = (params, method = 'push') => {
-    const platform = detectPlatform();
-
     const {
       appSettingStore: { defaultPosition, mobileDefaultPosition },
     } = this.props;
 
     const { level: defaultLevel } =
-      platform === PLATFORM.MOBILE ? mobileDefaultPosition : defaultPosition;
+      this.platform === PLATFORM.MOBILE ? mobileDefaultPosition : defaultPosition;
 
-    const urlParams = this.getUrlParams(platform);
+    const urlParams = this.getUrlParams();
 
     const newParams = {
       ...urlParams,
@@ -86,10 +86,8 @@ class Main extends Component {
   };
 
   initPosition() {
-    const platform = detectPlatform();
-
     // init position from app settings if current position is not set
-    const urlParams = this.getUrlParams(platform);
+    const urlParams = this.getUrlParams();
 
     if (!urlParams.isFromNormalized) {
       this.linkTo(urlParams);
@@ -109,7 +107,7 @@ class Main extends Component {
       }
 
       const { floor, x, y, level } =
-        platform === PLATFORM.MOBILE ? mobileDefaultPosition : defaultPosition;
+        this.platform === PLATFORM.MOBILE ? mobileDefaultPosition : defaultPosition;
 
       if ([floor, x, y, level].every(v => !isNil(v))) {
         this.linkTo({ floor, x, y, level }, 'replace');
@@ -128,9 +126,8 @@ class Main extends Component {
       return null;
     }
 
-    const platform = detectPlatform();
-    const isMobile = platform === PLATFORM.MOBILE;
-    const urlParams = this.getUrlParams(platform);
+    const isMobile = this.platform === PLATFORM.MOBILE;
+    const urlParams = this.getUrlParams();
 
     return (
       <>
@@ -153,7 +150,7 @@ class Main extends Component {
             <PrimaryPanel
               {...urlParams}
               linkTo={this.linkTo}
-              logger={logger(this.hasQueryString(), platform)}
+              logger={logger(this.hasQueryString(), this.platform)}
             >
               {plugins.map(
                 ({ id, PrimaryPanelPlugin, OverlayHeaderPlugin, OverlayContentPlugin }) => ({
@@ -169,7 +166,7 @@ class Main extends Component {
               <TopPanel
                 {...urlParams}
                 linkTo={this.linkTo}
-                logger={logger(this.hasQueryString(), platform)}
+                logger={logger(this.hasQueryString(), this.platform)}
               />
               <MobileOverlay>
                 {plugins.map(({ id, MobileOverlayHeaderPlugin, MobileOverlayContentPlugin }) => ({
@@ -196,7 +193,7 @@ class Main extends Component {
               ) : null}
             </>
           )}
-          <MapCanvas {...urlParams} linkTo={this.linkTo} platform={detectPlatform()}>
+          <MapCanvas {...urlParams} linkTo={this.linkTo} platform={this.platform}>
             {plugins.map(({ id, MapCanvasPlugin, MenuBarPlugin }) => ({
               id,
               MapCanvasPlugin,
