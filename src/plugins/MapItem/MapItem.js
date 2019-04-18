@@ -78,7 +78,7 @@ class MapItem extends Component {
             others,
           },
         ) => {
-          // TO-FIX: hardcoding liveview info here before there is a API for it.
+          // TO-DO: hardcoding liveview info here before there is a API for it.
           if (name.toUpperCase() === 'NORTH BUS STOP') {
             // eslint-disable-next-line no-param-reassign
             others = {
@@ -99,7 +99,7 @@ class MapItem extends Component {
             };
           }
 
-          // TO-FIX: hardcoding liveview info here before there is a API for it.
+          // TO-DO: hardcoding liveview info here before there is a API for it.
           if (name === 'Barn B, ROOM 1101') {
             // eslint-disable-next-line no-param-reassign
             others = {

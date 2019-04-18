@@ -26,6 +26,7 @@ function parsePlace(place) {
     return null;
   }
 
+  // TO-DO: remove legacy check after analytics shows no user is using it anymore
   const legacyIdPattern = /^[n|p][0-9]{1,3}$/;
   const [name, id, floor, coordinates] = place.split(';');
   const [x, y] = coordinates
@@ -48,6 +49,7 @@ function parsePlace(place) {
     : { name, data: { type: INPUT_TYPE.KEYWORD, value: name } };
 }
 
+// TO-DO: Remove normalized checking and url once analytics shows no users use unnormalized coordinates
 function parseCoordinates(coordinatePath, floor, floorData) {
   if (typeof coordinatePath !== 'string') {
     return { isNormalized: true };
