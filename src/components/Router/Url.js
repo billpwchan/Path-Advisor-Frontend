@@ -47,7 +47,31 @@ function parsePlace(place) {
     : { name, data: { type: INPUT_TYPE.KEYWORD, value: name } };
 }
 
-function parseParams(params, query, platform) {
+function parseCoordinates(coordinatePath, floor, floorData) {
+  if (typeof coordinatePath !== 'string') {
+    return { isNormalized: true };
+  }
+
+  const coordinateParts = coordinatePath.split('/');
+
+  if (coordinateParts.length !== 2 && coordinateParts.length !== 3) {
+    throw new Error('Unexpected coordinate path format');
+  }
+
+  const isNormalized = coordinateParts.length === 3;
+  const coordinateString = coordinatePath.split('/')[coordinateParts.length - 1];
+
+  let [x, y, level] = coordinateString.split(',').map(v => parseInt(v, 10));
+
+  if (floor && !isNormalized) {
+    x += floorData[floor].startX;
+    y += floorData[floor].startY;
+  }
+
+  return { x, y, level, isNormalized };
+}
+
+function parseParams(params, query, platform, floorData) {
   const queryParams = qs.parse(query);
 
   const {
@@ -63,12 +87,8 @@ function parseParams(params, query, platform) {
 
   let { search } = params;
 
-  const coordinateString =
-    (typeof coordinatePath === 'string' && get(coordinatePath.split('/'), 1)) || null;
   const floor = (typeof floorPath === 'string' && get(floorPath.split('/'), 1)) || undefined;
-  const [x = undefined, y = undefined, level = undefined] = coordinateString
-    ? coordinateString.split(',').map(v => parseInt(v, 10))
-    : [];
+  const { x, y, level, isNormalized } = parseCoordinates(coordinatePath, floor, floorData);
 
   let fromNearest = Object.values(nearestOptions).find(
     ({ data: { value } }) => value === fromNearestType,
@@ -124,6 +144,7 @@ function parseParams(params, query, platform) {
     suggestion,
     suggestionX,
     suggestionY,
+    isFromNormalized: isNormalized,
   };
 
   return parsed;
@@ -165,7 +186,7 @@ function build({
   suggestionX = null,
   suggestionY = null,
 }) {
-  const position = `/floor/${floor}/at/${x},${y},${level}`;
+  const position = `/floor/${floor}/at/normalized/${x},${y},${level}`;
 
   if (from && from.data.type === INPUT_TYPE.NEAREST && to && to.data.type === INPUT_TYPE.NEAREST) {
     // Malformed url. ignore all the place parameters

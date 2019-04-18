@@ -3,7 +3,7 @@ import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 import Main from '../Main/Main';
 import NotFoundPage from '../NotFoundPage/NotFoundPage';
 
-const position = ':floorPath(floor/[^/]+)?/:coordinatePath(at/[^/]+)?';
+const position = ':floorPath(floor/[^/]+)?/:coordinatePath(at/[^/]+|at/normalized/[^/]+)?';
 const suggestion = ':suggestionPath(suggestion/[^/]+)?/:suggestionCoordinatePath(at/[^/]+)?';
 
 const Router = () => (

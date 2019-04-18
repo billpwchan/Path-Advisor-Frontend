@@ -37,22 +37,27 @@ class Main extends Component {
     match: { params: {} },
   };
 
-  constructor(props) {
-    super(props);
-    props.getInitDataHandler();
-    this.initPosition();
-  }
-
   componentDidMount() {
-    this.initPosition();
+    this.props.getInitDataHandler();
   }
 
   componentDidUpdate() {
+    const { appSettingStore, floorStore } = this.props;
+
+    if (!appSettingStore.success || !floorStore.success) {
+      return;
+    }
+
     this.initPosition();
   }
 
   getUrlParams(platform) {
-    return parseParams(this.props.match.params, this.props.location.search, platform);
+    return parseParams(
+      this.props.match.params,
+      this.props.location.search,
+      platform,
+      this.props.floorStore.floors,
+    );
   }
 
   linkTo = (params, method = 'push') => {
@@ -86,6 +91,11 @@ class Main extends Component {
     // init position from app settings if current position is not set
     const urlParams = this.getUrlParams(platform);
 
+    if (!urlParams.isFromNormalized) {
+      this.linkTo(urlParams);
+      return;
+    }
+
     if (
       [urlParams.level, urlParams.x, urlParams.y, urlParams.floor].some(v => isNil(v)) &&
       !urlParams.search
@@ -112,14 +122,15 @@ class Main extends Component {
   }
 
   render() {
-    const platform = detectPlatform();
-    const isMobile = platform === PLATFORM.MOBILE;
-    const urlParams = this.getUrlParams(platform);
     const { appSettingStore, legendStore, floorStore } = this.props;
 
     if (!appSettingStore.success || !floorStore.success || !legendStore.success) {
       return null;
     }
+
+    const platform = detectPlatform();
+    const isMobile = platform === PLATFORM.MOBILE;
+    const urlParams = this.getUrlParams(platform);
 
     return (
       <>
