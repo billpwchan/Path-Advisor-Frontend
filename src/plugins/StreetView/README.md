@@ -1,3 +1,13 @@
+## Usage
+
+Drag the little man icon onto the map, or click con the little man to pick it up and click once more to put it down. 
+
+After the panorama window pops up, click the window once to focus. Then use *left & right* arrow keys to orient, use *up & down* arrow keys to move. Clicking the image to move is currently unsupported regardless of the beautiful green oval that follows your cursor.
+
+Since there are many missing/inconsistent data, some panorama images are missing, and hence sometimes you can't put the little man at desired position, nor can you move away from a panorama spot using arrow keys (since its adjacent panorama spots are all missing).
+
+## Dev
+
 Street view plugin can be divided into two major parts: one is the small man feature, the other is the panoramic image display. 
 
 The plugin is controlled by a master class called StreetView. StreetView is the end point connecting to the main body of pathadviser. It only communicate with the subcomponents through signals, but does not touch actual image rendering.
