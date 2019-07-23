@@ -287,7 +287,6 @@ class PanoDisplay extends React.Component {
   };
 
   handleKeyDown = async e => {
-    // const scaledWidth = this.getScaledWidth();
     if (e.keyCode === 37) {
       this.rotateLeft(30);
       clearTimeout(this.rotateTimeout);
@@ -325,7 +324,6 @@ class PanoDisplay extends React.Component {
   render() {
     const panoImage = this.props.panoImage;
     const pixelOffset = this.getScaledDefaultOffset();
-    // const angleOffset = this.getDefaultClockwiseAngleFromNorth();
 
     const degree = this.state.degree;
     const { dx, dy } = this.getSmallOvalDim();
@@ -336,7 +334,6 @@ class PanoDisplay extends React.Component {
       display: this.state.show ? 'block' : 'none',
       backgroundImage: `url(${panoImage})`,
       backgroundPosition: `calc(${-totalPixelOffsetFromCenter}px + 50%)`,
-      // backgroundPosition: -totalPixelOffset,
       cursor: this.state.cursor,
     };
     return (
