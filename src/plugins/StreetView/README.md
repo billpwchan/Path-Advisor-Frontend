@@ -12,6 +12,7 @@ StreetView mediates the communication between four subcomponents:
 ## How angle is defined in the plugin
 For all angle quantities in StreetView, angle=0 corresponds to **North** direction in campus map. An **increment** in the value of angle corresponds to rotation in **clockwise** orientation.
 
+*Code Review Notes: In this plugin's context, the actual **west** is regarded as **north**. This is because the backend data marks the X-coord of the **west** direction of each image, and the original frontend author thinks it is the north*. So geographically speaking, angle=0 corresponds to **west** and the map coordinate system uses **+y = south, +x = east**. But functionalities are not affected. 
 
 ## StreetView
 This is the highest level StreetView component. 
@@ -39,7 +40,7 @@ positiveModulo(-2, 5); // 3
 
 positiveModulo(-7, 3); // 2
 
-positiveModulo(3, -5); // none
+positiveModulo(3, -5); // undefined
 ```
 
 ### class StreetView
