@@ -129,9 +129,6 @@ class StreetView extends React.Component {
     this.placePinManAt(this.props.floor, x, y);
   }
 
-  /**
-   *@param {number} forwardDirection , a string in {"Forward","Backward"}, or an angle counted clockwise from North direction.
-   */
   handleNavigation(movementDirection) {
     let deg = 0;
     if (movementDirection === 'Forward') {
@@ -141,14 +138,11 @@ class StreetView extends React.Component {
     } else {
       deg = Math.parseFloat(movementDirection);
     }
-    // console.log("movementDirection", movementDirection, "deg", deg);
     getNextPano(this.state.panoId, deg).then(res => {
-      console.log(res);
       if (res !== null) {
         const {
           coordinates: [targetX, targetY],
         } = res;
-        // console.log(targetX, targetY);
         this.placePinManAt(this.props.floor, parseFloat(targetX), parseFloat(targetY));
       }
     });
