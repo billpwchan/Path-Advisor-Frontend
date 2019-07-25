@@ -9,8 +9,8 @@ import rotateLeftOnClickImg from './rotate_left_onclick.png';
 import rotateRightOnClickImg from './rotate_right_onclick.png';
 import compassImg from './compass.png';
 
-const ovalTimeoutSpeed = 5000;
 const timeoutSpeed = 150; // the speed in which holding on the button turn
+const ovalTimeoutSpeed = 3000;
 const scaleX = 1; // pixel scale to mouse drag other words, sensitivity
 const clickTimeout = 100; // the threshold mouse-down delay to distinguish clicking and draging
 /**
