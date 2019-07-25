@@ -94,6 +94,13 @@ class StreetView extends React.Component {
 
   placePinManAt(floor, x, y) {
     return getPanoInfo(floor, [x, y]).then(response => {
+      if (response === null) {
+        this.setState({
+          baseManAvail: true,
+          displayDragMan: false,
+        });
+        return;
+      }
       const {
         id,
         coordinates: [panoX, panoY],
