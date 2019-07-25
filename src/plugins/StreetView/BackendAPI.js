@@ -20,6 +20,9 @@ async function getPanoInfo(floor, [x, y]) {
   const nearestNodeResponse = await Axios.get(
     `${panoServerEndPoint}/pano/floors/${encodeURIComponent(floor)}/node?nearCoordinates=${parseInt(x, 10)},${parseInt(y, 10)}`,
   );
+  if (nearestNodeResponse.data.data === null) {
+    return null;
+  }
   const { _id, coordinates, panoImage, panoImageUrl } = nearestNodeResponse.data.data;
   const panoImageInfoResponse = await Axios.get(
     `${panoServerEndPoint}/pano/images/${panoImage}/info`,
@@ -42,19 +45,19 @@ async function getPanoInfo(floor, [x, y]) {
  * Given the current node with panoramic image, and the forward direction, returns the next node with panoramic image
  * @param {String} startId Current node ID
  * @param {Number} forwardAngle The angle facing forward
- * @
  */
 async function getNextPano(startId, forwardAngle) {
   const nextNodeResponse = await Axios.get(
     `${panoServerEndPoint}/pano/next?startId=${startId}&forwardAngle=${forwardAngle}`,
   );
+  if (nextNodeResponse.data.data === null) {
+    return null;
+  }
   const { _id, coordinates } = nextNodeResponse.data.data;
-  return _id
-    ? {
-        id: _id,
-        coordinates,
-      }
-    : null;
+  return {
+    id: _id,
+    coordinates,
+  };
 }
 
 export { getPanoInfo, getNextPano };
