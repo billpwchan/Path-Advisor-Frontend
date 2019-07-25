@@ -41,7 +41,7 @@ const colors = [
   '#A40E4C',
 ];
 function Circle(props) {
-  const { x, y, dx, dy, display } = props;
+  const { x, y, dx, dy } = props;
   const circleStyle = {
     display: 'inline-block',
     backgroundColor: colors[3],
@@ -52,7 +52,7 @@ function Circle(props) {
     position: 'fixed',
     left: x - dx / 2,
     top: y - dy / 2,
-    opacity: display ? 0.8 : 0,
+    opacity: 0.8,
     transition: 'opacity 250ms linear',
   };
   return <div style={circleStyle} />;
@@ -300,10 +300,6 @@ class PanoDisplay extends React.Component {
     }
   };
 
-  handleOvalClick() {
-    console.log('Current deg');
-  }
-
   /* The Helper function to get the size of the small oval. */
   getSmallOvalDim() {
     const R = 1; // Radius of small circle in meters
@@ -348,14 +344,15 @@ class PanoDisplay extends React.Component {
         tabIndex="0"
         onKeyDown={this.handleKeyDown}
       >
-        <Circle
-          x={this.state.clientX}
-          y={this.state.clientY}
-          dx={dx}
-          dy={dy}
-          display={this.state.displayOval}
-          onClick={() => this.handleOvalClick()}
-        />
+        {this.state.displayOval && (
+          <Circle
+            x={this.state.clientX}
+            y={this.state.clientY}
+            dx={dx}
+            dy={dy}
+            display={this.state.displayOval}
+          />
+        )}
 
         <img
           className={style.compass}
