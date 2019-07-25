@@ -9,21 +9,21 @@ import rotateLeftOnClickImg from './rotate_left_onclick.png';
 import rotateRightOnClickImg from './rotate_right_onclick.png';
 import compassImg from './compass.png';
 
-const timeoutSpeed = 150; // the speed in whcih holding on the button turn
 const ovalTimeoutSpeed = 5000;
+const timeoutSpeed = 150; // the speed in which holding on the button turn
 const scaleX = 1; // pixel scale to mouse drag other words, sensitivity
 /**
  * Things to do
  * 1) Do drag rotation (DONE)
  * 2) stitch the left and right side of the image (DONE)
  * Possible ideas:
- * - stitch a frame's width from zeroposition and the entire panorama, this cna be done with coordinate maniputation
+ * - stitch a frame's width from zero position and the entire panorama, this cna be done with coordinate manipunation
  * (may not be very neat)
  * - have a 3d image, in essence cube(can be cool)
  * - have the image as background and on repeat, so it will show the same image. (ADOPTED)
  * (can be convenient when you have features placed on it.)
  *
- * 3) add the pointint to north compass(DONE)
+ * 3) add the pointing to north compass(DONE)
  * - find width of image
  *
  * 4) Create a smooth drag (DONE)
@@ -84,6 +84,20 @@ class PanoDisplay extends React.Component {
     this.rotateTimeout = null; // to keep track so you can clear timeout later
   }
 
+  componentDidMount = () => {
+    const imageSrc = this.refs.panoDisplay.style.backgroundImage;
+    this.setImageDimension(imageSrc);
+  };
+
+  componentDidUpdate = (prevProps, prevState) => {
+    if (this.props.panoImage !== prevProps.panoImage) {
+      const imageSrc = this.refs.panoDisplay.style.backgroundImage;
+      this.setImageDimension(imageSrc);
+
+      this.props.parentHandleUpdate(this.state.degree);
+    }
+  };
+
   setImageDimension = imageSrc => {
     const urlRegex = /url\((["'])(.*?)\1\)/;
     const match = urlRegex.exec(imageSrc);
@@ -92,7 +106,7 @@ class PanoDisplay extends React.Component {
     image.onload = () => {
       // gives you the width of background image.
       // need to get the width of canvas screen
-      // if panoHeight is the full canvas heihgt, then the image will be original scale
+      // if panoHeight is the full canvas height, then the image will be original scale
       // if panoHeight is half the full canvas height, then
       this.setState({
         widthImage: image.width,
@@ -122,24 +136,6 @@ class PanoDisplay extends React.Component {
       (this.props.defaultOffset / this.state.heightImage) * (this.props.height / 2);
     return scaledOffset;
   }
-
-  getDefaultClockwiseAngleFromNorth() {
-    return (this.props.defaultOffset / this.state.widthImage) * 360;
-  }
-
-  componentDidMount = () => {
-    const imageSrc = this.refs.panoDisplay.style.backgroundImage;
-    this.setImageDimension(imageSrc);
-  };
-
-  componentDidUpdate = (prevProps, prevState) => {
-    if (this.props.panoImage !== prevProps.panoImage) {
-      const imageSrc = this.refs.panoDisplay.style.backgroundImage;
-      this.setImageDimension(imageSrc);
-
-      this.props.parentHandleUpdate(this.state.degree);
-    }
-  };
 
   toggleFullScreen = () => {
     let newWidth = 0;
@@ -197,11 +193,11 @@ class PanoDisplay extends React.Component {
   };
 
   restartOvalTimer = () => {
-    /* 
-    Start/Restart the ovalTimeout timer. 
-    Doing the restarting in handler is the only way to display disired fading features:
-        a. When mouse is moved, always display oval. 
-        b. When mouse is not moving for xxx miliseconds, hide the oval.
+    /*
+    Start/Restart the ovalTimeout timer.
+    Doing the restarting in handler is the only way to display desired fading features:
+        a. When mouse is moved, always display oval.
+        b. When mouse is not moving for xxx milliseconds, hide the oval.
     */
     if (this.ovalTimeout != null) {
       clearTimeout(this.ovalTimeout);
