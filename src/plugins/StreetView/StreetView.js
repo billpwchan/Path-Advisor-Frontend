@@ -136,7 +136,7 @@ class StreetView extends React.Component {
     } else if (movementDirection === 'Backward') {
       deg = positiveModulo(180 + this.state.PinManAngle, 360);
     } else {
-      deg = Math.parseFloat(movementDirection);
+      deg = parseFloat(movementDirection);
     }
     getNextPano(this.state.panoId, deg).then(res => {
       if (res !== null) {
