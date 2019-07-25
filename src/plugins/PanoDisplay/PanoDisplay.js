@@ -12,6 +12,7 @@ import compassImg from './compass.png';
 const ovalTimeoutSpeed = 5000;
 const timeoutSpeed = 150; // the speed in which holding on the button turn
 const scaleX = 1; // pixel scale to mouse drag other words, sensitivity
+const clickTimeout = 100; // the threshold mouse-down delay to distinguish clicking and draging
 /**
  * Things to do
  * 1) Do drag rotation (DONE)
@@ -72,6 +73,7 @@ class PanoDisplay extends React.Component {
       leftButton: rotateLeftImg,
       rightButton: rotateRightImg,
       isDrag: false,
+      isClick: false,
       degree: 0, // current orientation. West = 0.
       clientX: 0,
       clientY: 0,
@@ -164,14 +166,16 @@ class PanoDisplay extends React.Component {
 
   // HANDLERS FOR DRAG ROTATE
 
-  handleStart = e => {
+  handleMouseDown = e => {
     this.setState({
       clientX: e.clientX,
       isDrag: true,
+      isClick: true,
     });
+    setTimeout(() => this.setState({ isClick: false }), clickTimeout);
   };
 
-  handleDrag = e => {
+  handleMouseMove = e => {
     if (this.state.isDrag) {
       e.preventDefault();
       let offsetX = e.clientX - this.state.clientX;
@@ -189,9 +193,44 @@ class PanoDisplay extends React.Component {
     this.setState({
       clientX: e.clientX,
       clientY: e.clientY,
-      displayOval: true,
     });
     this.restartOvalTimer();
+  };
+
+  // Problem now is that the mouse movement is of the same measurement as pixel scroll hm..
+  handleMouseUp = () => {
+    if (this.state.isClick) {
+      this.handlePanoClick(this.state.clientX);
+    }
+    this.setState({
+      isDrag: false,
+      isClick: false,
+      cursor: 'grab',
+    });
+  };
+
+  handleMouseEnter = e => {
+    this.setState({
+      clientX: e.clientX,
+      cursor: 'grab',
+      displayOval: true,
+    });
+  };
+
+  handleMouseLeave = () => {
+    this.setState({
+      isDrag: false,
+      isClick: false,
+      cursor: 'grab',
+      clientX: 0,
+      displayOval: false,
+    });
+  };
+
+  handlePanoClick = clientX => {
+    const offsetX = clientX - (window.innerWidth - this.props.width / 2);
+    const newDegree = this.getNewDegreeFromOffset(offsetX);
+    this.props.parentHandleNavigation(newDegree);
   };
 
   restartOvalTimer = () => {
@@ -209,15 +248,6 @@ class PanoDisplay extends React.Component {
         displayOval: false,
       });
     }, ovalTimeoutSpeed);
-  };
-
-  // Problem now is that the mouse movement is of the same measurement as pixel scroll hm..
-  handleStop = () => {
-    this.setState({
-      clientX: 0,
-      isDrag: false,
-      cursor: 'grab',
-    });
   };
 
   rotateLeft = increment => {
@@ -326,10 +356,11 @@ class PanoDisplay extends React.Component {
         ref="panoDisplay"
         className={this.state.fullScreen ? style.fullScreen : style.panoScreen}
         style={backgroundStyle}
-        onMouseDown={this.handleStart}
-        onMouseMove={this.handleDrag}
-        onMouseUp={this.handleStop}
-        onMouseLeave={this.handleStop}
+        onMouseDown={this.handleMouseDown}
+        onMouseMove={this.handleMouseMove}
+        onMouseUp={this.handleMouseUp}
+        onMouseEnter={this.handleMouseEnter}
+        onMouseLeave={this.handleMouseLeave}
         tabIndex="0"
         onKeyDown={this.handleKeyDown}
       >
