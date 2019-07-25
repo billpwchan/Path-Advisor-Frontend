@@ -72,8 +72,7 @@ class PanoDisplay extends React.Component {
       leftButton: rotateLeftImg,
       rightButton: rotateRightImg,
       isDrag: false,
-      scrollLeft: 0, // show how much is turned.
-      degree: 0,
+      degree: 0, // current orientation. West = 0.
       clientX: 0,
       clientY: 0,
       displayOval: false,
@@ -121,6 +120,12 @@ class PanoDisplay extends React.Component {
 
   scaledOffsetToDegree(scaledOffset) {
     return (360 * scaledOffset) / this.getScaledWidth();
+  }
+
+  getNewDegreeFromOffset(offset) {
+    const scrollLeft = this.degreeToScaledOffset(this.state.degree);
+    const newX = (scrollLeft + offset) % this.getScaledWidth();
+    return this.scaledOffsetToDegree(newX);
   }
 
   /**
@@ -172,11 +177,8 @@ class PanoDisplay extends React.Component {
       let offsetX = e.clientX - this.state.clientX;
       offsetX *= scaleX;
       // need to set refinement to the offset.
-      const scaledWidth = this.getScaledWidth();
-      const newx = this.state.scrollLeft - offsetX;
-      const degree = ((newx % scaledWidth) / scaledWidth) * 360;
+      const degree = this.getNewDegreeFromOffset(-offsetX);
       this.setState({
-        scrollLeft: newx,
         cursor: 'grabbing',
         degree,
       });
@@ -221,12 +223,8 @@ class PanoDisplay extends React.Component {
   rotateLeft = increment => {
     // 8 clicks will go back to starting point. since the width is 3400/8,
     // take the scaledWidth/8
-    const scaledWidth = this.getScaledWidth();
-    const newx = this.state.scrollLeft - increment;
-    const degree = ((newx % scaledWidth) / scaledWidth) * 360;
-
+    const degree = this.getNewDegreeFromOffset(-increment);
     this.setState({
-      scrollLeft: newx,
       degree,
     });
 
@@ -245,13 +243,8 @@ class PanoDisplay extends React.Component {
   };
 
   rotateRight = increment => {
-    const scaledWidth = this.getScaledWidth();
-    const newx = this.state.scrollLeft + increment;
-
-    const degree = ((newx % scaledWidth) / scaledWidth) * 360;
-
+    const degree = this.getNewDegreeFromOffset(increment);
     this.setState({
-      scrollLeft: newx,
       degree,
     });
     this.props.parentHandleUpdate(degree);
