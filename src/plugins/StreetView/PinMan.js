@@ -2,6 +2,8 @@ import PinManImages from './PinManImages';
 
 const imageWidth = 40;
 const imageHeight = 40;
+const imageWidthOffset = 0;
+const imageHeightOffset = -30;
 
 const PIN_MAN_ID = 'PIN_MAN_ID';
 
@@ -46,8 +48,8 @@ function PinMan({ setMapItems, removeMapItem, x, y, floor, angle }) {
       {
         id: PIN_MAN_ID,
         floor,
-        x,
-        y,
+        x: x + imageWidthOffset,
+        y: y + imageHeightOffset,
         width: imageWidth,
         height: imageHeight,
         image,
