@@ -5,7 +5,7 @@ import DragMan from './DragMan';
 import BaseMan from './BaseMan';
 import PinMan from './PinMan';
 import { PanoDisplay } from '../PanoDisplay/PanoDisplay';
-import { getPanoInfo, getNextPano } from './BackendAPI';
+import { getPanoInfo, getNextPano, getPanoNodes, getPanoEdgeCoordinates } from './BackendAPI';
 
 /* 
 This is the highest level StreetView component. 
@@ -43,13 +43,20 @@ class StreetView extends React.Component {
       panoY: 0,
       panoUrl: '', // A global variable to store panoUrl. It is supposed to be updated in getPanoUrl().
       panoDefaultOffset: 0,
+      panoMapItemIds: [],
     };
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidMount() {
+    const { floor } = this.props;
+    this.updatePanoItems(floor);
+  }
+
+  componentDidUpdate(prevProps) {
     if (prevProps.floor !== this.props.floor) {
       // alert("Floor changes");
-      this.handleFloorChange();
+      this.handlePanoClose();
+      this.updatePanoItems(this.props.floor);
     }
   }
 
@@ -77,9 +84,43 @@ class StreetView extends React.Component {
     ];
   }
 
-  handleFloorChange() {
-    // Close the pano display when the user switches floor.
-    this.handlePanoClose();
+  async updatePanoItems(floor) {
+    const panoNodes = await getPanoNodes(floor);
+    const panoNodeMapItemIds = panoNodes.map(({ _id }) => `PN${_id}`);
+    const panoNodeMapItems = panoNodes.map(({ _id, coordinates: [x, y] }) => ({
+      id: `PN${_id}`,
+      floor,
+      x,
+      y,
+      center: true,
+      circle: {
+        radius: 3,
+        color: 'steelblue',
+      },
+      hidden: true,
+    }));
+
+    const panoEdges = await getPanoEdgeCoordinates(floor);
+    const panoEdgeMapItemIds = panoEdges.map(({ _id }) => `PE${_id}`);
+    const panoEdgeMapItems = panoEdges.map(({ _id, fromNodeCoordinates, toNodeCoordinates }) => ({
+      id: `PE${_id}`,
+      floor,
+      line: {
+        coordinates: [fromNodeCoordinates, toNodeCoordinates],
+        cap: 'square',
+        width: 3,
+        strokeStyle: 'skyblue',
+      },
+      hidden: true,
+    }));
+
+    this.setState({ panoMapItemIds: [...panoEdgeMapItemIds, ...panoNodeMapItemIds] });
+    this.props.setMapItems([...panoEdgeMapItems, ...panoNodeMapItems]);
+  }
+
+  togglePanoItems(on) {
+    const { panoMapItemIds } = this.state;
+    this.props.setMapItems(panoMapItemIds.map(id => ({ id, hidden: !on })));
   }
 
   /* Subcomponent Handlers */
@@ -90,6 +131,7 @@ class StreetView extends React.Component {
       displayPinMan: false,
       // displayPano:false
     });
+    this.togglePanoItems(true);
   }
 
   placePinManAt(floor, x, y) {
@@ -102,7 +144,7 @@ class StreetView extends React.Component {
         return;
       }
       const {
-        id,
+        _id,
         coordinates: [panoX, panoY],
         url,
         westX,
@@ -115,7 +157,7 @@ class StreetView extends React.Component {
         displayDragMan: false,
         displayPinMan: true,
         displayPano: true,
-        panoId: id,
+        panoId: _id,
         panoX: parseFloat(panoX),
         panoY: parseFloat(panoY),
         panoUrl: url,
@@ -154,6 +196,7 @@ class StreetView extends React.Component {
       displayPano: false,
       fullScreenPano: false,
     });
+    this.togglePanoItems(false);
   }
 
   handlePanoResize() {
