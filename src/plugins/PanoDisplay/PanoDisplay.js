@@ -363,6 +363,7 @@ class PanoDisplay extends React.Component {
         onMouseLeave={this.handleMouseLeave}
         tabIndex="0"
         onKeyDown={this.handleKeyDown}
+        autoFocus
       >
         {this.state.displayOval && (
           <Circle
