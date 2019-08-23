@@ -1,13 +1,14 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import style from './PanoDisplay.module.css';
-import closeIcon from './close.png';
-import expandIcon from './expand.png';
-import toSplitIcon from './toSplit.png';
-import rotateLeftImg from './rotate_left.png';
-import rotateRightImg from './rotate_right.png';
-import rotateLeftOnClickImg from './rotate_left_onclick.png';
-import rotateRightOnClickImg from './rotate_right_onclick.png';
-import compassImg from './compass.png';
+import closeIcon from './assets/close.png';
+import expandIcon from './assets/expand.png';
+import toSplitIcon from './assets/toSplit.png';
+import rotateLeftImg from './assets/rotate_left.png';
+import rotateRightImg from './assets/rotate_right.png';
+import rotateLeftOnClickImg from './assets/rotate_left_onclick.png';
+import rotateRightOnClickImg from './assets/rotate_right_onclick.png';
+import compassImg from './assets/compass.png';
 
 const timeoutSpeed = 150; // the speed in which holding on the button turn
 const ovalTimeoutSpeed = 3000;
@@ -41,6 +42,7 @@ const colors = [
   '#FF8552',
   '#A40E4C',
 ];
+
 function Circle(props) {
   const { x, y, dx, dy } = props;
   const circleStyle = {
@@ -83,21 +85,48 @@ class PanoDisplay extends React.Component {
     this.ovalTimeout = null;
     // HANDLERS FOR LEFT AND RIGHT ROTATE BUTTONS
     this.rotateTimeout = null; // to keep track so you can clear timeout later
+
+    this.panoDisplayRef = React.createRef();
   }
 
   componentDidMount = () => {
-    const imageSrc = this.refs.panoDisplay.style.backgroundImage;
+    const { current: ref } = this.panoDisplayRef;
+    const imageSrc = ref.style.backgroundImage;
     this.setImageDimension(imageSrc);
+    ref.focus();
   };
 
-  componentDidUpdate = (prevProps, prevState) => {
-    if (this.props.panoImage !== prevProps.panoImage) {
-      const imageSrc = this.refs.panoDisplay.style.backgroundImage;
+  componentDidUpdate = prevProps => {
+    const { panoImage: prevPanoImage } = prevProps;
+    const { panoImage } = this.props;
+
+    if (panoImage !== prevPanoImage) {
+      const { current: ref } = this.panoDisplayRef;
+      const imageSrc = ref.style.backgroundImage;
       this.setImageDimension(imageSrc);
+      ref.focus();
 
       this.props.parentHandleUpdate(this.state.degree);
     }
   };
+
+  /* The Helper function to get the size of the small oval. */
+  getSmallOvalDim() {
+    const { height, width } = this.props;
+    const R = 1; // Radius of small circle in meters
+    const h = 1.65; // The normal height of a human in meters
+    const cameraVerticalField = 120; // The vertical field of camera in degrees.
+    const cameraHorizontalField = 180; // The horizontal field of camera in degrees.
+    const visionAtInf = (1 - 0.15) * height;
+    const theta =
+      90 -
+      ((cameraVerticalField / 2) * Math.max(0, this.state.clientY - visionAtInf)) / visionAtInf; // The height angle of circle in degrees.
+    const phi = (180 * 2 * Math.asin((R * Math.cos((Math.PI * theta) / 180)) / h)) / Math.PI; // The width angle of small oval in visible field in degrees.
+    const omega = (180 / Math.PI) * Math.asin((2 * R * Math.cos((theta / 180) * Math.PI)) / h); // The height angle of small oval in visible field in degrees.
+    const dx = (phi / cameraHorizontalField) * width;
+    const dy = (omega / cameraVerticalField) * (height / 2);
+    return { dx, dy };
+  }
 
   setImageDimension = imageSrc => {
     const urlRegex = /url\((["'])(.*?)\1\)/;
@@ -116,13 +145,10 @@ class PanoDisplay extends React.Component {
     };
   };
 
-  degreeToScaledOffset(deg) {
-    return (deg / 360) * this.getScaledWidth();
-  }
-
-  scaledOffsetToDegree(scaledOffset) {
-    return (360 * scaledOffset) / this.getScaledWidth();
-  }
+  onPanoImageLoad = e => {
+    const { width, height } = e.target;
+    this.setState({ widthImage: width, heightImage: height });
+  };
 
   getNewDegreeFromOffset(offset) {
     const scrollLeft = this.degreeToScaledOffset(this.state.degree);
@@ -134,33 +160,24 @@ class PanoDisplay extends React.Component {
    * The actual width entire pano image after loading, including the part overflowing outof the container.
    */
   getScaledWidth() {
-    const scaledWidth = (this.state.widthImage / this.state.heightImage) * (this.props.height / 2);
-    return scaledWidth;
+    if (this.state.fullScreen) {
+      return this.state.widthImage;
+    }
+    return (this.state.widthImage / this.state.heightImage) * (this.props.height / 2);
   }
 
   getScaledDefaultOffset() {
-    const scaledOffset =
-      (this.props.defaultOffset / this.state.heightImage) * (this.props.height / 2);
+    const { defaultOffset, height } = this.props;
+    const scaledOffset = (defaultOffset / this.state.heightImage) * (height / 2);
     return scaledOffset;
   }
 
   toggleFullScreen = () => {
-    let newWidth = 0;
-    if (!this.state.fullScreen) {
-      newWidth = this.state.widthImage;
-    } else {
-      newWidth = this.state.widthImage / (this.state.heightImage / (this.props.height / 2));
-    }
-    this.setState({
-      fullScreen: !this.state.fullScreen,
-      scaledWidth: newWidth,
-    });
+    this.setState(state => ({ fullScreen: !state.fullScreen }));
   };
 
   offShow = () => {
-    this.setState({
-      show: false,
-    });
+    this.setState({ show: false });
     this.props.parentOffShow();
   };
 
@@ -319,95 +336,108 @@ class PanoDisplay extends React.Component {
     }
   };
 
-  /* The Helper function to get the size of the small oval. */
-  getSmallOvalDim() {
-    const R = 1; // Radius of small circle in meters
-    const h = 1.65; // The normal height of a human in meters
-    const cameraVerticalField = 120; // The vertical field of camera in degrees.
-    const cameraHorizontalField = 180; // The horizontal field of camera in degrees.
-    const visionAtInf = (1 - 0.15) * this.props.height;
-    const theta =
-      90 -
-      ((cameraVerticalField / 2) * Math.max(0, this.state.clientY - visionAtInf)) / visionAtInf; // The height angle of circle in degrees.
-    const phi = (180 * 2 * Math.asin((R * Math.cos((Math.PI * theta) / 180)) / h)) / Math.PI; // The width angle of small oval in visible field in degrees.
-    const omega = (180 / Math.PI) * Math.asin((2 * R * Math.cos((theta / 180) * Math.PI)) / h); // The height angle of small oval in visible field in degrees.
-    const dx = (phi / cameraHorizontalField) * this.props.width;
-    const dy = (omega / cameraVerticalField) * (this.props.height / 2);
-    return { dx, dy };
+  degreeToScaledOffset(deg) {
+    return (deg / 360) * this.getScaledWidth();
+  }
+
+  scaledOffsetToDegree(scaledOffset) {
+    return (360 * scaledOffset) / this.getScaledWidth();
   }
 
   render() {
-    const panoImage = this.props.panoImage;
-    const pixelOffset = this.getScaledDefaultOffset();
+    const { panoImage, angle } = this.props;
+    const {
+      degree,
+      show,
+      cursor,
+      fullScreen,
+      displayOval,
+      clientX,
+      clientY,
+      leftButton,
+      rightButton,
+    } = this.state;
 
-    const degree = this.state.degree;
+    const pixelOffset = this.getScaledDefaultOffset();
     const { dx, dy } = this.getSmallOvalDim();
 
-    const totalPixelOffset = this.degreeToScaledOffset(this.props.angle) + pixelOffset;
+    const totalPixelOffset = this.degreeToScaledOffset(angle) + pixelOffset;
     const totalPixelOffsetFromCenter = totalPixelOffset - this.getScaledWidth() / 2;
     const backgroundStyle = {
-      display: this.state.show ? 'block' : 'none',
+      display: 'block',
       backgroundImage: `url(${panoImage})`,
       backgroundPosition: `calc(${-totalPixelOffsetFromCenter}px + 50%)`,
-      cursor: this.state.cursor,
+      cursor,
     };
     return (
-      <div
-        ref="panoDisplay"
-        className={this.state.fullScreen ? style.fullScreen : style.panoScreen}
-        style={backgroundStyle}
-        onMouseDown={this.handleMouseDown}
-        onMouseMove={this.handleMouseMove}
-        onMouseUp={this.handleMouseUp}
-        onMouseEnter={this.handleMouseEnter}
-        onMouseLeave={this.handleMouseLeave}
-        tabIndex="0"
-        onKeyDown={this.handleKeyDown}
-        autoFocus
-      >
-        {this.state.displayOval && (
-          <Circle
-            x={this.state.clientX}
-            y={this.state.clientY}
-            dx={dx}
-            dy={dy}
-            display={this.state.displayOval}
-          />
-        )}
+      show && (
+        <div
+          ref={this.panoDisplayRef}
+          className={fullScreen ? style.fullScreen : style.panoScreen}
+          style={backgroundStyle}
+          onMouseDown={this.handleMouseDown}
+          onMouseMove={this.handleMouseMove}
+          onMouseUp={this.handleMouseUp}
+          onMouseEnter={this.handleMouseEnter}
+          onMouseLeave={this.handleMouseLeave}
+          onKeyDown={this.handleKeyDown}
+          tabIndex="0"
+          role="presentation"
+        >
+          {displayOval && <Circle x={clientX} y={clientY} dx={dx} dy={dy} display={displayOval} />}
 
-        <img
-          className={style.compass}
-          src={compassImg}
-          alt="compass"
-          style={{ transform: `rotate(${-degree}deg)` }}
-        />
-        <button
-          type="button"
-          className={style.rotateButtonLeft}
-          onMouseDown={this.handleRotateLeft}
-          onMouseLeave={this.resetRotateLeft}
-          onMouseUp={this.resetRotateLeft}
-        >
-          <img src={this.state.leftButton} alt="Rotate-Left Button" />
-        </button>
-        <button
-          type="button"
-          className={style.rotateButtonRight}
-          onMouseDown={this.handleRotateRight}
-          onMouseLeave={this.resetRotateRight}
-          onMouseUp={this.resetRotateRight}
-        >
-          <img src={this.state.rightButton} alt="Rotate-Right Button" />
-        </button>
-        <button type="button" className={style.closeButton} onClick={this.offShow}>
-          <img src={closeIcon} alt="Close-Pano Button" />
-        </button>
-        <button type="button" className={style.resizeButton} onClick={this.toggleFullScreen}>
-          <img src={this.state.fullScreen ? toSplitIcon : expandIcon} alt="Resize-Pano Button" />
-        </button>
-      </div>
+          <img
+            className={style.compass}
+            src={compassImg}
+            alt="compass"
+            style={{ transform: `rotate(${-degree}deg)` }}
+          />
+          <button
+            type="button"
+            className={style.rotateButtonLeft}
+            onMouseDown={this.handleRotateLeft}
+            onMouseLeave={this.resetRotateLeft}
+            onMouseUp={this.resetRotateLeft}
+          >
+            <img src={leftButton} alt="Rotate-Left Button" />
+          </button>
+          <button
+            type="button"
+            className={style.rotateButtonRight}
+            onMouseDown={this.handleRotateRight}
+            onMouseLeave={this.resetRotateRight}
+            onMouseUp={this.resetRotateRight}
+          >
+            <img src={rightButton} alt="Rotate-Right Button" />
+          </button>
+          <button type="button" className={style.closeButton} onClick={this.offShow}>
+            <img src={closeIcon} alt="Close-Pano Button" />
+          </button>
+          <button type="button" className={style.resizeButton} onClick={this.toggleFullScreen}>
+            <img src={fullScreen ? toSplitIcon : expandIcon} alt="Resize-Pano Button" />
+          </button>
+        </div>
+      )
     );
   }
 }
 
-export { PanoDisplay };
+Circle.propTypes = {
+  x: PropTypes.number.isRequired,
+  y: PropTypes.number.isRequired,
+  dx: PropTypes.number.isRequired,
+  dy: PropTypes.number.isRequired,
+};
+
+PanoDisplay.propTypes = {
+  height: PropTypes.number.isRequired,
+  width: PropTypes.number.isRequired,
+  angle: PropTypes.number.isRequired,
+  defaultOffset: PropTypes.number.isRequired,
+  panoImage: PropTypes.string.isRequired,
+  parentHandleUpdate: PropTypes.func.isRequired,
+  parentOffShow: PropTypes.func.isRequired,
+  parentHandleNavigation: PropTypes.func.isRequired,
+};
+
+export default PanoDisplay;

@@ -4,7 +4,7 @@ import style from './StreetView.module.css';
 import DragMan from './DragMan';
 import BaseMan from './BaseMan';
 import PinMan from './PinMan';
-import { PanoDisplay } from '../PanoDisplay/PanoDisplay';
+import PanoDisplay from '../PanoDisplay/PanoDisplay';
 import { getPanoInfo, getNextPano, getPanoNodes, getPanoEdgeCoordinates } from './BackendAPI';
 
 /* 
@@ -108,8 +108,8 @@ class StreetView extends React.Component {
       line: {
         coordinates: [fromNodeCoordinates, toNodeCoordinates],
         cap: 'square',
-        width: 3,
-        strokeStyle: 'skyblue',
+        width: 1.5,
+        strokeStyle: 'rgba(0,0,255,0.5)',
       },
       hidden: true,
     }));
