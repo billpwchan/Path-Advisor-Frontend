@@ -19,6 +19,7 @@ class BaseMan extends React.Component {
     this.state = {
       imageForAvail: availImage,
     };
+    this.ref = React.createRef();
   }
 
   handleMouseOver() {
@@ -36,6 +37,10 @@ class BaseMan extends React.Component {
     });
   }
 
+  getBoundingClientRect() {
+    return this.ref.current.getBoundingClientRect();
+  }
+
   render() {
     const buttonClassName = this.props.buttonClassName;
 
@@ -50,6 +55,7 @@ class BaseMan extends React.Component {
         onMouseDown={() => this.props.parentHandlePressed()}
         onMouseOver={() => this.handleMouseOver()}
         onMouseOut={() => this.handleMouseOut()}
+        ref={this.ref}
       >
         <img className={buttonClassName} src={image} alt="StreetView_BaseMan" />
       </button>

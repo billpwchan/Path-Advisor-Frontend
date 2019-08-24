@@ -173,6 +173,17 @@ class StreetView extends React.Component {
   }
 
   handleDragManDrop(e) {
+    const { left, right, top, bottom } = this.baseManRef.current.getBoundingClientRect();
+    const { clientX, clientY } = e;
+    if (clientX >= left && clientX <= right && clientY >= top && clientY <= bottom) {
+      this.setState({
+        baseManAvail: true,
+        displayDragMan: false,
+        displayPinMan: false,
+        displayPano: false,
+      });
+      return;
+    }
     const [x, y] = this.getCampusXYFromMouseXY(this.props.canvas, e.clientX, e.clientY);
     this.placePinManAt(this.props.floor, x, y);
   }
