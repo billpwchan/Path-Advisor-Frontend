@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import style from './StreetView.module.css';
 import DragMan from './DragMan';
@@ -19,9 +20,11 @@ Subcomponet interactions:
 - Then when DragMan is dropped, DragMan will call handleDragManDrop function here. StreetView will then hide DragMan(displayDragMan=falese) and restore BaseMan to available(baseManAvail=true).
 */
 
+const id = 'StreetView';
+
 function positiveModulo(number, modulo) {
   if (modulo <= 0) {
-    return;
+    return NaN;
   }
   if (number >= 0) {
     return number % modulo;
@@ -45,6 +48,7 @@ class StreetView extends React.Component {
       panoDefaultOffset: 0,
       panoMapItemIds: [],
     };
+    this.baseManRef = React.createRef();
   }
 
   componentDidMount() {
@@ -120,7 +124,9 @@ class StreetView extends React.Component {
 
   togglePanoItems(on) {
     const { panoMapItemIds } = this.state;
-    this.props.setMapItems(panoMapItemIds.map(id => ({ id, hidden: !on })));
+    this.props.setMapItems(
+      panoMapItemIds.map(panoMapItemId => ({ id: panoMapItemId, hidden: !on })),
+    );
   }
 
   /* Subcomponent Handlers */
@@ -217,6 +223,7 @@ class StreetView extends React.Component {
   renderBaseMan(buttonClassName) {
     return (
       <BaseMan
+        ref={this.baseManRef}
         available={this.state.baseManAvail}
         buttonClassName={buttonClassName}
         parentHandlePressed={() => this.handleBaseManPressed()}
@@ -280,7 +287,7 @@ class StreetView extends React.Component {
   /* End of Subcomponent Renderers */
 
   render() {
-    const platform = this.props.platform;
+    const { platform } = this.props;
     const buttonClassName = classnames({
       [style.buttonImage]: platform !== 'MOBILE',
       [style.buttonImageMobile]: platform === 'MOBILE',
@@ -296,6 +303,21 @@ class StreetView extends React.Component {
     );
   }
 }
+
+StreetView.propTypes = {
+  floor: PropTypes.string.isRequired,
+  width: PropTypes.number.isRequired,
+  height: PropTypes.number.isRequired,
+  normalizedWidth: PropTypes.number.isRequired,
+  normalizedHeight: PropTypes.number.isRequired,
+  x: PropTypes.number.isRequired,
+  y: PropTypes.number.isRequired,
+  setMapItems: PropTypes.func.isRequired,
+  removeMapItem: PropTypes.func.isRequired,
+  linkTo: PropTypes.func.isRequired,
+  platform: PropTypes.string.isRequired,
+  canvas: PropTypes.instanceOf(Element).isRequired,
+};
 
 const MapCanvasPlugin = {
   Component: StreetView,
@@ -315,5 +337,4 @@ const MapCanvasPlugin = {
   ],
 };
 
-const id = 'StreetView';
 export { id, MapCanvasPlugin };
