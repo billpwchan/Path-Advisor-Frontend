@@ -25,6 +25,7 @@ export default function fetchMapItemsRequest(floor, [startX, startY], width, hei
           others,
           connectorId,
           imageUrl,
+          panoImageUrl,
         }) => ({
           id: _id,
           name,
@@ -32,6 +33,7 @@ export default function fetchMapItemsRequest(floor, [startX, startY], width, hei
           coordinates: centerCoordinates,
           type: (tagIds || [])[0],
           photo: imageUrl || null,
+          panorama: panoImageUrl || null,
           url,
           connectorId,
           geoLocs,
