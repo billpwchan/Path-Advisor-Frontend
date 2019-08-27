@@ -117,7 +117,7 @@ class PanoDisplay extends React.Component {
     if (this.rotateTimeout) {
       clearTimeout(this.rotateTimeout);
     }
-  }
+  };
 
   /* The Helper function to get the size of the small oval. */
   getSmallOvalDim() {
