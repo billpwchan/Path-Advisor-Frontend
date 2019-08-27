@@ -47,6 +47,7 @@ class StreetView extends React.Component {
       panoUrl: '', // A global variable to store panoUrl. It is supposed to be updated in getPanoUrl().
       panoDefaultOffset: 0,
       panoMapItemIds: [],
+      pathNodeMapItemIds: [],
     };
     this.baseManRef = React.createRef();
   }
@@ -57,10 +58,15 @@ class StreetView extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.floor !== this.props.floor) {
+    const { floor: prevFloor, searchShortestPathStore: prevPathResult } = prevProps;
+    const { floor, searchShortestPathStore: pathResult } = this.props;
+
+    this.updatePathPanoNodes(prevPathResult, pathResult);
+
+    if (prevFloor !== floor) {
       // alert("Floor changes");
       this.handlePanoClose();
-      this.updatePanoItems(this.props.floor);
+      this.updatePanoItems(floor);
     }
   }
 
@@ -102,6 +108,7 @@ class StreetView extends React.Component {
         color: 'steelblue',
       },
       hidden: true,
+      zIndex: -2,
     }));
 
     const panoEdges = await getPanoEdgeCoordinates(floor);
@@ -116,10 +123,45 @@ class StreetView extends React.Component {
         strokeStyle: 'rgba(0,0,255,0.5)',
       },
       hidden: true,
+      zIndex: -2,
     }));
 
     this.setState({ panoMapItemIds: [...panoEdgeMapItemIds, ...panoNodeMapItemIds] });
     this.props.setMapItems([...panoEdgeMapItems, ...panoNodeMapItems]);
+  }
+
+  async updatePathPanoNodes(prevSearchShortestPathStore, searchShortestPathStore) {
+    if (
+      prevSearchShortestPathStore === searchShortestPathStore ||
+      !searchShortestPathStore.success
+    ) {
+      return;
+    }
+    this.state.pathNodeMapItemIds.forEach(_id => this.props.removeMapItem(_id));
+
+    const pathPanoNodes = searchShortestPathStore.paths.filter(node => node.panorama);
+    const pathNodeMapItemIds = pathPanoNodes.map(({ id: _id }) => `SPPN${_id}`);
+    const panoNodeMapItems = pathPanoNodes.map(({ id: _id, floor, coordinates: [x, y] }) => ({
+      id: `SPPN${_id}`,
+      floor,
+      x,
+      y,
+      center: true,
+      circle: {
+        radius: 3.5,
+        color: 'orange',
+      },
+      onClick: () => this.placePinManAt(floor, x, y),
+      onMouseOver: () => {
+        document.body.style.cursor = 'pointer';
+      },
+      onMouseOut: () => {
+        document.body.style.cursor = 'auto';
+      },
+    }));
+
+    this.setState({ pathNodeMapItemIds });
+    this.props.setMapItems(panoNodeMapItems);
   }
 
   togglePanoItems(on) {
@@ -345,6 +387,7 @@ const MapCanvasPlugin = {
     'width',
     'normalizedWidth',
     'linkTo',
+    'searchShortestPathStore',
   ],
 };
 
