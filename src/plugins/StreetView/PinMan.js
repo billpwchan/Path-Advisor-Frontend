@@ -2,7 +2,7 @@ import PinManImages from './PinManImages';
 
 const imageWidth = 40;
 const imageHeight = 40;
-const imageWidthOffset = 0;
+const imageWidthOffset = -20;
 const imageHeightOffset = -30;
 
 const PIN_MAN_ID = 'PIN_MAN_ID';
