@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import style from './StreetView.module.css';
 import DragMan from './DragMan';
@@ -356,21 +355,6 @@ class StreetView extends React.Component {
     );
   }
 }
-
-StreetView.propTypes = {
-  floor: PropTypes.string.isRequired,
-  width: PropTypes.number.isRequired,
-  height: PropTypes.number.isRequired,
-  normalizedWidth: PropTypes.number.isRequired,
-  normalizedHeight: PropTypes.number.isRequired,
-  x: PropTypes.number.isRequired,
-  y: PropTypes.number.isRequired,
-  setMapItems: PropTypes.func.isRequired,
-  removeMapItem: PropTypes.func.isRequired,
-  linkTo: PropTypes.func.isRequired,
-  platform: PropTypes.string.isRequired,
-  canvas: PropTypes.instanceOf(Element).isRequired,
-};
 
 const MapCanvasPlugin = {
   Component: StreetView,
