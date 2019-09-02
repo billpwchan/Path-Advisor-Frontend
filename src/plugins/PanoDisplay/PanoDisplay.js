@@ -161,7 +161,10 @@ class PanoDisplay extends React.Component {
 
   getNewDegreeFromOffset(offset) {
     const scrollLeft = this.degreeToScaledOffset(this.state.degree);
-    const newX = (scrollLeft + offset) % this.getScaledWidth();
+    let newX = (scrollLeft + offset) % this.getScaledWidth();
+    if (newX < 0) {
+      newX += this.getScaledWidth();
+    }
     return this.scaledOffsetToDegree(newX);
   }
 
