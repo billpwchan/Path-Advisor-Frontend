@@ -22,14 +22,14 @@ class BaseMan extends React.Component {
     this.ref = React.createRef();
   }
 
-  handleMouseOver() {
+  handleMouseOver = () => {
     const image = mouseoverImage;
     this.setState({
       imageForAvail: image,
     });
   }
 
-  handleMouseOut() {
+  handleMouseOut = () => {
     // The availability of BaseMan is given by parent, since it depends on whether DragMan is dropped.
     const image = availImage;
     this.setState({
@@ -52,9 +52,9 @@ class BaseMan extends React.Component {
       <button
         className={classnames(style.body)}
         type="button"
-        onMouseDown={() => this.props.parentHandlePressed()}
-        onMouseOver={() => this.handleMouseOver()}
-        onMouseOut={() => this.handleMouseOut()}
+        onMouseDown={this.props.parentHandlePressed}
+        onMouseOver={this.handleMouseOver}
+        onMouseOut={this.handleMouseOut}
         ref={this.ref}
         style={{ cursor: "grab" }}
       >

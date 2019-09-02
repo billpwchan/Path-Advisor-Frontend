@@ -171,7 +171,7 @@ class StreetView extends React.Component {
   }
 
   /* Subcomponent Handlers */
-  handleBaseManPressed() {
+  handleBaseManPressed = e => {
     document.body.style.cursor = "grabbing";
     this.setState({
       baseManAvail: false,
@@ -214,7 +214,7 @@ class StreetView extends React.Component {
     });
   }
 
-  handleDragManDrop(e) {
+  handleDragManDrop = e => {
     document.body.style.cursor = "auto";
     const { left, right, top, bottom } = this.baseManRef.current.getBoundingClientRect();
     const { clientX, clientY } = e;
@@ -231,7 +231,7 @@ class StreetView extends React.Component {
     this.placePinManAt(this.props.floor, x, y);
   }
 
-  handleNavigation(movementDirection) {
+  handleNavigation = movementDirection => {
     let deg = 0;
     if (movementDirection === 'Forward') {
       deg = positiveModulo(this.state.PinManAngle, 360);
@@ -250,7 +250,7 @@ class StreetView extends React.Component {
     });
   }
 
-  handlePanoClose() {
+  handlePanoClose = () => {
     this.setState({
       displayPinMan: false,
       displayPano: false,
@@ -266,7 +266,7 @@ class StreetView extends React.Component {
     });
   }
 
-  handlePanoRotate(newAngle) {
+  handlePanoRotate = newAngle => {
     this.setState({
       PinManAngle: newAngle,
     });
@@ -280,7 +280,7 @@ class StreetView extends React.Component {
         ref={this.baseManRef}
         available={this.state.baseManAvail}
         buttonClassName={buttonClassName}
-        parentHandlePressed={() => this.handleBaseManPressed()}
+        parentHandlePressed={this.handleBaseManPressed}
       />
     );
   }
@@ -291,7 +291,7 @@ class StreetView extends React.Component {
       <DragMan
         display={display}
         buttonClassName={buttonClassName}
-        parentHandleDrop={e => this.handleDragManDrop(e)}
+        parentHandleDrop={this.handleDragManDrop}
       />
     );
   }
@@ -329,9 +329,9 @@ class StreetView extends React.Component {
           angle={this.state.PinManAngle}
           width={this.props.width}
           height={this.props.height}
-          parentOffShow={() => this.handlePanoClose()}
-          parentHandleUpdate={e => this.handlePanoRotate(e)}
-          parentHandleNavigation={forwardDirection => this.handleNavigation(forwardDirection)}
+          parentOffShow={this.handlePanoClose}
+          parentHandleUpdate={this.handlePanoRotate}
+          parentHandleNavigation={this.handleNavigation}
         />
       );
     }

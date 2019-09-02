@@ -38,7 +38,7 @@ function DragMan({ display, buttonClassName, parentHandleDrop }) {
       id={DragManID}
       className={buttonClassName}
       src={dragManImage}
-      onMouseUp={e => parentHandleDrop(e)}
+      onMouseUp={parentHandleDrop}
       alt="DragMan"
     />
   );
