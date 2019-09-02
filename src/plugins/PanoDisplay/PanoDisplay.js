@@ -184,11 +184,13 @@ class PanoDisplay extends React.Component {
     return scaledOffset;
   }
 
-  toggleFullScreen = () => {
+  toggleFullScreen = e => {
+    e.stopPropagation();
     this.setState(state => ({ fullScreen: !state.fullScreen }));
   };
 
-  offShow = () => {
+  offShow = e => {
+    e.stopPropagation();
     this.setState({ show: false });
     this.props.parentOffShow();
   };
@@ -292,7 +294,8 @@ class PanoDisplay extends React.Component {
     this.rotateTimeout = setTimeout(() => this.rotateLeft(increment), timeoutSpeed); // set how fast you want it to turn;
   };
 
-  handleRotateLeft = async () => {
+  handleRotateLeft = async e => {
+    e.stopPropagation();
     await this.setState({
       leftButton: rotateLeftOnClickImg,
     });
@@ -311,7 +314,8 @@ class PanoDisplay extends React.Component {
     this.rotateTimeout = setTimeout(() => this.rotateRight(increment), timeoutSpeed); // set how fst you want it to turn
   };
 
-  handleRotateRight = async () => {
+  handleRotateRight = async e => {
+    e.stopPropagation();
     await this.setState({
       rightButton: rotateRightOnClickImg,
     });
@@ -320,14 +324,16 @@ class PanoDisplay extends React.Component {
     await this.rotateRight(increment);
   };
 
-  resetRotateLeft = () => {
+  resetRotateLeft = e => {
+    e.stopPropagation();
     this.setState({
       leftButton: rotateLeftImg,
     });
     clearTimeout(this.rotateTimeout);
   };
 
-  resetRotateRight = () => {
+  resetRotateRight = e => {
+    e.stopPropagation();
     this.setState({
       rightButton: rotateRightImg,
     });
