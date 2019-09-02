@@ -56,6 +56,7 @@ class BaseMan extends React.Component {
         onMouseOver={() => this.handleMouseOver()}
         onMouseOut={() => this.handleMouseOut()}
         ref={this.ref}
+        style={{ cursor: "grab" }}
       >
         <img className={buttonClassName} src={image} alt="StreetView_BaseMan" />
       </button>

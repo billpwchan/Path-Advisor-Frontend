@@ -172,6 +172,7 @@ class StreetView extends React.Component {
 
   /* Subcomponent Handlers */
   handleBaseManPressed() {
+    document.body.style.cursor = "grabbing";
     this.setState({
       baseManAvail: false,
       displayDragMan: true,
@@ -214,6 +215,7 @@ class StreetView extends React.Component {
   }
 
   handleDragManDrop(e) {
+    document.body.style.cursor = "auto";
     const { left, right, top, bottom } = this.baseManRef.current.getBoundingClientRect();
     const { clientX, clientY } = e;
     if (clientX >= left && clientX <= right && clientY >= top && clientY <= bottom) {
