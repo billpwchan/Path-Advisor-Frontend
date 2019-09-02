@@ -10,7 +10,6 @@
     background-size: auto 100%;
     background-color: white;
     background-repeat: repeat-x;
-    transition: background-image 2s ease-out;
 }
 
 .panoImage {
