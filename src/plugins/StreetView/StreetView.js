@@ -172,6 +172,7 @@ class StreetView extends React.Component {
 
   /* Subcomponent Handlers */
   handleBaseManPressed = e => {
+    e.preventDefault();
     document.body.style.cursor = "grabbing";
     this.setState({
       baseManAvail: false,
