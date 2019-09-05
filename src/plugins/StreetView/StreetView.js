@@ -211,6 +211,7 @@ class StreetView extends React.Component {
         panoY: parseFloat(panoY),
         panoUrl: url,
         panoDefaultOffset: westX,
+        PinManAngle: 0,
       });
     });
   }
@@ -256,7 +257,6 @@ class StreetView extends React.Component {
       displayPinMan: false,
       displayPano: false,
       fullScreenPano: false,
-      PinManAngle: 0,
     });
     this.togglePanoItems(false);
   }
