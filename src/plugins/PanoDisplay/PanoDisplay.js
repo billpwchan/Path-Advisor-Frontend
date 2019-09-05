@@ -13,7 +13,8 @@ import compassImg from './assets/compass.png';
 const timeoutSpeed = 150; // the speed in which holding on the button turn
 const ovalTimeoutSpeed = 3000;
 const scaleX = 1; // pixel scale to mouse drag other words, sensitivity
-const clickTimeout = 100; // the threshold mouse-down delay to distinguish clicking and draging
+const clickTimeout = 800; // the threshold mouse-down delay to distinguish clicking and draging
+const clickDistanceTolerance = 10;
 /**
  * Things to do
  * 1) Do drag rotation (DONE)
@@ -76,6 +77,8 @@ class PanoDisplay extends React.Component {
       rightButton: rotateRightImg,
       isDrag: false,
       isClick: false,
+      clickAtX: NaN,
+      clickAtY: NaN,
       degree: 0, // current orientation. West = 0.
       clientX: 0,
       clientY: 0,
@@ -202,6 +205,8 @@ class PanoDisplay extends React.Component {
       clientX: e.clientX,
       isDrag: true,
       isClick: true,
+      clickAtX: e.clientX,
+      clickAtY: e.clientY,
     });
     setTimeout(() => this.setState({ isClick: false }), clickTimeout);
   };
@@ -229,8 +234,12 @@ class PanoDisplay extends React.Component {
   };
 
   // Problem now is that the mouse movement is of the same measurement as pixel scroll hm..
-  handleMouseUp = () => {
-    if (this.state.isClick) {
+  handleMouseUp = e => {
+    const { isClick, clickAtX = NaN, clickAtY = NaN } = this.state;
+    const { clientX, clientY } = e;
+    const distance = (clickAtX - clientX) ** 2 + (clickAtY - clientY) ** 2;
+    if (isClick && distance < clickDistanceTolerance) {
+      // If clickAt? is NaN, distance is NaN, comparison returns false
       this.handlePanoClick(this.state.clientX);
     }
     this.setState({
