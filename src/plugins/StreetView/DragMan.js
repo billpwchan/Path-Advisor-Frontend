@@ -14,14 +14,16 @@ import React from 'react';
 // Helper function to move DragMan along with client mouse.
 
 const DragManID = 'DragMan';
+const DragManLeftOffset = -6;
+const DragManTopOffset = -9;
 
 function updateDragManPosition(e) {
   const dragManObject = document.getElementById(DragManID);
   const height = dragManObject.clientHeight;
   const width = dragManObject.clientWidth;
 
-  dragManObject.style.left = `${e.clientX - width / 2}px`;
-  dragManObject.style.top = `${e.clientY - height / 2}px`;
+  dragManObject.style.left = `${e.clientX - width / 2 + DragManLeftOffset}px`;
+  dragManObject.style.top = `${e.clientY - height / 2 + DragManTopOffset}px`;
 }
 
 function DragMan({ display, buttonClassName, parentHandleDrop }) {
