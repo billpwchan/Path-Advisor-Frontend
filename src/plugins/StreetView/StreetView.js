@@ -350,7 +350,7 @@ class StreetView extends React.Component {
     });
 
     return (
-      <div style={{ zIndex: -1 }} id={id}>
+      <div id={id}>
         {this.renderPano()}
         {this.renderPinMan()}
         {this.renderBaseMan(buttonClassName)}
