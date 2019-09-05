@@ -389,51 +389,59 @@ class PanoDisplay extends React.Component {
     };
     return (
       show && (
-        <div
-          ref={this.panoDisplayRef}
-          className={fullScreen ? style.fullScreen : style.panoScreen}
-          style={backgroundStyle}
-          onMouseDown={this.handleMouseDown}
-          onMouseMove={this.handleMouseMove}
-          onMouseUp={this.handleMouseUp}
-          onMouseEnter={this.handleMouseEnter}
-          onMouseLeave={this.handleMouseLeave}
-          onKeyDown={this.handleKeyDown}
-          tabIndex="0"
-          role="presentation"
-        >
-          {displayOval && <Circle x={clientX} y={clientY} dx={dx} dy={dy} display={displayOval} />}
+        <div className={fullScreen ? style.fullScreen : style.panoScreen}>
+          <div
+            ref={this.panoDisplayRef}
+            className={style.panoImage}
+            style={backgroundStyle}
+            onMouseDown={this.handleMouseDown}
+            onMouseMove={this.handleMouseMove}
+            onMouseUp={this.handleMouseUp}
+            onMouseEnter={this.handleMouseEnter}
+            onMouseLeave={this.handleMouseLeave}
+            onKeyDown={this.handleKeyDown}
+            tabIndex="0"
+            role="presentation"
+          >
+            {displayOval && <Circle x={clientX} y={clientY} dx={dx} dy={dy} display={displayOval} />}
+          </div>
 
-          <img
-            className={style.compass}
-            src={compassImg}
-            alt="compass"
-            style={{ transform: `rotate(${-degree}deg)` }}
-          />
-          <button
-            type="button"
-            className={style.rotateButtonLeft}
-            onMouseDown={this.handleRotateLeft}
-            onMouseLeave={this.resetRotateLeft}
-            onMouseUp={this.resetRotateLeft}
-          >
-            <img src={leftButton} alt="Rotate-Left Button" />
-          </button>
-          <button
-            type="button"
-            className={style.rotateButtonRight}
-            onMouseDown={this.handleRotateRight}
-            onMouseLeave={this.resetRotateRight}
-            onMouseUp={this.resetRotateRight}
-          >
-            <img src={rightButton} alt="Rotate-Right Button" />
-          </button>
-          <button type="button" className={style.closeButton} onClick={this.offShow}>
-            <img src={closeIcon} alt="Close-Pano Button" />
-          </button>
-          <button type="button" className={style.resizeButton} onClick={this.toggleFullScreen}>
-            <img src={fullScreen ? toSplitIcon : expandIcon} alt="Resize-Pano Button" />
-          </button>
+          <div className={style.compass}>
+            <img
+              className={style.compassDial}
+              src={compassImg}
+              alt="compass"
+              style={{ transform: `rotate(${-degree}deg)` }}
+            />
+            <button
+              type="button"
+              className={style.rotateButtonLeft}
+              onMouseDown={this.handleRotateLeft}
+              onMouseLeave={this.resetRotateLeft}
+              onMouseUp={this.resetRotateLeft}
+            >
+              <img src={leftButton} alt="Rotate-Left Button" />
+            </button>
+            <button
+              type="button"
+              className={style.rotateButtonRight}
+              onMouseDown={this.handleRotateRight}
+              onMouseLeave={this.resetRotateRight}
+              onMouseUp={this.resetRotateRight}
+            >
+              <img src={rightButton} alt="Rotate-Right Button" />
+            </button>
+          </div>
+
+          <div className={style.controlButtonGroup}>
+            <button type="button" className={style.controlButton} onClick={this.toggleFullScreen}>
+              <img src={fullScreen ? toSplitIcon : expandIcon} alt="Resize-Pano Button" />
+            </button>
+            <button type="button" className={style.controlButton} onClick={this.offShow}>
+              <img src={closeIcon} alt="Close-Pano Button" />
+            </button>
+          </div>
+
         </div>
       )
     );
