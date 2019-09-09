@@ -41,6 +41,8 @@
     "cloneEnv": "bash ./cloneEnv.sh"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^4.1.0",
+    "@testing-library/react": "^9.1.4",
     "cross-env": "^5.2.0",
     "docsify-cli": "^4.2.1",
     "eslint-config-airbnb": "^17.0.0",
