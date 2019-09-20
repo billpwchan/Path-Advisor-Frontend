@@ -74,7 +74,7 @@ class FloorTopPanelView extends Component {
                 className={style.selectFloorButton}
                 onClick={floorId ? selectFloor(floorId) : undefined}
               >
-                {addFloorSuffix(floorId)}
+                {floorId ? addFloorSuffix(floors[floorId].name) : null}
               </button>
             ))}
             selectedIndex={selectedIndex}
