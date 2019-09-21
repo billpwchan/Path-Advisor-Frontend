@@ -30,6 +30,16 @@
     ],
     "prefer-destructuring": ["warn", { "object": true, "array": true }],
     "no-fallthrough": ["error", { "commentPattern": "break[\\s\\w]*omitted" }],
-    "react/destructuring-assignment": [0]
+    "react/destructuring-assignment": [0],
+    "jsx-a11y/label-has-associated-control": [ "error", {
+      "required": {
+        "some": [ "nesting", "id"  ]
+      }
+    }],
+    "jsx-a11y/label-has-for": [ "error", {
+      "required": {
+        "some": [ "nesting", "id"  ]
+      }
+    }]
   }
 }
