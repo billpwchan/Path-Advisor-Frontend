@@ -44,9 +44,9 @@ class Floor extends Component {
 
     const useSameCoordinates = () => {
       switch (this.currentBuilding) {
-        // TO-DO: remove this after db position is normalized.
         case 'academicBuilding': {
           const mappableFloors = ['1', '2', '3', '4', '5', '6', '7'];
+          // LG floor centre position and too different to other floors and hence no use same coordinates
           return mappableFloors.includes(currentFloorId) && mappableFloors.includes(floor);
         }
         default:
