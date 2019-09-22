@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { floorsPropType } from '../../reducers/floors';
 import { PLATFORM } from '../Main/detectPlatform';
 
-class Floor extends Component {
+export class Floor extends Component {
   static propTypes = {
     platform: PropTypes.oneOf(Object.values(PLATFORM)),
     floorStore: floorsPropType,
