@@ -91,6 +91,7 @@ class MapItem extends Component {
           };
           const textMapItem = {
             ...baseMapItem,
+            zIndex: 1,
             textElement: {
               ...DEFAULT_TEXT_STYLE,
               text: convertName(name),
