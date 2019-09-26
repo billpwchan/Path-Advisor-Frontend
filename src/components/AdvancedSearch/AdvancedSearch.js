@@ -27,21 +27,27 @@ function AdvancedSearch({ searchOptionsStore, updateSearchOptions, search }) {
       <ul className={style.list}>
         <li>
           <input
+            id="noStairCaseOption"
             className={style.itemInput}
             type="checkbox"
             checked={noStairCase}
             onChange={updateSetting('noStairCase')}
           />
-          <div className={style.itemText}>Do not involve any staircase</div>
+          <label htmlFor="noStairCaseOption" className={style.itemText}>
+            Do not involve any staircase
+          </label>
         </li>
         <li>
           <input
+            id="noEscalatorOption"
             className={style.itemInput}
             type="checkbox"
             checked={noEscalator}
             onChange={updateSetting('noEscalator')}
           />
-          <div className={style.itemText}>Do not involve any escalator</div>
+          <label htmlFor="noEscalatorOption" className={style.itemText}>
+            Do not involve any escalator
+          </label>
         </li>
       </ul>
 
@@ -49,33 +55,42 @@ function AdvancedSearch({ searchOptionsStore, updateSearchOptions, search }) {
       <ul className={style.list}>
         <li>
           <input
+            id="shortestTimeOption"
             className={style.itemInput}
             type="radio"
             checked={searchMode === SEARCH_MODES.SHORTEST_TIME}
             value={SEARCH_MODES.SHORTEST_TIME}
             onChange={updateSetting('searchMode')}
           />
-          <div className={style.itemText}>Shortest time</div>
+          <label htmlFor="shortestTimeOption" className={style.itemText}>
+            Shortest time
+          </label>
         </li>
         <li>
           <input
+            id="shortestDistanceOption"
             className={style.itemInput}
             type="radio"
             checked={searchMode === SEARCH_MODES.SHORTEST_DISTANCE}
             value={SEARCH_MODES.SHORTEST_DISTANCE}
             onChange={updateSetting('searchMode')}
           />
-          <div className={style.itemText}>Shortest distance</div>
+          <label htmlFor="shortestDistanceOption" className={style.itemText}>
+            Shortest distance
+          </label>
         </li>
         <li>
           <input
+            id="minOfLiftOption"
             className={style.itemInput}
             type="radio"
             checked={searchMode === SEARCH_MODES.MIN_NO_OF_LIFTS}
             value={SEARCH_MODES.MIN_NO_OF_LIFTS}
             onChange={updateSetting('searchMode')}
           />
-          <div className={style.itemText}>Involve minimum number of lifts</div>
+          <label htmlFor="minOfLiftOption" className={style.itemText}>
+            Involve minimum number of lifts
+          </label>
         </li>
       </ul>
     </div>

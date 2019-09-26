@@ -1,0 +1,19 @@
+image: node:10.16.3-alpine
+
+stages:
+  - build
+  - test
+
+cache:
+  paths:
+  - node_modules/
+
+build:
+  stage: build
+  script:
+    - npx bolt
+
+test:
+  stage: test
+  script:
+    - npm test

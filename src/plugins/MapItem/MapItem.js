@@ -78,70 +78,6 @@ class MapItem extends Component {
             others,
           },
         ) => {
-          // TO-DO: hardcoding liveview info here before there is a API for it.
-          if (name.toUpperCase() === 'NORTH BUS STOP') {
-            // eslint-disable-next-line no-param-reassign
-            others = {
-              liveView: {
-                url: 'http://wowza.ust.hk/Northgate/',
-                iframeUrl: '/liveview/liveview-north.html',
-              },
-            };
-          }
-
-          if (name.toUpperCase() === 'SOUTH BUS STOP') {
-            // eslint-disable-next-line no-param-reassign
-            others = {
-              liveView: {
-                url: 'http://wowza.ust.hk/Southgate/',
-                iframeUrl: '/liveview/liveview-south.html',
-              },
-            };
-          }
-
-          // TO-DO: hardcoding liveview info here before there is a API for it.
-          if (name === 'Barn B, ROOM 1101') {
-            // eslint-disable-next-line no-param-reassign
-            others = {
-              liveView: {
-                url:
-                  'https://itsc.ust.hk/services/academic-teaching-support/facilities/computer-barn/snapshots-in-computer-barns/',
-                imageUrls: [
-                  'http://itsc.ust.hk/apps/realcam/barnb_1_000M.jpg',
-                  'http://itsc.ust.hk/apps/realcam/barnb_2_000M.jpg',
-                ],
-              },
-            };
-          }
-
-          if (name === 'ROOM 4403 - 4404') {
-            // eslint-disable-next-line no-param-reassign
-            others = {
-              liveView: {
-                url:
-                  'https://itsc.ust.hk/services/academic-teaching-support/facilities/computer-barn/snapshots-in-computer-barns/',
-                imageUrls: [
-                  'http://itsc.ust.hk/apps/realcam/barna_t1_000M.jpg',
-                  'http://itsc.ust.hk/apps/realcam/barna_g1_000M.jpg',
-                ],
-              },
-            };
-          }
-
-          if (name === 'BARN C ROOM 4579-4580') {
-            // eslint-disable-next-line no-param-reassign
-            others = {
-              liveView: {
-                url:
-                  'https://itsc.ust.hk/services/academic-teaching-support/facilities/computer-barn/snapshots-in-computer-barns/',
-                imageUrls: [
-                  'http://itsc.ust.hk/apps/realcam/barnc_g1_000M.jpg',
-                  'http://itsc.ust.hk/apps/realcam/barnc_t1_000M.jpg',
-                ],
-              },
-            };
-          }
-
           const marginLeft = -40;
           let marginTop = 0;
 
@@ -155,6 +91,7 @@ class MapItem extends Component {
           };
           const textMapItem = {
             ...baseMapItem,
+            zIndex: 1,
             textElement: {
               ...DEFAULT_TEXT_STYLE,
               text: convertName(name),

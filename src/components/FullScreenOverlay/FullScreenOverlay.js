@@ -5,7 +5,7 @@ import style from './FullScreenOverlay.module.css';
 
 const FullScreenOverlay = ({
   className = undefined,
-  onBodyClick,
+  onBodyClick = () => {},
   children,
   center = false,
   onCloseIconClick = null,
@@ -28,7 +28,7 @@ const FullScreenOverlay = ({
 FullScreenOverlay.propTypes = {
   className: PropTypes.string,
   onBodyClick: PropTypes.func,
-  children: PropTypes.node,
+  children: PropTypes.node.isRequired,
   center: PropTypes.bool,
   onCloseIconClick: PropTypes.func,
 };
