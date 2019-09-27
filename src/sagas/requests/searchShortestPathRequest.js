@@ -59,7 +59,7 @@ async function searchShortestPathRequest(inputFrom = {}, inputTo = {}, settings 
   return {
     ...response,
     data: (response.data.data || []).map(
-      ({ _id, floorId, distance, coordinates, name, tagIds, imageUrl }) => ({
+      ({ _id, floorId, distance, coordinates, name, tagIds, imageUrl, panoImageUrl }) => ({
         id: _id,
         floor: floorId,
         name,
@@ -67,6 +67,7 @@ async function searchShortestPathRequest(inputFrom = {}, inputTo = {}, settings 
         distance,
         type: (tagIds || [])[0],
         photo: imageUrl,
+        panorama: panoImageUrl,
       }),
     ),
   };

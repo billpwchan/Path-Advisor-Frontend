@@ -10,6 +10,7 @@ import * as ZoomButton from './ZoomButton/ZoomButton';
 import * as LegendButton from './LegendButton/LegendButton';
 import * as ContextMenu from './ContextMenu/ContextMenu';
 import * as LiveView from './LiveView/LiveView';
+import * as StreetView from './StreetView/StreetView';
 
 export default [
   MapTile,
@@ -19,6 +20,7 @@ export default [
   NearestResult,
   ShortestResult,
   Legend,
+  StreetView,
   ZoomButton,
   NearestResultMobile,
   LegendButton,
