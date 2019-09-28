@@ -33,7 +33,7 @@
     "build:staging:s3": "env-cmd .env.staging-s3 npm run build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "deploy": "npm run build && ./deploy.sh",
+    "deploy": "npm run build && bash ./deploy.sh",
     "deploy:staging:dev": "npm run build:staging:dev && bash ./deploy-staging-dev.sh",
     "deploy:staging:s3": "npm run build:staging:s3 && bash ./deploy-staging-s3.sh",
     "deploy:doc:staging:dev": "bash ./deploy-doc-staging-dev.sh",
