@@ -21,13 +21,13 @@ export const nearestOptions = {
     name: 'Nearest drinking fountain',
     data: { type: INPUT_TYPE.NEAREST, value: 'drinkingFountain' },
   },
-  atm: { name: 'Nearest ATM', data: { type: INPUT_TYPE.NEAREST, value: 'ATM' } },
+  atm: { name: 'Nearest ATM', data: { type: INPUT_TYPE.NEAREST, value: 'atm' } },
   mailbox: { name: 'Nearest mailbox', data: { type: INPUT_TYPE.NEAREST, value: 'mailbox' } },
   restaurant: {
     name: 'Nearest restaurant',
     data: { type: INPUT_TYPE.NEAREST, value: 'restaurant' },
   },
-  virtualBarnStation: {
+  virtualBarnWorkstation: {
     name: 'Nearest virtual barn workstation',
     data: { type: INPUT_TYPE.NEAREST, value: 'virtualBarnWorkstation' },
   },
@@ -78,7 +78,7 @@ const rootMenuOptions = direction => [
       nearestOptions.atm,
       nearestOptions.mailbox,
       nearestOptions.restaurant,
-      nearestOptions.virtualBarnStation,
+      nearestOptions.virtualBarnWorkstation,
       nearestOptions.satellitePrinter,
       {
         name: 'KMB Fare Saver Kiosk',
