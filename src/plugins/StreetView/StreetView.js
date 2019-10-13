@@ -7,13 +7,13 @@ import PinMan from './PinMan';
 import PanoDisplay from '../PanoDisplay/PanoDisplay';
 import { getPanoInfo, getNextPano, getPanoNodes, getPanoEdgeCoordinates } from './BackendAPI';
 
-/* 
-This is the highest level StreetView component. 
+/*
+This is the highest level StreetView component.
 
-It only communicate with the subcomponents through signals, but does not 
+It only communicate with the subcomponents through signals, but does not
 touches concrete image display.
 
-Subcomponet interactions: 
+Subcomponet interactions:
 - Initially, set BaseMan at available mode(baseManAvail=true), and hide DragMan(displayDragMan=false).
 - Then when BaseMan is pressed, BaseMan will call handleBaseManPressed function here. StreetView then set BaseMan as unavailable(baseManAvail=false) and display DragMan(displayDragMan=true).
 - Then when DragMan is dropped, DragMan will call handleDragManDrop function here. StreetView will then hide DragMan(displayDragMan=falese) and restore BaseMan to available(baseManAvail=true).
@@ -69,7 +69,7 @@ class StreetView extends React.Component {
     }
   }
 
-  /* 
+  /*
     Helper function to convert mouse coordinate on screen to campus coordinate in map.
     The code is modified from component/MapCanvas/CanvasHandler.js.
     This can be very helpful. Feel free to make good use of it.
@@ -349,14 +349,14 @@ class StreetView extends React.Component {
       [style.buttonImageMobile]: platform === 'MOBILE',
     });
 
-    return (
-      <div id={id}>
-        {this.renderPano()}
-        {this.renderPinMan()}
-        {this.renderBaseMan(buttonClassName)}
-        {this.renderDragMan(buttonClassName)}
-      </div>
-    );
+    return platform === 'DESKTOP' && (
+        <div id={id}>
+          {this.renderPano()}
+          {this.renderPinMan()}
+          {this.renderBaseMan(buttonClassName)}
+          {this.renderDragMan(buttonClassName)}
+        </div>
+      );
   }
 }
 
