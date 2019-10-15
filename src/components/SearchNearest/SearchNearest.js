@@ -114,6 +114,10 @@ class SearchNearest extends Component {
     };
   }
 
+  componentWillUnmount() {
+    this.removeHideIfClickOutsideListener();
+  }
+
   hideIfClickOutSideListener = e => {
     let node = e.target;
 
@@ -125,7 +129,7 @@ class SearchNearest extends Component {
     }
 
     this.hideDropDown();
-    document.removeEventListener('click', this.hideIfClickOutSideListener);
+    this.removeHideIfClickOutsideListener();
   };
 
   selectDropDownItem = (name, children, data) => () => {
@@ -144,7 +148,7 @@ class SearchNearest extends Component {
         menuOptions: rootMenuOptions(direction),
       });
 
-      document.removeEventListener('click', this.hideIfClickOutSideListener);
+      this.removeHideIfClickOutsideListener();
       onNearestItemClick({ name, data });
     }
   };
@@ -163,6 +167,10 @@ class SearchNearest extends Component {
       menuOptions: rootMenuOptions(this.props.direction),
     });
   };
+
+  removeHideIfClickOutsideListener() {
+    document.removeEventListener('click', this.hideIfClickOutSideListener);
+  }
 
   render() {
     const { menuOptions, hideDropDown } = this.state;
