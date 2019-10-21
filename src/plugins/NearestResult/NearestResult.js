@@ -3,7 +3,7 @@ import isNil from 'lodash.isnil';
 import style from './NearestResult.module.css';
 import Loading from '../Loading/Loading';
 
-class NearestResult extends Component {
+export class NearestResult extends Component {
   componentDidUpdate(prevProps) {
     if (prevProps.searchNearestStore === this.props.searchNearestStore) {
       return;
@@ -58,7 +58,7 @@ class NearestResult extends Component {
 
       case searchNearestStore.success: {
         const { from, nearest } = searchNearestStore;
-
+        console.log(`${nearest.name} (${this.getBuildingAndFloorText(nearest.floor)})`);
         return (
           <div className={style.body}>
             {searchNearestHead}

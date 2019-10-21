@@ -5,5 +5,9 @@
   "dependencies": {
     "lodash.isnil": "^4.0.0",
     "react": "^16.4.1"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^4.1.0",
+    "@testing-library/react": "^9.1.4"
   }
 }
