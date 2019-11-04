@@ -540,9 +540,9 @@ class CanvasHandler {
 
   setUpCanvasListeners() {
     document.addEventListener('mousedown', e => {
-      const { clientX: downX, clientY: downY, target, relatedTarget } = e;
+      const { clientX: downX, clientY: downY, target, relatedTarget, button } = e;
 
-      if (target !== this.getCanvas() && relatedTarget !== this.getCanvas()) {
+      if (button !== 0 || (target !== this.getCanvas() && relatedTarget !== this.getCanvas())) {
         return;
       }
 
@@ -671,6 +671,10 @@ class CanvasHandler {
     let lastClientCoordinates = null;
 
     this.getCanvas().addEventListener('mousedown', e => {
+      if (e.button !== 0) {
+        return;
+      }
+
       const { clientX, clientY } = e;
       lastClientCoordinates = [clientX, clientY];
     });
@@ -678,7 +682,12 @@ class CanvasHandler {
     this.getCanvas().addEventListener(
       event,
       throttle(e => {
-        const { clientX, clientY } = e;
+        const { clientX, clientY, button } = e;
+
+        if (button !== 0) {
+          return;
+        }
+
         let [x, y] = this.getCanvasXYFromMouseXY(clientX, clientY);
         x += this.getScreenLeftX();
         y += this.getScreenTopY();
