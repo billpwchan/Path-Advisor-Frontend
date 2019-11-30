@@ -52,14 +52,17 @@ function polygon(x, y, coordinates) {
  * @param {number} y
  * @param {number} errorMargin Error margin
  * @param {array} coordinates
- * @return {boolean}
+ * @return {number} -1 if no hit, otherwise returns a index where the line (coordinates[index], coordinates[index + 1]) is the section of the line it hits
  */
-function line(x, y, errorMargin, coordinates) {
+
+function lineSection(x, y, errorMargin, coordinates) {
   if (coordinates.length < 2) {
     throw new Error('A line must have at least two coordinates');
   }
 
-  return coordinates.some((point, i) => {
+  let index = -1;
+
+  coordinates.some((point, i) => {
     if (i === coordinates.length - 1) {
       return false;
     }
@@ -72,8 +75,17 @@ function line(x, y, errorMargin, coordinates) {
       add(nextPoint, dot(-errorMargin, directionVector)),
       add(nextPoint, dot(errorMargin, directionVector)),
     ];
-    return polygon(x, y, marginAreaPolygon);
+
+    const hit = polygon(x, y, marginAreaPolygon);
+
+    if (hit) {
+      index = i;
+    }
+
+    return hit;
   });
+
+  return index;
 }
 
-export { rect, polygon, line };
+export { rect, polygon, lineSection };

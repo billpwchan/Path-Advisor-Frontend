@@ -85,6 +85,8 @@ const DEFAULT_LINE_HIT_TEST_ERROR_MARGIN = 6;
  * @property {mapItemListener} [onMouseOver]
  * @property {mapItemListener} [onMouseOut]
  * @property {mapItemListener} [onMouseMove]
+ * @property {mapItemListener} [onDrag]
+ * @property {mapItemListener} [onDragEnd]
  * @property {Circle} [circle]
  * @property {Rect} [rect]
  * @property {{}} [others] - additional data for plugins to attach
@@ -164,8 +166,16 @@ class CanvasHandler {
 
   mapItemIds = [];
 
+  preventCanvasMouseMoveEvent = false;
+
   /** @type {Object.<string, Boolean>} - map items currently in mouse over event */
   mapItemsMouseOvering = {};
+
+  /** @type {Object.<string, Boolean>} - map items currently in mouse down event */
+  mapItemsMouseDown = {};
+
+  /** @type {Object.<string, Boolean>} - map items currently in mouse drag event */
+  mapItemsDrag = {};
 
   /** @type {number} - map coordinate x at then center of the canvas element */
   x = 0;
@@ -202,6 +212,9 @@ class CanvasHandler {
   /** @type {function[]} - listeners to be triggered when an click event didn't hit anything */
   clickAwayListeners = [];
 
+  /** @type {string[]} - list of map items to be removed */
+  removeQueue = [];
+
   /** @typedef {Object.<string, Object.<string, mapItemListener>>} listenerGroup */
   /** @type {Object.<string, listenerGroup>} - map items listeners grouped by id */
   mapItemListeners = {
@@ -209,6 +222,8 @@ class CanvasHandler {
     mouseover: {},
     mouseout: {},
     mousemove: {},
+    drag: {},
+    dragend: {},
   };
 
   /** @type {Object.<string, Object.<string, string[]>>} */
@@ -217,6 +232,8 @@ class CanvasHandler {
     mouseover: {},
     mouseout: {},
     mousemove: {},
+    drag: {},
+    dragend: {},
   };
 
   width = 0;
@@ -261,7 +278,7 @@ class CanvasHandler {
     this.canvas = document.createElement('canvas');
     addTouchEventHandler(this.getCanvas());
     this.setUpCanvasListeners();
-    ['mouseup', 'mousemove'].forEach(event => this.setUpListener(event));
+    ['mousedown', 'mouseup', 'mousemove'].forEach(event => this.setUpListener(event));
   }
 
   updateDimension(width, height) {
@@ -586,6 +603,10 @@ class CanvasHandler {
         let newX = prevX + this.normalizeCoordinate(downX - currentX);
         let newY = prevY + this.normalizeCoordinate(downY - currentY);
 
+        if (this.preventCanvasMouseMoveEvent) {
+          return;
+        }
+
         this.mouseMoveListeners.forEach(listener => {
           const [clientX, clientY] = this.getCanvasXYFromMouseXY(
             mouseMoveEvent.clientX,
@@ -706,25 +727,32 @@ class CanvasHandler {
     return nextLevel > maxLevel ? maxLevel : nextLevel;
   }
 
+  /**
+   * Get mouse x, y coordinates relative to the canvas area
+   * - i.e. clicking top-left point of canvas returns (0, 0)
+   * - clicking bottom-right point of canvas returns (width of canvas, height of canvas)
+   */
   getCanvasXYFromMouseXY(mouseX, mouseY) {
     const canvasCoordinate = this.canvas.getBoundingClientRect();
     return [mouseX - canvasCoordinate.left, mouseY - canvasCoordinate.top];
   }
 
-  setUpListener(nativeEvent) {
+  setUpListener(event) {
     let lastClientCoordinates = [];
 
-    this.getCanvas().addEventListener('mousedown', e => {
-      if (e.button !== 0) {
-        return;
-      }
+    if (event === 'mouseup') {
+      this.getCanvas().addEventListener('mousedown', e => {
+        if (e.button !== 0) {
+          return;
+        }
 
-      const { clientX, clientY } = e;
-      lastClientCoordinates = [clientX, clientY];
-    });
+        const { clientX, clientY } = e;
+        lastClientCoordinates = [clientX, clientY];
+      });
+    }
 
     this.getCanvas().addEventListener(
-      nativeEvent,
+      event,
       throttle(e => {
         const { clientX, clientY, button } = e;
 
@@ -737,26 +765,30 @@ class CanvasHandler {
         y += this.getScreenTopY();
 
         const [lastClientX, lastClientY] = lastClientCoordinates;
-        const event =
-          nativeEvent === 'mouseup' && clientX === lastClientX && clientY === lastClientY
-            ? 'click'
-            : nativeEvent;
 
         const visitedItemIds = new Set();
         let anyItemClicked = false;
 
         // freeze floor value as it may be changed while triggering listeners
         const floor = this.floor;
+        const cursorIsSamePosition = clientX === lastClientX && clientY === lastClientY;
 
         revForEach(this.mapItemIds, id => {
           const mapItem = this.mapItems[id];
-          if (mapItem.floor !== floor) {
+
+          const { renderedX, renderedY, scaledWidth, scaledHeight } = this.getMapItemRenderedInfo(
+            mapItem,
+          );
+          if (
+            mapItem.floor !== floor ||
+            !this.inViewport(renderedX, renderedY, scaledWidth, scaledHeight)
+          ) {
             return {};
           }
 
           visitedItemIds.add(id);
 
-          let mapItemEvent;
+          const mapItemEvents = [];
           const {
             hitX,
             hitY,
@@ -771,6 +803,7 @@ class CanvasHandler {
           } = mapItem;
 
           let itemHit = false;
+          let lineIndex = null;
 
           switch (true) {
             case Boolean(shape):
@@ -785,7 +818,7 @@ class CanvasHandler {
               );
               break;
             case Boolean(line):
-              itemHit = hitTest.line(
+              lineIndex = hitTest.lineSection(
                 x,
                 y,
                 line.hitErrorMargin || DEFAULT_LINE_HIT_TEST_ERROR_MARGIN,
@@ -793,6 +826,7 @@ class CanvasHandler {
                   scalePosition ? [this.scaleCoordinate(a), this.scaleCoordinate(b)] : [a, b],
                 ),
               );
+              itemHit = lineIndex !== -1;
               break;
             default:
               itemHit = hitTest.rect(
@@ -806,47 +840,92 @@ class CanvasHandler {
           }
 
           switch (event) {
-            case 'click': {
+            case 'mousedown': {
               if (itemHit) {
-                mapItemEvent = 'click';
-                anyItemClicked = true;
+                this.mapItemsMouseDown[id] = true;
               }
               break;
             }
 
-            case 'mousemove':
-              if (itemHit && !this.mapItemsMouseOvering[id]) {
-                mapItemEvent = 'mouseover';
-                this.mapItemsMouseOvering[id] = true;
-              } else if (!itemHit && this.mapItemsMouseOvering[id]) {
-                mapItemEvent = 'mouseout';
-                delete this.mapItemsMouseOvering[id];
-              } else if (itemHit) {
-                mapItemEvent = 'mousemove';
+            case 'mouseup': {
+              this.preventCanvasMouseMoveEvent = false;
+              delete this.mapItemsMouseDown[id];
+
+              if (!itemHit) {
+                break;
               }
+
+              mapItemEvents.push('mouseup');
+
+              if (itemHit && cursorIsSamePosition) {
+                mapItemEvents.push('click');
+                anyItemClicked = true;
+              }
+
+              if (this.mapItemsDrag[id]) {
+                mapItemEvents.push('dragend');
+                delete this.mapItemsDrag[id];
+              }
+
+              break;
+            }
+
+            case 'mousemove':
+              if (itemHit) {
+                mapItemEvents.push('mousemove');
+              }
+
+              if (itemHit && !this.mapItemsMouseOvering[id]) {
+                mapItemEvents.push('mouseover');
+                this.mapItemsMouseOvering[id] = true;
+              }
+
+              if (!itemHit && this.mapItemsMouseOvering[id]) {
+                mapItemEvents.push('mouseout');
+                delete this.mapItemsMouseOvering[id];
+              }
+
+              if (this.mapItemsMouseDown[id]) {
+                this.mapItemsDrag[id] = true;
+                this.preventCanvasMouseMoveEvent = true;
+                mapItemEvents.push('drag');
+              }
+
               break;
             default:
           }
 
           let breakIteration = false;
 
-          if (mapItemEvent) {
-            (get(this.mapItemListenerIds[mapItemEvent], id) || []).some(
-              listenerId =>
-                this.mapItemListeners[mapItemEvent][id][listenerId]({
-                  ...this.mapItems[id],
-                  mouse: { x, y },
-                  stopPropagation: () => {
-                    breakIteration = true;
-                  },
-                }) === false,
-            );
+          if (mapItemEvents.length) {
+            mapItemEvents.forEach(mapItemEvent => {
+              if (breakIteration) {
+                return;
+              }
+
+              (get(this.mapItemListenerIds[mapItemEvent], id) || []).some(
+                listenerId =>
+                  this.mapItemListeners[mapItemEvent][id][listenerId]({
+                    ...this.mapItems[id],
+                    mouse: {
+                      x,
+                      y,
+                      mapX: this.normalizeCoordinate(x),
+                      mapY: this.normalizeCoordinate(y),
+                    },
+                    ...(lineIndex !== null ? { lineIndex } : {}),
+                    stopPropagation: () => {
+                      breakIteration = true;
+                    },
+                  }) === false,
+              );
+            });
           }
 
           return { breakIteration };
         });
 
-        if (!anyItemClicked && event === 'click') {
+        if (!anyItemClicked && cursorIsSamePosition) {
           this.clickAwayListeners.forEach(listener => {
             listener();
           });
@@ -859,7 +938,12 @@ class CanvasHandler {
               listenerId =>
                 this.mapItemListeners.mouseout[mapItemId][listenerId]({
                   ...this.mapItems[mapItemId],
-                  mouse: { x, y },
+                  mouse: {
+                    x,
+                    y,
+                    mapX: this.normalizeCoordinate(x),
+                    mapY: this.normalizeCoordinate(y),
+                  },
                   // can't stop propagation for a non-rendered item
                   stopPropagation: () => {},
                 }) === false,
@@ -1023,12 +1107,16 @@ class CanvasHandler {
         mouseover: {},
         mouseout: {},
         mousemove: {},
+        drag: {},
+        dragend: {},
       };
       this.mapItemListenerIds = {
         click: {},
         mouseover: {},
         mouseout: {},
         mousemove: {},
+        drag: {},
+        dragend: {},
       };
     }
 
@@ -1062,6 +1150,8 @@ class CanvasHandler {
         onMouseOver = getDefault(id, 'onMouseOver', null),
         onMouseOut = getDefault(id, 'onMouseOut', null),
         onMouseMove = getDefault(id, 'onMouseMove', null),
+        onDrag = getDefault(id, 'onDrag', null),
+        onDragEnd = getDefault(id, 'onDragEnd', null),
         customHitX = getDefault(id, 'customHitX', null),
         customHitY = getDefault(id, 'customHitY', null),
         customHitWidth = getDefault(id, 'customHitWidth', null),
@@ -1127,6 +1217,14 @@ class CanvasHandler {
 
         if (onMouseMove) {
           this.addMapItemListener('mousemove', DEFAULT_LISTENER_ID, id, onMouseMove);
+        }
+
+        if (onDrag) {
+          this.addMapItemListener('drag', DEFAULT_LISTENER_ID, id, onDrag);
+        }
+
+        if (onDragEnd) {
+          this.addMapItemListener('dragend', DEFAULT_LISTENER_ID, id, onDragEnd);
         }
 
         switch (true) {
@@ -1248,22 +1346,23 @@ class CanvasHandler {
    * @returns {boolean} true if map item found and deleted, false otherwise
    */
   removeMapItem(mapItemId) {
-    const index = this.mapItemIds.indexOf(mapItemId);
-
-    if (index === -1) {
+    if (!this.mapItems[mapItemId]) {
       return false;
     }
 
-    this.mapItemIds.splice(index, 1);
-    delete this.mapItems[mapItemId];
+    if (!this.removeQueue.length) {
+      setTimeout(() => {
+        this.removeMapItems(this.removeQueue);
+        this.removeQueue = [];
+      });
+    }
 
-    this.render();
+    this.removeQueue.push(mapItemId);
 
     return true;
   }
 
   /**
-   *
    * @param {array} mapItemIds
    */
   removeMapItems(mapItemIds) {
@@ -1276,9 +1375,15 @@ class CanvasHandler {
     this.mapItemListeners.click = omit(this.mapItemListeners.click, mapItemIds);
     this.mapItemListeners.mouseover = omit(this.mapItemListeners.mouseover, mapItemIds);
     this.mapItemListeners.mouseout = omit(this.mapItemListeners.mouseout, mapItemIds);
+    this.mapItemListeners.mousemove = omit(this.mapItemListeners.mousemove, mapItemIds);
+    this.mapItemListeners.drag = omit(this.mapItemListeners.drag, mapItemIds);
+    this.mapItemListeners.dragend = omit(this.mapItemListeners.dragend, mapItemIds);
     this.mapItemListenerIds.click = omit(this.mapItemListenerIds.click, mapItemIds);
     this.mapItemListenerIds.mouseover = omit(this.mapItemListenerIds.mouseover, mapItemIds);
     this.mapItemListenerIds.mouseout = omit(this.mapItemListenerIds.mouseout, mapItemIds);
+    this.mapItemListenerIds.mousemove = omit(this.mapItemListenerIds.mousemove, mapItemIds);
+    this.mapItemListenerIds.drag = omit(this.mapItemListenerIds.drag, mapItemIds);
+    this.mapItemListenerIds.dragend = omit(this.mapItemListenerIds.dragend, mapItemIds);
 
     this.render();
   }
@@ -1303,6 +1408,43 @@ class CanvasHandler {
     return xInRange && yInRange;
   }
 
+  getMapItemRenderedInfo(mapItem) {
+    const {
+      x,
+      y,
+      offsetX,
+      offsetY,
+      scalePosition,
+      scaleDimension,
+      width,
+      height,
+      center,
+    } = mapItem;
+
+    let renderedX = scalePosition ? this.scaleCoordinate(x) : x;
+    let renderedY = scalePosition ? this.scaleCoordinate(y) : y;
+    const scaledWidth = scaleDimension ? this.scaleCoordinate(width) : width;
+    const scaledHeight = scaleDimension ? this.scaleCoordinate(height) : height;
+
+    if (offsetX) {
+      renderedX += offsetX;
+    }
+
+    if (offsetY) {
+      renderedY += offsetY;
+    }
+
+    if (center) {
+      renderedX -= scaledWidth / 2;
+      renderedY -= scaledHeight / 2;
+    }
+
+    const centeredX = x - scaledWidth / 2;
+    const centeredY = y - scaledHeight / 2;
+
+    return { renderedX, renderedY, scaledWidth, scaledHeight, centeredX, centeredY };
+  }
+
   render = () => {
     const ctx = this.canvas.getContext('2d');
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -1319,8 +1461,6 @@ class CanvasHandler {
         const {
           x,
           y,
-          offsetX,
-          offsetY,
           floor,
           image,
           textElement,
@@ -1343,26 +1483,14 @@ class CanvasHandler {
           ctx.globalAlpha = opacity;
         }
 
-        let renderedX = scalePosition ? this.scaleCoordinate(x) : x;
-        let renderedY = scalePosition ? this.scaleCoordinate(y) : y;
-        const scaledWidth = scaleDimension ? this.scaleCoordinate(width) : width;
-        const scaledHeight = scaleDimension ? this.scaleCoordinate(height) : height;
-
-        if (offsetX) {
-          renderedX += offsetX;
-        }
-
-        if (offsetY) {
-          renderedY += offsetY;
-        }
-
-        if (center) {
-          renderedX -= scaledWidth / 2;
-          renderedY -= scaledHeight / 2;
-        }
-
-        const centeredX = x - scaledWidth / 2;
-        const centeredY = y - scaledHeight / 2;
+        const {
+          renderedX,
+          renderedY,
+          scaledWidth,
+          scaledHeight,
+          centeredX,
+          centeredY,
+        } = this.getMapItemRenderedInfo(mapItem);
 
         setCanvasItemHitArea(
           mapItem,
@@ -1538,12 +1666,21 @@ class CanvasHandler {
       this.addMapItemListener('mouseout', id, mapItemId, listener, isPrepend),
     addMapItemMouseMoveListener: (id, mapItemId, listener, isPrepend) =>
       this.addMapItemListener('mousemove', id, mapItemId, listener, isPrepend),
+    addMapItemDragListener: (id, mapItemId, listener, isPrepend) =>
+      this.addMapItemListener('drag', id, mapItemId, listener, isPrepend),
+    addMapItemDragEndListener: (id, mapItemId, listener, isPrepend) =>
+      this.addMapItemListener('dragend', id, mapItemId, listener, isPrepend),
     removeMapItemClickListener: (id, mapItemId) =>
       this.removeMapItemListener('click', id, mapItemId),
     removeMapItemMouseOverListener: (id, mapItemId) =>
       this.removeMapItemListener('mouseover', id, mapItemId),
     removeMapItemMouseOutListener: (id, mapItemId) =>
       this.removeMapItemListener('mouseout', id, mapItemId),
+    removeMapItemMouseMoveListener: (id, mapItemId) =>
+      this.removeMapItemListener('mousemove', id, mapItemId),
+    removeMapItemDragListener: (id, mapItemId) => this.removeMapItemListener('drag', id, mapItemId),
+    removeMapItemDragEndListener: (id, mapItemId) =>
+      this.removeMapItemListener('dragend', id, mapItemId),
     // canvas root element listener
     addCanvasMouseUpListener: listener => this.addMouseUpListener(listener),
     addCanvasMouseMoveListener: listener => this.addMouseMoveListener(listener),
