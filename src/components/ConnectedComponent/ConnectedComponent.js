@@ -15,7 +15,7 @@ const paramStateMap = {
   searchMapItemStore: 'searchMapItem',
 };
 
-const urlParams = ['place', 'from', 'to', 'x', 'y', 'level', 'floor'];
+const urlParams = ['place', 'from', 'to', 'via', 'x', 'y', 'level', 'floor'];
 const canvasParams = [
   'canvas',
   'width',

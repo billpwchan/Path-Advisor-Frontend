@@ -98,11 +98,18 @@ Nearest item
 
 The "to" input field data. Same format as `from` property.
 
+
+#### via
+`via` - array
+
+An array of places the path required to visit. Represent input field data between `from` and `to` input fields. Array item has the same format as `from` property.
+
+
 <!-- [linkTo](properties/linkTo.md ':include') -->
 #### linkTo
 `linkTo` - function
 
-A function that takes a `{x, y, floor, level, from, to, search}` object for the first argument and it will reposition the map canvas to this position and fill the input field with the `from` and `to` values and do search action if `search` is set to true. All properties in the object are optional, if they are missing in the supplied object, they will be assigned with current position value. For example, you can call `linkTo` with `{level: 2}` to indicate that you don't want to change the current `x`, `y`, `floor` value but to change only the zoom level and keep the map canvas at the same position. This function will also update the URL to reflect state changes as the changes are not save to any store. This can ensure params in URL is the single source of truth for all the states and users can just save or share the url to recreate the same screen.
+A function that takes a `{x, y, floor, level, from, to, via, search}` object for the first argument and it will reposition the map canvas to this position and fill the input field with the `from`, `to` and `via` values and do search action if `search` is set to true. All properties in the object are optional, if they are missing in the supplied object, they will be assigned with current position value. For example, you can call `linkTo` with `{level: 2}` to indicate that you don't want to change the current `x`, `y`, `floor` value but to change only the zoom level and keep the map canvas at the same position. This function will also update the URL to reflect state changes as the changes are not save to any store. This can ensure params in URL is the single source of truth for all the states and users can just save or share the url to recreate the same screen.
 
 Format:
 x - number

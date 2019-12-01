@@ -11,14 +11,14 @@ import { nearestOptions } from '../SearchNearest/SearchNearest';
 import { PLATFORM } from '../Main/detectPlatform';
 import { TABS as SUGGESTION_TABS } from '../Suggestion/constants';
 
-function formPlaceUrl(place) {
+function formPlacePath(place) {
   const {
-    data: { type, value, id, floor, coordinates },
+    data: { type, value = '', id, floor, coordinates },
   } = place;
   if (type === INPUT_TYPE.ID) {
-    return `/${value};${id};${floor};${coordinates.join(',')}`;
+    return `${value};${id};${floor};${coordinates.join(',')}`;
   }
-  return `/${value}`;
+  return `${value}`;
 }
 
 function parsePlace(place) {
@@ -80,6 +80,7 @@ function parseParams(params, query, platform, floorData) {
   const {
     fromPlace,
     toPlace,
+    viaPlaces,
     fromNearestType,
     toNearestType,
     coordinatePath,
@@ -136,11 +137,23 @@ function parseParams(params, query, platform, floorData) {
     ? suggestionCoordinatesString.split(',').map(v => parseFloat(v))
     : [];
 
+  let via = [];
+  if (viaPlaces === 'via') {
+    via = [{ ...EMPTY_INPUT }];
+  } else {
+    const viaPathPlaces = (viaPlaces || '').split('/')[1] || '';
+
+    via = viaPathPlaces
+      ? viaPathPlaces.split('|').map(place => parsePlace(place) || { ...EMPTY_INPUT })
+      : [];
+  }
+
   const parsed = {
     from,
     to,
     x,
     y,
+    via: via.length ? via : null,
     level,
     floor,
     search: Boolean(search),
@@ -167,6 +180,7 @@ export const placePropType = PropTypes.shape({
 const propTypes = {
   from: placePropType,
   to: placePropType,
+  via: PropTypes.arrayOf(placePropType),
   x: PropTypes.number,
   y: PropTypes.number,
   level: PropTypes.number,
@@ -188,6 +202,7 @@ function build({
   suggestion = null,
   suggestionX = null,
   suggestionY = null,
+  via = null,
 }) {
   const position = `/floor/${floor}/at/normalized/${x},${y},${level}`;
 
@@ -202,19 +217,21 @@ function build({
     '';
 
   let fromPlace =
-    from && from.data.type !== INPUT_TYPE.NEAREST && (inputHasContent(from) || inputHasContent(to))
+    (from && from.data.type) !== INPUT_TYPE.NEAREST &&
+    (inputHasContent(from) || inputHasContent(to) || (Array.isArray(via) ? via : []).length)
       ? '/from'
       : '';
   if (fromPlace && inputHasContent(from)) {
-    fromPlace += formPlaceUrl(from);
+    fromPlace += `/${formPlacePath(from)}`;
   }
 
   let toPlace =
-    to && to.data.type !== INPUT_TYPE.NEAREST && (inputHasContent(from) || inputHasContent(to))
+    (to && to.data.type) !== INPUT_TYPE.NEAREST &&
+    (inputHasContent(from) || inputHasContent(to) || (Array.isArray(via) ? via : []).length)
       ? '/to'
       : '';
   if (toPlace && inputHasContent(to)) {
-    toPlace += formPlaceUrl(to);
+    toPlace += `/${formPlacePath(to)}`;
   }
 
   const searchUrl = inputHasContent(from) && inputHasContent(to) && search ? '/search' : '';
@@ -228,7 +245,14 @@ function build({
     }
   }
 
-  return `${searchUrl}${nearest}${fromPlace}${toPlace}${position}${suggestionUrl}`;
+  let viaUrl = '';
+  if (Array.isArray(via) && via.length) {
+    const viaPlaces =
+      Array.isArray(via) && via.length && via.map(place => formPlacePath(place)).join('|');
+    viaUrl += viaPlaces ? `/via/${viaPlaces}` : `/via`;
+  }
+
+  return `${searchUrl}${nearest}${fromPlace}${toPlace}${viaUrl}${position}${suggestionUrl}`;
 }
 
 export { parseParams, propTypes, build };
