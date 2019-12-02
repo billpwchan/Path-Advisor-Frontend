@@ -50,8 +50,34 @@
   width: 50px;
 }
 
+.inputVia {
+  font-size: 5px;
+  display: inline-block;
+  width: 50px;
+  color: #666666;
+}
+
 .inputField {
   display: inline-block;
+}
+
+.inputViaRemove {
+  display: inline-block;
+  font-size: 17px;
+  color: #666666;
+  vertical-align: middle;
+  font-weight: bold;
+  padding: 5px;
+}
+
+.addDestinationButton {
+  display: block;
+  color: #666666;
+  padding: 3px;
+}
+
+.addIcon {
+  vertical-align: middle;
 }
 
 .body {

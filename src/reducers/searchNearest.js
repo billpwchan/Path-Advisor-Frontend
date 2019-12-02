@@ -1,3 +1,5 @@
+import PropTypes from 'prop-types';
+
 export const SEARCH_NEAREST = 'SEARCH_NEAREST';
 export const SEARCH_NEAREST_SUCCESS = 'SEARCH_NEAREST_SUCCESS';
 export const SEARCH_NEAREST_FAILURE = 'SEARCH_NEAREST_FAILURE';
@@ -42,6 +44,26 @@ const initialState = {
   nearest: null,
   from: null,
 };
+
+export const searchNearestPropType = PropTypes.shape({
+  loading: PropTypes.bool.isRequired,
+  failure: PropTypes.bool.isRequired,
+  success: PropTypes.bool.isRequired,
+  nearest: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    floor: PropTypes.string.isRequired,
+    coordinates: PropTypes.arrayOf(PropTypes.number),
+    id: PropTypes.string.isRequired,
+    type: PropTypes.string,
+  }).isRequired,
+  from: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    floor: PropTypes.string.isRequired,
+    coordinates: PropTypes.arrayOf(PropTypes.number),
+    id: PropTypes.string.isRequired,
+    type: PropTypes.string,
+  }).isRequired,
+});
 
 const searchNearest = (state = initialState, { type, payload }) => {
   switch (type) {

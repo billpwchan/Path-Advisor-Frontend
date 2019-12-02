@@ -18,6 +18,8 @@ class SearchPrimaryPanelView extends React.Component {
     searchOptionsStore: searchOptionsPropTypes.isRequired,
     onKeywordChange: PropTypes.func.isRequired,
     onAutoCompleteItemClick: PropTypes.func.isRequired,
+    onAddViaPlace: PropTypes.func.isRequired,
+    onRemoveViaPlace: PropTypes.func.isRequired,
     onNearestItemClick: PropTypes.func.isRequired,
     switchInputOrder: PropTypes.func.isRequired,
     updateSameFloor: PropTypes.func.isRequired,
@@ -27,6 +29,7 @@ class SearchPrimaryPanelView extends React.Component {
     searchInputOrders: PropTypes.arrayOf(PropTypes.string).isRequired,
     from: placePropType,
     to: placePropType,
+    via: PropTypes.arrayOf(placePropType),
   };
 
   state = {
@@ -36,7 +39,7 @@ class SearchPrimaryPanelView extends React.Component {
     },
   };
 
-  setAutoCompleteDisplay = direction => value => {
+  setAutoCompleteDisplayHandler = direction => value => {
     this.setState(prevState => ({
       shouldAutoCompleteDisplay: {
         ...prevState.shouldAutoCompleteDisplay,
@@ -44,6 +47,43 @@ class SearchPrimaryPanelView extends React.Component {
       },
     }));
   };
+
+  getViaInput(index, place) {
+    const {
+      floorStore,
+      onRemoveViaPlace,
+      onAutoCompleteItemClick,
+      searchMapItemStore,
+      onKeywordChange,
+    } = this.props;
+
+    const { shouldAutoCompleteDisplay } = this.state;
+
+    return (
+      <div key={index} className={style.searchRow}>
+        <div className={style.inputVia}>&#11044;</div>
+        <div className={style.inputField}>
+          <SearchInput
+            inputClassName={style.input}
+            autoCompleteListClassName={style.autoCompleteList}
+            suggestions={searchMapItemStore.suggestions}
+            onKeywordChange={onKeywordChange('via', index)}
+            loading={searchMapItemStore.loading}
+            onAutoCompleteItemClick={onAutoCompleteItemClick('via', index)}
+            value={place ? place.name : ''}
+            floorStore={floorStore}
+            shouldAutoCompleteDisplay={shouldAutoCompleteDisplay[`${'via_'}${index}`]}
+            setAutoCompleteDisplay={this.setAutoCompleteDisplayHandler(`${'via_'}${index}`)}
+          />
+        </div>
+        <button type="button" className={style.inputViaRemove} onClick={onRemoveViaPlace(index)}>
+          <span role="img" aria-label="remove">
+            ×
+          </span>
+        </button>
+      </div>
+    );
+  }
 
   render() {
     const {
@@ -60,7 +100,9 @@ class SearchPrimaryPanelView extends React.Component {
       updateSearchOptions,
       from,
       to,
+      via,
       searchInputOrders,
+      onAddViaPlace,
     } = this.props;
 
     const { sameFloor } = searchOptionsStore;
@@ -78,7 +120,7 @@ class SearchPrimaryPanelView extends React.Component {
           value={direction === 'from' ? from.name : to.name}
           floorStore={floorStore}
           shouldAutoCompleteDisplay={shouldAutoCompleteDisplay[direction]}
-          setAutoCompleteDisplay={this.setAutoCompleteDisplay(direction)}
+          setAutoCompleteDisplay={this.setAutoCompleteDisplayHandler(direction)}
         />
       ),
       SearchNearest: direction => (
@@ -97,7 +139,7 @@ class SearchPrimaryPanelView extends React.Component {
             placeholder="Room number/ name"
             floorStore={floorStore}
             shouldAutoCompleteDisplay={shouldAutoCompleteDisplay[direction]}
-            setAutoCompleteDisplay={this.setAutoCompleteDisplay(direction)}
+            setAutoCompleteDisplay={this.setAutoCompleteDisplayHandler(direction)}
           />
         </SearchNearest>
       ),
@@ -113,6 +155,7 @@ class SearchPrimaryPanelView extends React.Component {
                 <div className={style.inputTitle}>From</div>
                 <div className={style.inputField}>{searchInputs[searchInputOrders[0]]('from')}</div>
               </div>
+              {Array.isArray(via) && via.map((place, index) => this.getViaInput(index, place))}
               <div className={style.searchRow}>
                 <div className={style.inputTitle}>To</div>
                 <div className={style.inputField}> {searchInputs[searchInputOrders[1]]('to')} </div>
@@ -125,6 +168,13 @@ class SearchPrimaryPanelView extends React.Component {
               onClick={switchInputOrder}
             >
               <img src={switchImage} alt="switch" />
+            </button>
+
+            <button type="button" className={style.addDestinationButton} onClick={onAddViaPlace}>
+              <span className={style.addIcon} role="img" aria-label="add destination">
+                &#10133;
+              </span>
+              Add destination
             </button>
 
             <div className={style.checkBoxRow}>

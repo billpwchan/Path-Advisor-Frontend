@@ -6,7 +6,11 @@ import {
   searchShortestPathAction,
   clearSearchShortestPathResultAction,
 } from '../../reducers/searchShortestPath';
-import { searchNearestAction, clearSearchNearestResultAction } from '../../reducers/searchNearest';
+import {
+  searchNearestAction,
+  clearSearchNearestResultAction,
+  searchNearestPropType,
+} from '../../reducers/searchNearest';
 import {
   setSearchOptionsAction,
   searchOptionsPropTypes,
@@ -14,8 +18,20 @@ import {
 } from '../../reducers/searchOptions';
 import { floorsPropType } from '../../reducers/floors';
 import { placePropType } from '../Router/Url';
-import { TYPE as INPUT_TYPE, isEqual as InputIsEqual } from './Input';
+import {
+  TYPE as INPUT_TYPE,
+  isEqual as InputIsEqual,
+  EMPTY,
+  hasContent as inputHasContent,
+} from './Input';
 import { MODE as LOG_MODE } from '../Main/logger';
+
+function getSearchPlaceFormat(inputPlace) {
+  const {
+    data: { type, id, floor, value },
+  } = inputPlace;
+  return type === INPUT_TYPE.KEYWORD ? { keyword: value } : { id, floor };
+}
 
 class SearchArea extends Component {
   static propTypes = {
@@ -26,6 +42,7 @@ class SearchArea extends Component {
     clearSearchNearestResultHandler: PropTypes.func.isRequired,
     searchMapItemStore: searchMapItemPropTypes.isRequired,
     floorStore: floorsPropType.isRequired,
+    searchNearestStore: searchNearestPropType.isRequired,
     SearchView: PropTypes.func.isRequired,
     linkTo: PropTypes.func.isRequired,
     logger: PropTypes.func.isRequired,
@@ -34,6 +51,7 @@ class SearchArea extends Component {
     displayAdvancedSearch: PropTypes.bool,
     from: placePropType,
     to: placePropType,
+    via: PropTypes.arrayOf(placePropType),
     search: PropTypes.bool.isRequired,
   };
 
@@ -49,49 +67,130 @@ class SearchArea extends Component {
   }
 
   componentDidMount() {
-    console.log('searchArea mount', this.props.search, this.props.to);
     if (this.props.search) {
       this.search();
     }
   }
 
   componentDidUpdate(prevProps) {
-    console.log('searchArea did update', this.props.search, prevProps.search);
+    const {
+      searchNearestStore,
+      search,
+      searchOptionsStore,
+      to,
+      from,
+      searchShortestPathHandler,
+    } = this.props;
     if (
-      this.props.search &&
-      (!InputIsEqual(prevProps.to, this.props.to) ||
-        !InputIsEqual(prevProps.from, this.props.from) ||
-        this.props.search !== prevProps.search ||
-        this.props.searchOptionsStore !== prevProps.searchOptionsStore)
+      search &&
+      (!InputIsEqual(prevProps.to, to) ||
+        !InputIsEqual(prevProps.from, from) ||
+        search !== prevProps.search ||
+        searchOptionsStore !== prevProps.searchOptionsStore)
     ) {
       this.search();
     }
+
+    if (searchNearestStore !== prevProps.searchNearestStore && searchNearestStore.success) {
+      // follow up shortest path search after nearest item searched
+      const { nearest } = searchNearestStore;
+
+      // point to point search
+      searchShortestPathHandler(
+        from.data.type === INPUT_TYPE.NEAREST
+          ? { id: nearest.id, floor: nearest.floor }
+          : getSearchPlaceFormat(from),
+        to.data.type === INPUT_TYPE.NEAREST
+          ? { id: nearest.id, floor: nearest.floor }
+          : getSearchPlaceFormat(to),
+        this.getViaPlaces(),
+      );
+    }
   }
 
-  onKeywordChange = direction => keyword => {
+  onKeywordChange = (direction, index) => keyword => {
     const { searchMapItemHandler, linkTo } = this.props;
 
-    if (!keyword.length) {
-      linkTo({ [direction]: { name: '', data: {} }, search: false });
+    let linkMethod = 'push';
+    let inputData = EMPTY;
+
+    if (keyword.length) {
+      linkMethod = 'replace';
+      inputData = { name: keyword, data: { type: INPUT_TYPE.KEYWORD, value: keyword } };
+      searchMapItemHandler(keyword);
+    }
+
+    if (direction === 'via') {
+      linkTo(currentUrlParams => {
+        const via = [...(currentUrlParams.via || [])];
+        via[index] = inputData;
+        return {
+          via,
+          search: false,
+        };
+      }, linkMethod);
       return;
     }
+
     linkTo(
       {
-        [direction]: { name: keyword, data: { type: INPUT_TYPE.KEYWORD, value: keyword } },
+        [direction]: inputData,
         search: false,
       },
-      'replace',
+      linkMethod,
     );
-    searchMapItemHandler(keyword);
   };
 
-  onAutoCompleteItemClick = direction => ({
+  onAddViaPlace = () => {
+    this.props.linkTo(currentUrlParams => {
+      const via = [...(currentUrlParams.via || [])];
+      via.push({ ...EMPTY });
+      return {
+        ...currentUrlParams,
+        via,
+      };
+    });
+  };
+
+  onRemoveViaPlace = index => () => {
+    this.props.linkTo(currentUrlParams => {
+      const via = [...(currentUrlParams.via || [])];
+      via.splice(index, 1);
+      return {
+        ...currentUrlParams,
+        via,
+      };
+    });
+  };
+
+  onAutoCompleteItemClick = (direction, index) => ({
     name,
     coordinates: [x, y],
     floor,
     id,
     displayName,
   }) => {
+    if (direction === 'via') {
+      this.props.linkTo(currentUrlParams => {
+        const via = [...(currentUrlParams.via || [])];
+
+        via[index] = {
+          name: displayName || name,
+          data: { id, floor, value: name, type: INPUT_TYPE.ID, coordinates: [x, y] },
+        };
+
+        return {
+          search: false,
+          floor,
+          x,
+          y,
+          via,
+        };
+      });
+
+      return;
+    }
+
     this.props.linkTo({
       search: false,
       floor,
@@ -151,16 +250,13 @@ class SearchArea extends Component {
       searchNearestHandler,
       clearSearchNearestResultHandler,
       searchOptionsStore: { sameFloor },
-      from: {
-        data: { type: fromType, id: fromId, floor: fromFloor, value: fromValue },
-      },
-      to: {
-        data: { type: toType, id: toId, floor: toFloor, value: toValue },
-      },
+      from,
+      to,
+      via,
       logger,
     } = this.props;
 
-    if ((!fromValue && !fromId) || (!toValue && !toId)) {
+    if ((!from.data.value && !from.data.id) || (!to.data.value && !to.data.id)) {
       return;
     }
 
@@ -169,28 +265,49 @@ class SearchArea extends Component {
 
     let logMode = LOG_MODE.NORMAL;
 
-    if (fromType === INPUT_TYPE.NEAREST) {
-      searchNearestHandler(toFloor, toValue, fromValue, sameFloor, toId);
+    if (from.data.type === INPUT_TYPE.NEAREST) {
+      const firstVia = Array.isArray(via) ? via[0] : null;
+      const next = firstVia && (firstVia.data.id || firstVia.data.value) ? firstVia : to;
+      searchNearestHandler(
+        next.data.floor,
+        next.data.value,
+        from.data.value,
+        sameFloor,
+        next.data.id,
+      );
       logMode = LOG_MODE.NEAREST;
-    } else if (toType === INPUT_TYPE.NEAREST) {
-      searchNearestHandler(fromFloor, fromValue, toValue, sameFloor, fromId);
+    } else if (to.data.type === INPUT_TYPE.NEAREST) {
+      const lastVia = Array.isArray(via) ? via[via.length - 1] : null;
+      const prev = lastVia && (lastVia.data.id || lastVia.data.value) ? lastVia : from;
+      searchNearestHandler(
+        prev.data.floor,
+        prev.data.value,
+        to.data.value,
+        sameFloor,
+        prev.data.id,
+      );
       logMode = LOG_MODE.NEAREST;
     } else {
       // point to point search
-      const searchFrom =
-        fromType === INPUT_TYPE.KEYWORD ? { keyword: fromValue } : { id: fromId, floor: fromFloor };
-      const searchTo =
-        toType === INPUT_TYPE.KEYWORD ? { keyword: toValue } : { id: toId, floor: toFloor };
-
-      searchShortestPathHandler(searchFrom, searchTo);
+      searchShortestPathHandler(
+        getSearchPlaceFormat(from),
+        getSearchPlaceFormat(to),
+        this.getViaPlaces(),
+      );
     }
 
     logger({
-      from: fromValue,
-      to: toValue,
+      from: from.data.value,
+      to: to.data.value,
       mode: logMode,
     });
   };
+
+  getViaPlaces() {
+    return (this.props.via || [])
+      .filter(place => inputHasContent(place))
+      .map(place => getSearchPlaceFormat(place));
+  }
 
   render() {
     const {
@@ -201,6 +318,7 @@ class SearchArea extends Component {
       SearchView,
       from,
       to,
+      via,
     } = this.props;
     return (
       <SearchView
@@ -210,8 +328,11 @@ class SearchArea extends Component {
         searchInputOrders={this.state.searchInputOrders}
         from={from}
         to={to}
+        via={via}
         onKeywordChange={this.onKeywordChange}
         onAutoCompleteItemClick={this.onAutoCompleteItemClick}
+        onAddViaPlace={this.onAddViaPlace}
+        onRemoveViaPlace={this.onRemoveViaPlace}
         onNearestItemClick={this.onNearestItemClick}
         switchInputOrder={this.switchInputOrder}
         updateSameFloor={this.updateSameFloor}
@@ -227,14 +348,15 @@ export default connect(
   state => ({
     searchMapItemStore: state.searchMapItem,
     searchOptionsStore: state.searchOptions,
+    searchNearestStore: state.searchNearest,
     floorStore: state.floors,
   }),
   dispatch => ({
     searchMapItemHandler: keyword => {
       dispatch(searchMapItemAction(keyword));
     },
-    searchShortestPathHandler: (from, to) => {
-      dispatch(searchShortestPathAction(from, to));
+    searchShortestPathHandler: (from, to, via) => {
+      dispatch(searchShortestPathAction(from, to, via));
     },
     clearSearchShortestPathResultHandler: () => {
       dispatch(clearSearchShortestPathResultAction());

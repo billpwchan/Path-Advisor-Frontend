@@ -68,7 +68,7 @@ class SearchInput extends Component {
           placeholder={placeholder}
           onFocus={onFocus}
         />
-        {shouldAutoCompleteDisplay && !loading && (
+        {shouldAutoCompleteDisplay && !loading && suggestions.length > 0 && (
           <ul className={autoCompleteListClassName}>
             {suggestions.map(({ name, floor, coordinates, id }) => (
               <li key={id}>
