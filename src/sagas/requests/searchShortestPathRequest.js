@@ -29,12 +29,18 @@ async function getIdFloorfromKeyword(keyword) {
  *
  * @param {searchSearchInput} inputFrom
  * @param {searchSearchInput} inputTo
+ * @param {searchSearchInput[]} inputVia
  * @param {searchSetting} settings
  */
-async function searchShortestPathRequest(inputFrom = {}, inputTo = {}, settings = {}) {
-  const inputs = [inputFrom, inputTo];
+async function searchShortestPathRequest(
+  inputFrom = {},
+  inputTo = {},
+  inputVia = [],
+  settings = {},
+) {
+  const inputs = [inputFrom, inputTo, ...inputVia];
 
-  const [from, to] = await Promise.all(
+  const [from, to, ...via] = await Promise.all(
     inputs.map(async ({ keyword, id }) => {
       if (id) {
         return { id };
@@ -44,16 +50,17 @@ async function searchShortestPathRequest(inputFrom = {}, inputTo = {}, settings 
     }),
   );
 
-  if (!from.id || !to.id) {
-    throw new Error('Invalid start or end point input');
+  if (!from.id || !to.id || via.some(({ id }) => !id)) {
+    throw new Error('Invalid start, via or end point input');
   }
 
   const { noStairCase, noEscalator, searchMode } = settings;
 
+  const viaParam = via.length ? `&viaIds[]=${via.map(({ id }) => id).join('&viaIds[]=')}` : '';
   const response = await axios.get(
     `${APIEndpoint()}/shortest-path?fromId=${from.id}&toId=${
       to.id
-    }&mode=${searchMode}&noStairCase=${noStairCase}&noEscalator=${noEscalator}`,
+    }${viaParam}&mode=${searchMode}&noStairCase=${noStairCase}&noEscalator=${noEscalator}`,
   );
 
   return {

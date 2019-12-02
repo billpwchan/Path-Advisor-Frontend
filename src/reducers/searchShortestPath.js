@@ -13,11 +13,12 @@ export const CLEAR_SEARCH_SHORTEST_PATH_RESULT = 'CLEAR_SEARCH_SHORTEST_PATH_RES
 /**
  * @param {requestNode} [from]
  * @param {requestNode} [to]
+ * @param {requestNode[]} [via]
  */
-export function searchShortestPathAction(from, to) {
+export function searchShortestPathAction(from, to, via) {
   return {
     type: SEARCH_SHORTEST_PATH,
-    payload: { from, to },
+    payload: { from, to, via },
   };
 }
 

@@ -6,8 +6,6 @@ import {
   searchNearestFailureAction,
 } from '../../reducers/searchNearest';
 
-import { searchShortestPathAction } from '../../reducers/searchShortestPath';
-
 function* searchNearestRequestWorker({ payload: { name, nearestType, sameFloor, id } }) {
   try {
     const {
@@ -20,16 +18,6 @@ function* searchNearestRequestWorker({ payload: { name, nearestType, sameFloor, 
     }
 
     yield put(searchNearestSuccessAction(from, nearest));
-
-    const { id: fromId, floor: fromFloor } = from;
-    const { id: nearestId, floor: nearestFloor } = nearest;
-
-    yield put(
-      searchShortestPathAction(
-        { id: fromId, floor: fromFloor },
-        { id: nearestId, floor: nearestFloor },
-      ),
-    );
   } catch (error) {
     console.error(error);
     yield put(searchNearestFailureAction());

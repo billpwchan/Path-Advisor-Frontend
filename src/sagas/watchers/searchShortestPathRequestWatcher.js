@@ -10,6 +10,7 @@ function* searchShortestPathRequestWorker({
   payload: {
     from: { keyword: fromKeyword, nodeId: fromNodeId, floor: fromFloor, id: fromId },
     to: { keyword: toKeyword, nodeId: toNodeId, floor: toFloor, id: toId },
+    via,
   },
 }) {
   try {
@@ -19,6 +20,7 @@ function* searchShortestPathRequestWorker({
       searchShortestPathRequest,
       { keyword: fromKeyword, nodeId: fromNodeId, floor: fromFloor, id: fromId },
       { keyword: toKeyword, nodeId: toNodeId, floor: toFloor, id: toId },
+      via,
       { noStairCase, noEscalator, searchMode },
     );
     yield put(searchShortestPathSuccessAction(data));
