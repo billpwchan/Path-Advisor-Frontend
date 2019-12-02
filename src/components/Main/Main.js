@@ -62,15 +62,16 @@ class Main extends Component {
     );
   }
 
-  linkTo = (params, method = 'push') => {
+  linkTo = (arg1, method = 'push') => {
+    const urlParams = this.getUrlParams();
+    const params = typeof arg1 === 'function' ? arg1(urlParams) : arg1;
+
     const {
       appSettingStore: { defaultPosition, mobileDefaultPosition },
     } = this.props;
 
     const { level: defaultLevel } =
       this.platform === PLATFORM.MOBILE ? mobileDefaultPosition : defaultPosition;
-
-    const urlParams = this.getUrlParams();
 
     const newParams = {
       ...urlParams,
