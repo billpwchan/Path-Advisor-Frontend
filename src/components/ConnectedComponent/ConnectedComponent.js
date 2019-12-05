@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { openOverlayAction } from '../../reducers/overlay';
 import { updateLegendDisplayAction } from '../../reducers/legends';
+import { getNearestMapItemAction } from '../../reducers/nearestMapItem';
 
 const paramStateMap = {
   legendStore: 'legends',
@@ -13,6 +14,7 @@ const paramStateMap = {
   appSettingStore: 'appSettings',
   overlayStore: 'overlay',
   searchMapItemStore: 'searchMapItem',
+  nearestMapItemStore: 'nearestMapItem',
 };
 
 const urlParams = ['place', 'from', 'to', 'via', 'x', 'y', 'level', 'floor'];
@@ -40,6 +42,9 @@ const paramDispatchMap = {
   },
   updateLegendDisplayHandler: dispatch => (legendType, display) => {
     dispatch(updateLegendDisplayAction(legendType, display));
+  },
+  getNearestMapItemHandler: dispatch => (floor, coordinates) => {
+    dispatch(getNearestMapItemAction(floor, coordinates));
   },
 };
 

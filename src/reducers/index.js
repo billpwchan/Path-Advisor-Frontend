@@ -8,6 +8,7 @@ import legends from './legends';
 import floors from './floors';
 import overlay from './overlay';
 import appSettings from './appSettings';
+import nearestMapItem from './nearestMapItem';
 
 export default combineReducers({
   appSettings,
@@ -19,4 +20,5 @@ export default combineReducers({
   floors,
   overlay,
   searchOptions,
+  nearestMapItem,
 });
