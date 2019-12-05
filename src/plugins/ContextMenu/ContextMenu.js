@@ -1,16 +1,13 @@
 import React, { Component } from 'react';
 import style from './ContextMenu.module.css';
-import fetchMapItemByCoorRequest from '../../sagas/requests/fetchMapItemByCoorRequest';
 
 class ContextMenu extends Component {
   state = {
-    menuTitle: null,
     isContextMenuDisplay: false,
     clientX: null,
     clientY: null,
     clientMapX: null,
     clientMapY: null,
-    id: null,
   };
 
   ref = React.createRef();
@@ -18,21 +15,11 @@ class ContextMenu extends Component {
   componentDidMount() {
     this.props.addCanvasContextMenuListener(
       async ({ originalEvent, clientX, clientY, clientMapX, clientMapY }) => {
-        const {
-          floorStore: { floors, buildings },
-          floor,
-        } = this.props;
+        const { floor, getNearestMapItemHandler } = this.props;
 
         originalEvent.preventDefault();
-        const menuTitle = `${
-          floors && floors[floor] && floors[floor].name
-            ? `Floor ${floors[floor].name} - ${buildings[floors[floor].buildingId].name}`
-            : buildings[floors[floor].buildingId].name
-        } (${clientMapX}, ${clientMapY})`;
 
         this.setState({
-          id: null,
-          menuTitle,
           isContextMenuDisplay: true,
           clientX,
           clientY,
@@ -40,26 +27,36 @@ class ContextMenu extends Component {
           clientMapY,
         });
 
-        const {
-          data: { name, id },
-        } = await fetchMapItemByCoorRequest(floor, clientMapX, clientMapY);
-
-        this.setState(name ? { menuTitle: name, id } : { id });
+        getNearestMapItemHandler(floor, [clientMapX, clientMapY]);
       },
     );
 
-    document.addEventListener('mousedown', e => {
-      let node = e.target;
+    document.addEventListener('mousedown', this.clickAwayListener);
+  }
 
-      while (node !== null) {
-        if (node === this.ref.current) {
-          return;
-        }
-        node = node.parentElement;
-      }
+  componentWillUnmount() {
+    document.removeEventListener('mousedown', this.clickAwayListener);
+  }
 
-      this.hideContextMenu();
-    });
+  getMenuTitle() {
+    const {
+      nearestMapItemStore: { mapItem },
+      floorStore: { floors, buildings },
+      floor,
+    } = this.props;
+
+    const { name = null } = mapItem || {};
+    const { clientMapX, clientMapY } = this.state;
+
+    if (name) {
+      return name;
+    }
+
+    return `${
+      floors && floors[floor] && floors[floor].name
+        ? `Floor ${floors[floor].name} - ${buildings[floors[floor].buildingId].name}`
+        : buildings[floors[floor].buildingId].name
+    } (${clientMapX}, ${clientMapY})`;
   }
 
   hideContextMenu = () => {
@@ -78,8 +75,16 @@ class ContextMenu extends Component {
   };
 
   setLocation = direction => () => {
-    const { linkTo, floor } = this.props;
-    const { clientMapX, clientMapY, menuTitle, id } = this.state;
+    const {
+      linkTo,
+      floor,
+      nearestMapItemStore: { mapItem },
+    } = this.props;
+
+    const { id = null } = mapItem || {};
+
+    const { clientMapX, clientMapY } = this.state;
+    const menuTitle = this.getMenuTitle();
 
     linkTo({
       search: true,
@@ -98,8 +103,27 @@ class ContextMenu extends Component {
     this.hideContextMenu();
   };
 
+  clickAwayListener = e => {
+    let node = e.target;
+
+    while (node !== null) {
+      if (node === this.ref.current) {
+        return;
+      }
+      node = node.parentElement;
+    }
+
+    this.hideContextMenu();
+  };
+
   render() {
-    const { menuTitle, isContextMenuDisplay, clientX, clientY, id } = this.state;
+    const { isContextMenuDisplay, clientX, clientY } = this.state;
+    const { mapItem } = this.props.nearestMapItemStore;
+
+    const { id = null } = mapItem || {};
+
+    const menuTitle = this.getMenuTitle();
+
     return isContextMenuDisplay ? (
       <ul
         ref={this.ref}
@@ -136,7 +160,15 @@ class ContextMenu extends Component {
 
 const MapCanvasPlugin = {
   Component: ContextMenu,
-  connect: ['addCanvasContextMenuListener', 'floorStore', 'floor', 'APIEndpoint', 'linkTo'],
+  connect: [
+    'addCanvasContextMenuListener',
+    'floorStore',
+    'floor',
+    'APIEndpoint',
+    'linkTo',
+    'getNearestMapItemHandler',
+    'nearestMapItemStore',
+  ],
 };
 
 const id = 'CONTEXT_MENU';
