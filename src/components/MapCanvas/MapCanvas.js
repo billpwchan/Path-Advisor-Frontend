@@ -253,7 +253,19 @@ class MapCanvas extends Component {
 
     const { width, height } = this.state;
 
-    const urlParams = pick(this.props, ['from', 'to', 'x', 'y', 'level', 'floor']);
+    const urlParams = pick(this.props, [
+      'from',
+      'to',
+      'via',
+      'x',
+      'y',
+      'level',
+      'floor',
+      'search',
+      'suggestion',
+      'suggestionX',
+      'suggestionY',
+    ]);
 
     const isDimensionReady = width && height;
 
