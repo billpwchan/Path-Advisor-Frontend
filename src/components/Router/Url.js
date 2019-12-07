@@ -138,7 +138,7 @@ function parseParams(params, query, platform, floorData) {
     : [];
 
   let via = [];
-  if (viaPlaces === 'via') {
+  if (viaPlaces === 'via$') {
     via = [{ ...EMPTY_INPUT }];
   } else {
     const viaPathPlaces = (viaPlaces || '').split('/')[1] || '';
@@ -162,7 +162,6 @@ function parseParams(params, query, platform, floorData) {
     suggestionY,
     isFromNormalized: isNormalized,
   };
-
   return parsed;
 }
 
@@ -249,7 +248,7 @@ function build({
   if (Array.isArray(via) && via.length) {
     const viaPlaces =
       Array.isArray(via) && via.length && via.map(place => formPlacePath(place)).join('|');
-    viaUrl += viaPlaces ? `/via/${viaPlaces}` : `/via`;
+    viaUrl += viaPlaces ? `/via$/${viaPlaces}` : `/via$`;
   }
 
   return `${searchUrl}${nearest}${fromPlace}${toPlace}${viaUrl}${position}${suggestionUrl}`;

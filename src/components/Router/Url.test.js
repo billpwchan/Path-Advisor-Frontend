@@ -111,13 +111,13 @@ describe('Url', () => {
     it('able to parse via places', () => {
       expect(
         parseParams({
-          viaPlaces: 'via/',
+          viaPlaces: 'via$/',
         }).via,
       ).toEqual(null);
 
       expect(
         parseParams({
-          viaPlaces: 'via/2345',
+          viaPlaces: 'via$/2345',
         }).via,
       ).toStrictEqual(
         ['2345'].map(place => ({
@@ -128,7 +128,7 @@ describe('Url', () => {
 
       expect(
         parseParams({
-          viaPlaces: 'via/2345|1234',
+          viaPlaces: 'via$/2345|1234',
         }).via,
       ).toStrictEqual(
         ['2345', '1234'].map(place => ({
@@ -146,7 +146,7 @@ describe('Url', () => {
 
       expect(
         parseParams({
-          viaPlaces: `via/${completePlaceString}|1234`,
+          viaPlaces: `via$/${completePlaceString}|1234`,
         }).via,
       ).toStrictEqual([
         {
@@ -161,13 +161,13 @@ describe('Url', () => {
 
       expect(
         parseParams({
-          viaPlaces: `via`,
+          viaPlaces: `via$`,
         }).via,
       ).toStrictEqual([EMPTY]);
 
       expect(
         parseParams({
-          viaPlaces: `via/|1234`,
+          viaPlaces: `via$/|1234`,
         }).via,
       ).toStrictEqual([EMPTY, { data: { type: TYPE.KEYWORD, value: '1234' }, name: '1234' }]);
     });
@@ -276,14 +276,14 @@ describe('Url', () => {
             },
           ],
         }),
-      ).toEqual(`/from/to/via${basicPositionUrl}`);
+      ).toEqual(`/from/to/via$${basicPositionUrl}`);
 
       expect(
         build({
           ...basicPosition,
           via: [EMPTY],
         }),
-      ).toEqual(`/from/to/via${basicPositionUrl}`);
+      ).toEqual(`/from/to/via$${basicPositionUrl}`);
 
       expect(
         build({
@@ -296,7 +296,7 @@ describe('Url', () => {
             },
           ],
         }),
-      ).toEqual(`/from/to/via/|1234${basicPositionUrl}`);
+      ).toEqual(`/from/to/via$/|1234${basicPositionUrl}`);
 
       expect(
         build({
@@ -309,7 +309,7 @@ describe('Url', () => {
             EMPTY,
           ],
         }),
-      ).toEqual(`/from/to/via/1234|${basicPositionUrl}`);
+      ).toEqual(`/from/to/via$/1234|${basicPositionUrl}`);
 
       expect(
         build({
@@ -321,7 +321,7 @@ describe('Url', () => {
             },
           ],
         }),
-      ).toEqual(`/from/to/via/1234${basicPositionUrl}`);
+      ).toEqual(`/from/to/via$/1234${basicPositionUrl}`);
 
       expect(
         build({
@@ -337,7 +337,7 @@ describe('Url', () => {
             },
           ],
         }),
-      ).toEqual(`/from/to/via/${completePlaceString}|1234${basicPositionUrl}`);
+      ).toEqual(`/from/to/via$/${completePlaceString}|1234${basicPositionUrl}`);
     });
   });
 });
