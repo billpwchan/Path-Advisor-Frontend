@@ -61,7 +61,9 @@ class SearchPrimaryPanelView extends React.Component {
 
     return (
       <div key={index} className={style.searchRow}>
-        <div className={style.inputVia}>&#11044;</div>
+        <div className={style.inputTitle}>
+          <span className={style.viaCircle}>{String.fromCharCode(65 + index)}</span>
+        </div>
         <div className={style.inputField}>
           <SearchInput
             inputClassName={style.input}
@@ -152,12 +154,17 @@ class SearchPrimaryPanelView extends React.Component {
           <div className={style.content}>
             <div className={style.searchColumn}>
               <div className={style.searchRow}>
-                <div className={style.inputTitle}>From</div>
+                <div className={style.inputTitle}>
+                  <span className={style.fromCircle} />
+                  From
+                </div>
                 <div className={style.inputField}>{searchInputs[searchInputOrders[0]]('from')}</div>
               </div>
               {Array.isArray(via) && via.map((place, index) => this.getViaInput(index, place))}
               <div className={style.searchRow}>
-                <div className={style.inputTitle}>To</div>
+                <div className={style.inputTitle}>
+                  <span className={style.toCircle} /> To
+                </div>
                 <div className={style.inputField}> {searchInputs[searchInputOrders[1]]('to')} </div>
               </div>
             </div>
@@ -171,9 +178,7 @@ class SearchPrimaryPanelView extends React.Component {
             </button>
 
             <button type="button" className={style.addDestinationButton} onClick={onAddViaPlace}>
-              <span className={style.addIcon} role="img" aria-label="add destination">
-                &#10133;
-              </span>
+              <img className={style.addIcon} src="/images/icons/plus.svg" alt="Add" />
               Add destination
             </button>
 

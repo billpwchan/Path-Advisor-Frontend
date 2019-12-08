@@ -47,7 +47,7 @@
 
 .inputTitle {
   display: inline-block;
-  width: 50px;
+  width: 65px;
 }
 
 .inputVia {
@@ -78,7 +78,33 @@
 
 .addIcon {
   vertical-align: middle;
+  width: 10px;
+  margin-right: 10px;
 }
+
+.viaCircle {
+  vertical-align: middle;
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  border-radius: 99px;
+  border: 1px solid black;
+  margin-right: 10px;
+  font-size: 12px;
+  line-height: 15px;
+  text-align: center;
+}
+
+.fromCircle {
+  composes: viaCircle;
+  background-color: #FFB6C1;
+}
+
+.toCircle {
+  composes: viaCircle;
+  background-color: #32CD32;
+}
+
 
 .body {
   padding: 5px;
