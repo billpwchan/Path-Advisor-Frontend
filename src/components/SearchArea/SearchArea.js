@@ -79,6 +79,7 @@ class SearchArea extends Component {
       searchOptionsStore,
       to,
       from,
+      via,
       searchShortestPathHandler,
     } = this.props;
     if (
@@ -86,6 +87,8 @@ class SearchArea extends Component {
       (!InputIsEqual(prevProps.to, to) ||
         !InputIsEqual(prevProps.from, from) ||
         search !== prevProps.search ||
+        (via || []).length !== (prevProps.via || []).length ||
+        (via || []).some((place, i) => !InputIsEqual(prevProps.via[i], place)) ||
         searchOptionsStore !== prevProps.searchOptionsStore)
     ) {
       this.search();
