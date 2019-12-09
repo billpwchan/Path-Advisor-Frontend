@@ -18,7 +18,7 @@ class ShortestResultPrimaryPanel extends Component {
     } = this.props;
 
     if (
-      actionSource === 'EXTERNAL_LINK' &&
+      actionSource !== 'BUTTON_CLICK' &&
       [currentFloor, currentX, currentY, currentLevel].every(v => !isNil(v))
     ) {
       return;
@@ -61,6 +61,7 @@ class ShortestResultPrimaryPanel extends Component {
       searchShortestPathStore,
       floorStore: { floors, buildings },
       linkTo,
+      via,
     } = this.props;
 
     const distanceToMinutes = distance => {
@@ -83,12 +84,24 @@ class ShortestResultPrimaryPanel extends Component {
     let totalDistance = 0;
     const instructions = [];
 
+    const viaIds = new Set((via || []).map(({ data: { id } }) => id));
+
     paths.forEach(path => {
       if (path.floor !== currentFloorFirstPath.floor) {
         instructions.push({
           floor: currentFloorLastPath.floor,
           from: currentFloorFirstPath,
           to: currentFloorLastPath,
+          distance: currentFloorDistance,
+          nextFloor: path.floor,
+        });
+        currentFloorFirstPath = path;
+        currentFloorDistance = 0;
+      } else if (viaIds.has(path.id)) {
+        instructions.push({
+          floor: path.floor,
+          from: currentFloorFirstPath,
+          to: path,
           distance: currentFloorDistance,
           nextFloor: path.floor,
         });
@@ -131,7 +144,9 @@ class ShortestResultPrimaryPanel extends Component {
             <div className={style.content}>
               {instructions.map(({ floor, nextFloor, from, to, distance }, i) => (
                 <div key={i}>
-                  <div className={style.floorTitle}>{getBuildingAndFloorText(floor)}</div>
+                  {(instructions[i - 1] || {}).floor !== floor ? (
+                    <div className={style.floorTitle}>{getBuildingAndFloorText(floor)}</div>
+                  ) : null}
                   <div className={style.row}>
                     <div className={style.instructionCol}>
                       <button
@@ -212,6 +227,7 @@ const PrimaryPanelPlugin = {
     'y',
     'level',
     'floor',
+    'via',
   ],
   Component: ShortestResultPrimaryPanel,
 };
