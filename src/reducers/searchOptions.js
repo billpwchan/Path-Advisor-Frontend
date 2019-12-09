@@ -12,6 +12,8 @@ export const SEARCH_MODES = {
 export const ACTION_SOURCE = {
   EXTERNAL_LINK: 'EXTERNAL_LINK',
   BUTTON_CLICK: 'BUTTON_CLICK',
+  DRAG_AND_DROP: 'DRAG_AND_DROP',
+  CONTEXT_MENU: 'CONTEXT_MENU',
 };
 
 export const searchOptionsPropTypes = PropTypes.shape({
