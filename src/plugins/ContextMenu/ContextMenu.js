@@ -52,11 +52,11 @@ class ContextMenu extends Component {
       return name;
     }
 
-    return `${
+    return `(${clientMapX}, ${clientMapY}) - ${
       floors && floors[floor] && floors[floor].name
         ? `Floor ${floors[floor].name} - ${buildings[floors[floor].buildingId].name}`
         : buildings[floors[floor].buildingId].name
-    } (${clientMapX}, ${clientMapY})`;
+    }`;
   }
 
   hideContextMenu = () => {
@@ -77,28 +77,48 @@ class ContextMenu extends Component {
   setLocation = direction => () => {
     const {
       linkTo,
-      floor,
       nearestMapItemStore: { mapItem },
     } = this.props;
 
-    const { id = null } = mapItem || {};
+    const { id = null, floor, coordinates } = mapItem || {};
+
+    if (!id) {
+      return;
+    }
 
     const { clientMapX, clientMapY } = this.state;
-    const menuTitle = this.getMenuTitle();
+    const name = this.getMenuTitle();
 
-    linkTo({
-      search: true,
-      [direction]: {
-        name: menuTitle,
-        data: {
-          id,
-          type: 'id',
-          floor,
-          value: menuTitle,
-          coordinates: [clientMapX, clientMapY],
+    if (direction === 'via') {
+      linkTo(currentUrlParams => {
+        const via = [...(currentUrlParams.via || [])];
+
+        via.push({
+          name,
+          data: { type: 'id', id, floor, value: name, coordinates },
+        });
+
+        return {
+          ...currentUrlParams,
+          search: true,
+          via,
+        };
+      });
+    } else {
+      linkTo({
+        search: true,
+        [direction]: {
+          name,
+          data: {
+            id,
+            type: 'id',
+            floor,
+            value: name,
+            coordinates: [clientMapX, clientMapY],
+          },
         },
-      },
-    });
+      });
+    }
 
     this.hideContextMenu();
   };
@@ -139,6 +159,11 @@ class ContextMenu extends Component {
             <li>
               <button type="button" className={style.button} onClick={this.setLocation('from')}>
                 Starts from here
+              </button>
+            </li>
+            <li>
+              <button type="button" className={style.button} onClick={this.setLocation('via')}>
+                Add a destination
               </button>
             </li>
             <li>
