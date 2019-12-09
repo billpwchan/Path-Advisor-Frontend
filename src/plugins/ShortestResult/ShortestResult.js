@@ -2,10 +2,7 @@ import React, { Component } from 'react';
 import isNil from 'lodash.isnil';
 import style from './ShortestResult.module.css';
 import Loading from '../Loading/Loading';
-
-// local store
-const addedMapItemIds = new Set();
-const clickListenerMapItemIds = new Set();
+import MapCanvasPlugin from './ShortestResultMapCanvas';
 
 class ShortestResultPrimaryPanel extends Component {
   componentDidUpdate(prevProps) {
@@ -20,7 +17,6 @@ class ShortestResultPrimaryPanel extends Component {
       level: currentLevel,
     } = this.props;
 
-    console.log('current', currentFloor, currentX, currentY, currentLevel);
     if (
       actionSource === 'EXTERNAL_LINK' &&
       [currentFloor, currentX, currentY, currentLevel].every(v => !isNil(v))
@@ -203,205 +199,6 @@ class ShortestResultPrimaryPanel extends Component {
   }
 }
 
-function ShortestResultMapCanvas({
-  setMapItems,
-  removeMapItem,
-  searchShortestPathStore,
-  addMapItemClickListener,
-  removeMapItemClickListener,
-  linkTo,
-  platform,
-}) {
-  const { paths = [] } = searchShortestPathStore;
-  const lineStyle = {
-    cap: 'round',
-    strokeStyle: 'red',
-    width: 3,
-  };
-
-  const mapItems = {};
-
-  const LISTENER_ID = 'shortestResultConnector';
-
-  addedMapItemIds.forEach(id => {
-    removeMapItem(id);
-  });
-
-  addedMapItemIds.clear();
-
-  clickListenerMapItemIds.forEach(id => {
-    removeMapItemClickListener(LISTENER_ID, id);
-  });
-
-  clickListenerMapItemIds.clear();
-
-  let continueIndex = -1;
-
-  paths.forEach(({ floor, coordinates, id, photo }, i) => {
-    const prevPath = i === 0 ? null : paths[i - 1];
-
-    if (!prevPath || prevPath.floor !== floor) {
-      continueIndex += 1;
-    }
-
-    const mapItemId = `${floor}_${continueIndex}`;
-
-    // Draw shortest path line
-    if (!mapItems[mapItemId]) {
-      addedMapItemIds.add(`${mapItemId}_line`);
-      mapItems[mapItemId] = {
-        id: `${mapItemId}_line`,
-        floor,
-        line: {
-          ...lineStyle,
-          coordinates: [coordinates],
-        },
-        zIndex: -1,
-      };
-    } else {
-      mapItems[mapItemId].line.coordinates.push(coordinates);
-    }
-
-    // Add click listener to connector to follow the path to go up/down floor
-    if (prevPath && prevPath.floor !== floor) {
-      addMapItemClickListener(
-        LISTENER_ID,
-        `${floor}_${id}`,
-        () => {
-          linkTo({
-            x: prevPath.coordinates[0],
-            y: prevPath.coordinates[1],
-            floor: prevPath.floor,
-          });
-          return false;
-        },
-        true,
-      );
-      addMapItemClickListener(
-        LISTENER_ID,
-        `${prevPath.floor}_${prevPath.id}`,
-        () => {
-          linkTo({
-            x: coordinates[0],
-            y: coordinates[1],
-            floor,
-          });
-          return false;
-        },
-        true,
-      );
-
-      clickListenerMapItemIds.add(`${floor}_${id}`);
-      clickListenerMapItemIds.add(`${prevPath.floor}_${prevPath.id}`);
-    }
-
-    if (platform === 'DESKTOP' && photo) {
-      const img = new Image();
-      img.addEventListener('load', () => {
-        const PHOTO_ITEM_ID = `${id}_path_photo`;
-        addedMapItemIds.add(PHOTO_ITEM_ID);
-
-        const x = coordinates[0];
-        const y = coordinates[1] + 20;
-
-        const photoMapItem = {
-          id: PHOTO_ITEM_ID,
-          floor,
-          x,
-          y,
-          image: img,
-          zIndex: 1,
-        };
-
-        const CONTAINER_ITEM_ID = `${id}_path_photo_container`;
-        addedMapItemIds.add(CONTAINER_ITEM_ID);
-
-        const PADDING = 15;
-
-        const containerTagItem = {
-          id: CONTAINER_ITEM_ID,
-          floor,
-          x,
-          y,
-          offsetX: -PADDING,
-          offsetY: -PADDING,
-          rect: {
-            color: 'rgba(0,0,0,0.6)',
-            width: img.width + 2 * PADDING,
-            height: img.height + 2 * PADDING,
-          },
-          zIndex: 1,
-        };
-
-        const CONTAINER_CLOSE_BUTTON_ITEM_ID = `${id}_path_photo_container_close_button`;
-        const closeButtonItem = {
-          id: CONTAINER_CLOSE_BUTTON_ITEM_ID,
-          floor,
-          x,
-          y,
-          textElement: {
-            text: '×',
-            style: '14px Verdana',
-            color: 'white',
-          },
-          offsetX: img.width,
-          offsetY: -PADDING,
-          onClick: () => {
-            [PHOTO_ITEM_ID, CONTAINER_ITEM_ID, CONTAINER_CLOSE_BUTTON_ITEM_ID].forEach(itemId => {
-              removeMapItem(itemId);
-              addedMapItemIds.delete(itemId);
-            });
-          },
-          onMouseOver: () => {
-            document.body.style.cursor = 'pointer';
-          },
-          onMouseOut: () => {
-            document.body.style.cursor = 'auto';
-          },
-          zIndex: 1,
-        };
-
-        setMapItems([
-          {
-            ...containerTagItem,
-          },
-          {
-            ...closeButtonItem,
-          },
-          {
-            ...photoMapItem,
-            opacity: 0.6,
-            onMouseOver: () => {
-              setMapItems([
-                {
-                  ...photoMapItem,
-                  opacity: 1,
-                },
-              ]);
-            },
-            onMouseOut: () => {
-              setMapItems([
-                {
-                  ...photoMapItem,
-                  opacity: 0.6,
-                },
-              ]);
-            },
-          },
-        ]);
-      });
-
-      img.src = photo;
-    }
-  });
-
-  if (paths.length) {
-    setMapItems(Object.values(mapItems));
-  }
-
-  return null;
-}
-
 const id = 'shortestResult';
 const PrimaryPanelPlugin = {
   connect: [
@@ -417,19 +214,6 @@ const PrimaryPanelPlugin = {
     'floor',
   ],
   Component: ShortestResultPrimaryPanel,
-};
-
-const MapCanvasPlugin = {
-  connect: [
-    'setMapItems',
-    'removeMapItem',
-    'searchShortestPathStore',
-    'addMapItemClickListener',
-    'removeMapItemClickListener',
-    'linkTo',
-    'platform',
-  ],
-  Component: ShortestResultMapCanvas,
 };
 
 export { id, PrimaryPanelPlugin, MapCanvasPlugin };
