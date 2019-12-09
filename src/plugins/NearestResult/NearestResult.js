@@ -19,7 +19,7 @@ export class NearestResult extends Component {
       level,
     } = this.props;
 
-    if (nearest && (actionSource !== 'EXTERNAL_LINK' || [floor, x, y, level].some(v => isNil(v)))) {
+    if (nearest && (actionSource === 'BUTTON_CLICK' || [floor, x, y, level].some(v => isNil(v)))) {
       linkTo(
         {
           x: nearest.coordinates[0],

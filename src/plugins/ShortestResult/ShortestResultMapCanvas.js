@@ -97,6 +97,10 @@ class ShortestResultMapCanvas extends Component {
           : buildings[floors[floor].buildingId].name
       }`;
 
+    this.props.setSearchOptionsHandler({
+      actionSource: 'DRAG_AND_DROP',
+    });
+
     if (viaIndex === DESTINATION_INDEX || viaIndex === START_INDEX) {
       const direction = viaIndex === START_INDEX ? 'from' : 'to';
       this.props.linkTo({
@@ -347,6 +351,7 @@ export default {
     'getNearestMapItemHandler',
     'nearestMapItemStore',
     'via',
+    'setSearchOptionsHandler',
   ],
   Component: ShortestResultMapCanvas,
 };
