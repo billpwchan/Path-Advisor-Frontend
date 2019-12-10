@@ -150,13 +150,15 @@
   background-color: white;
   position: absolute;
   z-index: 2;
+  border-radius: 3px;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
-  -khtml-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  min-width: 250px;
+  width: 95%;
+  left: 0;
+  margin: 0 10px;
 }
 
 .autoCompleteList li {

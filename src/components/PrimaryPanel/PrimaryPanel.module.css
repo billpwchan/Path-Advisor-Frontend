@@ -4,6 +4,7 @@
   max-width: 370px;
   float: left;
   overflow-y: auto;
+  position: relative;
 }
 
 .tab {
