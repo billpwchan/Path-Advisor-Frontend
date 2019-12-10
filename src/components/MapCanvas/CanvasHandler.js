@@ -212,9 +212,6 @@ class CanvasHandler {
   /** @type {function[]} - listeners to be triggered when an click event didn't hit anything */
   clickAwayListeners = [];
 
-  /** @type {string[]} - list of map items to be removed */
-  removeQueue = [];
-
   /** @typedef {Object.<string, Object.<string, mapItemListener>>} listenerGroup */
   /** @type {Object.<string, listenerGroup>} - map items listeners grouped by id */
   mapItemListeners = {
@@ -776,6 +773,10 @@ class CanvasHandler {
         revForEach(this.mapItemIds, id => {
           const mapItem = this.mapItems[id];
 
+          if (!mapItem) {
+            return {};
+          }
+
           const { renderedX, renderedY, scaledWidth, scaledHeight } = this.getMapItemRenderedInfo(
             mapItem,
           );
@@ -851,6 +852,11 @@ class CanvasHandler {
               this.preventCanvasMouseMoveEvent = false;
               delete this.mapItemsMouseDown[id];
 
+              if (this.mapItemsDrag[id]) {
+                mapItemEvents.push('dragend');
+                delete this.mapItemsDrag[id];
+              }
+
               if (!itemHit) {
                 break;
               }
@@ -860,11 +866,6 @@ class CanvasHandler {
               if (itemHit && cursorIsSamePosition) {
                 mapItemEvents.push('click');
                 anyItemClicked = true;
-              }
-
-              if (this.mapItemsDrag[id]) {
-                mapItemEvents.push('dragend');
-                delete this.mapItemsDrag[id];
               }
 
               break;
@@ -1350,14 +1351,7 @@ class CanvasHandler {
       return false;
     }
 
-    if (!this.removeQueue.length) {
-      setTimeout(() => {
-        this.removeMapItems(this.removeQueue);
-        this.removeQueue = [];
-      });
-    }
-
-    this.removeQueue.push(mapItemId);
+    this.removeMapItems([mapItemId]);
 
     return true;
   }
@@ -1446,6 +1440,19 @@ class CanvasHandler {
   }
 
   render = () => {
+    if (!this.renderRequest) {
+      setTimeout(() => {
+        // eslint-disable-next-line no-underscore-dangle
+        this._render();
+        this.renderRequest = false;
+      });
+    }
+
+    this.renderRequest = true;
+  };
+
+  // eslint-disable-next-line no-underscore-dangle
+  _render() {
     const ctx = this.canvas.getContext('2d');
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -1637,7 +1644,7 @@ class CanvasHandler {
         }
       });
     });
-  };
+  }
 
   /**
    * @return {HTMLCanvasElement}
