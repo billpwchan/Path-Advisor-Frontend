@@ -2,7 +2,7 @@ import classnames from 'classnames';
 import React from 'react';
 import PropTypes from 'prop-types';
 import SearchInput from '../SearchInput/SearchInput';
-import SearchNearest from '../SearchNearest/SearchNearest';
+import SearchNearest, { nearestOptions } from '../SearchNearest/SearchNearest';
 import AdvancedSearch from '../AdvancedSearch/AdvancedSearch';
 import style from './SearchPrimaryPanelView.module.css';
 import switchImage from './switch.png';
@@ -10,6 +10,10 @@ import { searchOptionsPropTypes } from '../../reducers/searchOptions';
 import { searchMapItemPropTypes } from '../../reducers/searchMapItem';
 import { floorsPropType } from '../../reducers/floors';
 import { placePropType } from '../Router/Url';
+import {
+  isEqual as inputIsEqual,
+  isNearestQuery as inputIsNearestQuery,
+} from '../SearchArea/Input';
 
 class SearchPrimaryPanelView extends React.Component {
   static propTypes = {
@@ -84,6 +88,13 @@ class SearchPrimaryPanelView extends React.Component {
           </span>
         </button>
       </div>
+    );
+  }
+
+  shouldSameFloorInputDisplay() {
+    const { from, to } = this.props;
+    return [from, to].some(
+      place => inputIsNearestQuery(place) && !inputIsEqual(place, nearestOptions.lift),
     );
   }
 
@@ -177,20 +188,24 @@ class SearchPrimaryPanelView extends React.Component {
               <img src={switchImage} alt="switch" />
             </button>
 
+            {this.shouldSameFloorInputDisplay() ? (
+              <div className={style.checkBoxRow}>
+                <label>
+                  <input
+                    className={style.checkBoxColumn}
+                    type="checkbox"
+                    onChange={updateSameFloor}
+                    checked={sameFloor}
+                  />
+                  On the same floor
+                </label>
+              </div>
+            ) : null}
+
             <button type="button" className={style.addDestinationButton} onClick={onAddViaPlace}>
               <img className={style.addIcon} src="/images/icons/plus.svg" alt="Add" />
               Add destination
             </button>
-
-            <div className={style.checkBoxRow}>
-              <input
-                className={style.checkBoxColumn}
-                type="checkbox"
-                onChange={updateSameFloor}
-                checked={sameFloor}
-              />
-              <div className={style.checkBoxColumn}>On the same floor</div>
-            </div>
 
             <div className={style.searchButtonContainer}>
               <input type="button" className={style.searchButton} value="GO" onClick={search} />

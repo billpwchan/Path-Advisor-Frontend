@@ -25,4 +25,8 @@ function isEqual(a, b) {
   return ['id', 'floor', 'value', 'type'].every(key => a.data[key] === b.data[key]);
 }
 
-export { TYPE, EMPTY, hasContent, isEqual };
+function isNearestQuery(input) {
+  return input && input.data && input.data.type === TYPE.NEAREST;
+}
+
+export { TYPE, EMPTY, hasContent, isEqual, isNearestQuery };

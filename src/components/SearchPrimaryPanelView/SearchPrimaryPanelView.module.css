@@ -74,6 +74,7 @@
   display: block;
   color: #666666;
   padding: 3px;
+  margin-top: 5px;
 }
 
 .addIcon {
@@ -131,8 +132,7 @@
 }
 
 .checkBoxColumn {
-  display: inline-block;
-  vertical-align: middle;
+  margin-right: 5px;
 }
 
 .checkBoxRow {
