@@ -28,3 +28,8 @@
   margin-left: 5px;
 }
 
+.optionDesc {
+  font-size: 12px;
+    color: #666666;
+    padding: 5px 0 5px 22px;
+}

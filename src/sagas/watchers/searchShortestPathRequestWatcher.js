@@ -14,14 +14,16 @@ function* searchShortestPathRequestWorker({
   },
 }) {
   try {
-    const { noStairCase, noEscalator, searchMode } = yield select(state => state.searchOptions);
+    const { noStairCase, noEscalator, searchMode, stepFreeAccess } = yield select(
+      state => state.searchOptions,
+    );
 
     const { data } = yield call(
       searchShortestPathRequest,
       { keyword: fromKeyword, nodeId: fromNodeId, floor: fromFloor, id: fromId },
       { keyword: toKeyword, nodeId: toNodeId, floor: toFloor, id: toId },
       via,
-      { noStairCase, noEscalator, searchMode },
+      { noStairCase, noEscalator, searchMode, stepFreeAccess },
     );
     yield put(searchShortestPathSuccessAction(data));
   } catch (error) {

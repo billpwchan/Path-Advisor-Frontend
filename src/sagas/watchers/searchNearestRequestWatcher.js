@@ -1,4 +1,4 @@
-import { put, takeLatest, call } from 'redux-saga/effects';
+import { put, takeLatest, call, select } from 'redux-saga/effects';
 import searchNearestRequest from '../requests/searchNearestRequest';
 import {
   SEARCH_NEAREST,
@@ -8,9 +8,18 @@ import {
 
 function* searchNearestRequestWorker({ payload: { name, nearestType, sameFloor, id } }) {
   try {
+    const { noStairCase, noEscalator, searchMode, stepFreeAccess } = yield select(
+      state => state.searchOptions,
+    );
+
     const {
       data: { from, nearest },
-    } = yield call(searchNearestRequest, name, nearestType, sameFloor, id);
+    } = yield call(searchNearestRequest, name, nearestType, sameFloor, id, {
+      noStairCase,
+      noEscalator,
+      searchMode,
+      stepFreeAccess,
+    });
 
     if (!nearest.id) {
       yield put(searchNearestFailureAction());

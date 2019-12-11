@@ -20,6 +20,7 @@ export const searchOptionsPropTypes = PropTypes.shape({
   sameFloor: PropTypes.bool,
   noStairCase: PropTypes.bool,
   noEscalator: PropTypes.bool,
+  stepFreeAccess: PropTypes.bool,
   searchMode: PropTypes.string,
 });
 
@@ -27,6 +28,7 @@ const initialState = {
   sameFloor: detectPlatform() === PLATFORM.DESKTOP, // search same floor default to true for desktop app
   noStairCase: true,
   noEscalator: false,
+  stepFreeAccess: false,
   searchMode: SEARCH_MODES.SHORTEST_TIME,
   actionSource: ACTION_SOURCE.EXTERNAL_LINK,
 };
