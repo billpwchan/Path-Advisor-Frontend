@@ -10,6 +10,7 @@ import {
 import { nearestOptions } from '../SearchNearest/SearchNearest';
 import { PLATFORM } from '../Main/detectPlatform';
 import { TABS as SUGGESTION_TABS } from '../Suggestion/constants';
+import { SEARCH_MODES, defaultSearchOptions } from './searchOption';
 
 function formPlacePath(place) {
   const {
@@ -87,6 +88,7 @@ function parseParams(params, query, platform, floorData) {
     floorPath,
     suggestionPath,
     suggestionCoordinatePath,
+    searchOptionsPath,
   } = params;
 
   let { search } = params;
@@ -148,6 +150,54 @@ function parseParams(params, query, platform, floorData) {
       : [];
   }
 
+  let searchOptions = {
+    sameFloor: defaultSearchOptions.sameFloor,
+    noStairCase: defaultSearchOptions.noStairCase,
+    noEscalator: defaultSearchOptions.noEscalator,
+    stepFreeAccess: defaultSearchOptions.stepFreeAccess,
+    searchMode: defaultSearchOptions.searchMode,
+  };
+
+  let useDefaultSearchOptions = false;
+
+  const parsedSearchOptions =
+    typeof searchOptionsPath === 'string' && searchOptionsPath.startsWith('search-options/')
+      ? searchOptionsPath
+          .split('/')[1]
+          .split(',')
+          .map(item => {
+            const [key, value] = item.split('=');
+
+            useDefaultSearchOptions =
+              (key === 'searchMode' && !SEARCH_MODES[value]) ||
+              !Object.prototype.hasOwnProperty.call(defaultSearchOptions, key);
+
+            if (key === 'searchMode') {
+              return { [key]: value };
+            }
+
+            return { [key]: true };
+          })
+          .reduce(
+            (agg, option) => ({
+              ...agg,
+              ...option,
+            }),
+            {},
+          )
+      : {};
+
+  if (searchOptionsPath && !useDefaultSearchOptions) {
+    searchOptions = {
+      sameFloor: false,
+      noStairCase: false,
+      noEscalator: false,
+      stepFreeAccess: false,
+      searchMode: defaultSearchOptions.searchMode,
+      ...parsedSearchOptions,
+    };
+  }
+
   const parsed = {
     from,
     to,
@@ -161,6 +211,7 @@ function parseParams(params, query, platform, floorData) {
     suggestionX,
     suggestionY,
     isFromNormalized: isNormalized,
+    searchOptions,
   };
   return parsed;
 }
@@ -202,6 +253,7 @@ function build({
   suggestionX = null,
   suggestionY = null,
   via = null,
+  searchOptions = null,
 }) {
   const position = `/floor/${floor}/at/normalized/${x},${y},${level}`;
 
@@ -251,7 +303,26 @@ function build({
     viaUrl += viaPlaces ? `/via$/${viaPlaces}` : `/via$`;
   }
 
-  return `${searchUrl}${nearest}${fromPlace}${toPlace}${viaUrl}${position}${suggestionUrl}`;
+  let searchOptionsUrl = '';
+  const isSameAsDefault =
+    searchOptions &&
+    Object.keys(searchOptions).length === Object.keys(defaultSearchOptions).length &&
+    Object.keys(defaultSearchOptions).every(
+      key => defaultSearchOptions[key] === searchOptions[key],
+    );
+
+  if (Object.keys(searchOptions || {}).length && !isSameAsDefault) {
+    const { searchMode, ...rest } = searchOptions;
+
+    const options = Object.keys(rest).filter(
+      key => rest[key] && Object.prototype.hasOwnProperty.call(defaultSearchOptions, key),
+    );
+    options.push(`searchMode=${searchMode || defaultSearchOptions.searchMode}`);
+
+    searchOptionsUrl = `/search-options/${options.join(',')}`;
+  }
+
+  return `${searchUrl}${nearest}${fromPlace}${toPlace}${viaUrl}${position}${suggestionUrl}${searchOptionsUrl}`;
 }
 
 export { parseParams, propTypes, build };

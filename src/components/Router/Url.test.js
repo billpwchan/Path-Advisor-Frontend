@@ -2,6 +2,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { parseParams, build } from './Url';
 import { TYPE, EMPTY } from '../SearchArea/Input';
 import { nearestOptions } from '../SearchNearest/SearchNearest';
+import { defaultSearchOptions, SEARCH_MODES } from './searchOption';
 
 describe('Url', () => {
   describe('parseParams', () => {
@@ -19,6 +20,7 @@ describe('Url', () => {
         x: undefined,
         y: undefined,
         via: null,
+        searchOptions: defaultSearchOptions,
       });
     });
 
@@ -170,6 +172,47 @@ describe('Url', () => {
           viaPlaces: `via$/|1234`,
         }).via,
       ).toStrictEqual([EMPTY, { data: { type: TYPE.KEYWORD, value: '1234' }, name: '1234' }]);
+    });
+
+    it('able to parse search options', () => {
+      expect(
+        parseParams(
+          {
+            searchOptionsPath: `search-options/noEscalator,stepFreeAccess,searchMode=${SEARCH_MODES.MIN_NO_OF_LIFTS}`,
+          },
+          '',
+          'DESKTOP',
+          {},
+        ).searchOptions,
+      ).toStrictEqual({
+        sameFloor: false,
+        noStairCase: false,
+        noEscalator: true,
+        stepFreeAccess: true,
+        searchMode: SEARCH_MODES.MIN_NO_OF_LIFTS,
+      });
+
+      expect(
+        parseParams(
+          {
+            searchOptionsPath: `search-options/searchMode=something`,
+          },
+          '',
+          'DESKTOP',
+          {},
+        ).searchOptions,
+      ).toStrictEqual(defaultSearchOptions);
+
+      expect(
+        parseParams(
+          {
+            searchOptionsPath: `search-options/a,b,c,searchMode=something`,
+          },
+          '',
+          'DESKTOP',
+          {},
+        ).searchOptions,
+      ).toStrictEqual(defaultSearchOptions);
     });
   });
 
@@ -338,6 +381,93 @@ describe('Url', () => {
           ],
         }),
       ).toEqual(`/from/to/via$/${completePlaceString}|1234${basicPositionUrl}`);
+    });
+
+    it('able to build url with search options', () => {
+      expect(
+        build({
+          ...basicPosition,
+          searchOptions: null,
+        }),
+      ).toEqual(basicPositionUrl);
+
+      expect(
+        build({
+          ...basicPosition,
+          searchOptions: {
+            sameFloor: defaultSearchOptions.sameFloor,
+            noStairCase: defaultSearchOptions.noStairCase,
+            noEscalator: defaultSearchOptions.noEscalator,
+            stepFreeAccess: defaultSearchOptions.stepFreeAccess,
+            searchMode: defaultSearchOptions.searchMode,
+          },
+        }),
+      ).toEqual(basicPositionUrl);
+
+      expect(
+        build({
+          ...basicPosition,
+          searchOptions: {},
+        }),
+      ).toEqual(basicPositionUrl);
+
+      expect(
+        build({
+          ...basicPosition,
+          searchOptions: {
+            sameFloor: false,
+            noStairCase: true,
+            noEscalator: true,
+            stepFreeAccess: false,
+            searchMode: SEARCH_MODES.MIN_NO_OF_LIFTS,
+          },
+        }),
+      ).toEqual(
+        `${basicPositionUrl}/search-options/noStairCase,noEscalator,searchMode=${SEARCH_MODES.MIN_NO_OF_LIFTS}`,
+      );
+
+      expect(
+        build({
+          ...basicPosition,
+          searchOptions: {
+            sameFloor: true,
+            noStairCase: true,
+            noEscalator: true,
+            stepFreeAccess: true,
+            searchMode: SEARCH_MODES.SHORTEST_DISTANCE,
+          },
+        }),
+      ).toEqual(
+        `${basicPositionUrl}/search-options/sameFloor,noStairCase,noEscalator,stepFreeAccess,searchMode=${SEARCH_MODES.SHORTEST_DISTANCE}`,
+      );
+
+      expect(
+        build({
+          ...basicPosition,
+          searchOptions: {
+            sameFloor: false,
+            noStairCase: false,
+            noEscalator: false,
+            stepFreeAccess: false,
+            searchMode: SEARCH_MODES.SHORTEST_DISTANCE,
+          },
+        }),
+      ).toEqual(`${basicPositionUrl}/search-options/searchMode=${SEARCH_MODES.SHORTEST_DISTANCE}`);
+
+      expect(
+        build({
+          ...basicPosition,
+          searchOptions: {
+            sameFloor: false,
+            noStairCase: false,
+            noEscalator: false,
+            stepFreeAccess: false,
+            a: true,
+            b: true,
+            searchMode: SEARCH_MODES.SHORTEST_DISTANCE,
+          },
+        }),
+      ).toEqual(`${basicPositionUrl}/search-options/searchMode=${SEARCH_MODES.SHORTEST_DISTANCE}`);
     });
   });
 });
