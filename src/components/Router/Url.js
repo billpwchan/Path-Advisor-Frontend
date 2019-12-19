@@ -10,7 +10,7 @@ import {
 import { nearestOptions } from '../SearchNearest/SearchNearest';
 import { PLATFORM } from '../Main/detectPlatform';
 import { TABS as SUGGESTION_TABS } from '../Suggestion/constants';
-import { SEARCH_MODES, defaultSearchOptions } from './searchOption';
+import { SEARCH_MODES, defaultSearchOptions } from './searchOptions';
 
 function formPlacePath(place) {
   const {

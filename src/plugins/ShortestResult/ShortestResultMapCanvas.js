@@ -97,7 +97,7 @@ class ShortestResultMapCanvas extends Component {
           : buildings[floors[floor].buildingId].name
       }`;
 
-    this.props.setSearchOptionsHandler({
+    this.props.setUserActivitiesHandler({
       actionSource: 'DRAG_AND_DROP',
     });
 
@@ -351,7 +351,7 @@ export default {
     'getNearestMapItemHandler',
     'nearestMapItemStore',
     'via',
-    'setSearchOptionsHandler',
+    'setUserActivitiesHandler',
   ],
   Component: ShortestResultMapCanvas,
 };

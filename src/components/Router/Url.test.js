@@ -2,7 +2,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { parseParams, build } from './Url';
 import { TYPE, EMPTY } from '../SearchArea/Input';
 import { nearestOptions } from '../SearchNearest/SearchNearest';
-import { defaultSearchOptions, SEARCH_MODES } from './searchOption';
+import { defaultSearchOptions, SEARCH_MODES } from './searchOptions';
 
 describe('Url', () => {
   describe('parseParams', () => {

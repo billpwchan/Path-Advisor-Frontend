@@ -15,10 +15,10 @@ export const CLEAR_SEARCH_SHORTEST_PATH_RESULT = 'CLEAR_SEARCH_SHORTEST_PATH_RES
  * @param {requestNode} [to]
  * @param {requestNode[]} [via]
  */
-export function searchShortestPathAction(from, to, via) {
+export function searchShortestPathAction(from, to, via, searchOptions) {
   return {
     type: SEARCH_SHORTEST_PATH,
-    payload: { from, to, via },
+    payload: { from, to, via, searchOptions },
   };
 }
 

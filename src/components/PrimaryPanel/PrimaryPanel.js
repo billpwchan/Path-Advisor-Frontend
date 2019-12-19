@@ -63,6 +63,7 @@ class PrimaryPanel extends Component {
       'level',
       'floor',
       'search',
+      'searchOptions',
       'suggestion',
       'suggestionX',
       'suggestionY',
@@ -172,6 +173,7 @@ class PrimaryPanel extends Component {
             to={urlParams.to}
             via={urlParams.via}
             search={urlParams.search}
+            searchOptions={urlParams.searchOptions}
             displayAdvancedSearch={displayAdvancedSearch}
             linkTo={linkTo}
             SearchView={SearchPrimaryPanelView}

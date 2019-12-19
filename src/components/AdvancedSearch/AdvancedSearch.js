@@ -2,10 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import style from './AdvancedSearch.module.css';
-import { searchOptionsPropTypes, SEARCH_MODES } from '../../reducers/searchOptions';
+import { searchOptionsPropType, SEARCH_MODES } from '../Router/searchOptions';
 
-function AdvancedSearch({ searchOptionsStore, updateSearchOptions, search }) {
-  const { noStairCase, noEscalator, searchMode, stepFreeAccess } = searchOptionsStore;
+function AdvancedSearch({ searchOptions, updateSearchOptions, search }) {
+  const { noStairCase, noEscalator, searchMode, stepFreeAccess } = searchOptions;
 
   const updateSetting = setting => ({ target }) => {
     const updatedSettings = {
@@ -116,7 +116,7 @@ function AdvancedSearch({ searchOptionsStore, updateSearchOptions, search }) {
 }
 
 AdvancedSearch.propTypes = {
-  searchOptionsStore: searchOptionsPropTypes.isRequired,
+  searchOptions: searchOptionsPropType.isRequired,
   updateSearchOptions: PropTypes.func.isRequired,
   search: PropTypes.func.isRequired,
 };

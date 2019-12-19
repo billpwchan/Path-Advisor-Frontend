@@ -6,7 +6,7 @@ import SearchNearest, { nearestOptions } from '../SearchNearest/SearchNearest';
 import AdvancedSearch from '../AdvancedSearch/AdvancedSearch';
 import style from './SearchPrimaryPanelView.module.css';
 import switchImage from './switch.png';
-import { searchOptionsPropTypes } from '../../reducers/searchOptions';
+import { searchOptionsPropType } from '../Router/searchOptions';
 import { searchMapItemPropTypes } from '../../reducers/searchMapItem';
 import { floorsPropType } from '../../reducers/floors';
 import { placePropType } from '../Router/Url';
@@ -19,7 +19,7 @@ class SearchPrimaryPanelView extends React.Component {
   static propTypes = {
     floorStore: floorsPropType.isRequired,
     searchMapItemStore: searchMapItemPropTypes.isRequired,
-    searchOptionsStore: searchOptionsPropTypes.isRequired,
+    searchOptions: searchOptionsPropType.isRequired,
     onKeywordChange: PropTypes.func.isRequired,
     onAutoCompleteItemClick: PropTypes.func.isRequired,
     onAddViaPlace: PropTypes.func.isRequired,
@@ -102,7 +102,7 @@ class SearchPrimaryPanelView extends React.Component {
     const {
       floorStore,
       searchMapItemStore,
-      searchOptionsStore,
+      searchOptions,
       onKeywordChange,
       onAutoCompleteItemClick,
       onNearestItemClick,
@@ -118,7 +118,7 @@ class SearchPrimaryPanelView extends React.Component {
       onAddViaPlace,
     } = this.props;
 
-    const { sameFloor } = searchOptionsStore;
+    const { sameFloor } = searchOptions;
 
     const { shouldAutoCompleteDisplay } = this.state;
     const searchInputs = {
@@ -214,7 +214,7 @@ class SearchPrimaryPanelView extends React.Component {
         </div>
         {displayAdvancedSearch && (
           <AdvancedSearch
-            searchOptionsStore={searchOptionsStore}
+            searchOptions={searchOptions}
             updateSearchOptions={updateSearchOptions}
             search={search}
           />

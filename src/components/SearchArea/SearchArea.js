@@ -12,12 +12,13 @@ import {
   searchNearestPropType,
 } from '../../reducers/searchNearest';
 import {
-  setSearchOptionsAction,
-  searchOptionsPropTypes,
+  userActivitiesPropType,
+  setUserActivitiesAction,
   ACTION_SOURCE,
-} from '../../reducers/searchOptions';
+} from '../../reducers/userActivities';
 import { floorsPropType } from '../../reducers/floors';
 import { placePropType } from '../Router/Url';
+import { searchOptionsPropType } from '../Router/searchOptions';
 import {
   TYPE as INPUT_TYPE,
   isEqual as InputIsEqual,
@@ -46,13 +47,14 @@ class SearchArea extends Component {
     SearchView: PropTypes.func.isRequired,
     linkTo: PropTypes.func.isRequired,
     logger: PropTypes.func.isRequired,
-    setSearchOptionsHandler: PropTypes.func.isRequired,
-    searchOptionsStore: searchOptionsPropTypes.isRequired,
+    userActivitiesStore: userActivitiesPropType.isRequired,
+    setUserActivitiesHandler: PropTypes.func.isRequired,
     displayAdvancedSearch: PropTypes.bool,
     from: placePropType,
     to: placePropType,
     via: PropTypes.arrayOf(placePropType),
     search: PropTypes.bool.isRequired,
+    searchOptions: searchOptionsPropType.isRequired,
   };
 
   constructor(props) {
@@ -76,10 +78,11 @@ class SearchArea extends Component {
     const {
       searchNearestStore,
       search,
-      searchOptionsStore,
+      userActivitiesStore,
       to,
       from,
       via,
+      searchOptions,
       searchShortestPathHandler,
     } = this.props;
     if (
@@ -89,7 +92,7 @@ class SearchArea extends Component {
         search !== prevProps.search ||
         (via || []).length !== (prevProps.via || []).length ||
         (via || []).some((place, i) => !InputIsEqual(prevProps.via[i], place)) ||
-        searchOptionsStore !== prevProps.searchOptionsStore)
+        userActivitiesStore !== prevProps.userActivitiesStore)
     ) {
       this.search();
     }
@@ -107,8 +110,15 @@ class SearchArea extends Component {
           ? { id: nearest.id, floor: nearest.floor }
           : getSearchPlaceFormat(to),
         this.getViaPlaces(),
+        searchOptions,
       );
     }
+  }
+
+  getViaPlaces() {
+    return (this.props.via || [])
+      .filter(place => inputHasContent(place))
+      .map(place => getSearchPlaceFormat(place));
   }
 
   onKeywordChange = (direction, index) => keyword => {
@@ -220,9 +230,12 @@ class SearchArea extends Component {
   };
 
   updateSearchOptions = newSearchOptions => {
-    this.props.setSearchOptionsHandler({
-      ...newSearchOptions,
-    });
+    this.props.linkTo(currentUrlParams => ({
+      searchOptions: {
+        ...currentUrlParams.searchOptions,
+        ...newSearchOptions,
+      },
+    }));
   };
 
   switchInputOrder = () => {
@@ -240,10 +253,12 @@ class SearchArea extends Component {
   };
 
   linkToSearch = () => {
-    this.updateSearchOptions({
+    const { setUserActivitiesHandler, linkTo } = this.props;
+
+    setUserActivitiesHandler({
       actionSource: ACTION_SOURCE.BUTTON_CLICK,
     });
-    this.props.linkTo({ search: true });
+    linkTo({ search: true });
   };
 
   search = () => {
@@ -252,11 +267,12 @@ class SearchArea extends Component {
       clearSearchShortestPathResultHandler,
       searchNearestHandler,
       clearSearchNearestResultHandler,
-      searchOptionsStore: { sameFloor },
+      searchOptions: { sameFloor },
       from,
       to,
       via,
       logger,
+      searchOptions,
     } = this.props;
 
     if ((!from.data.value && !from.data.id) || (!to.data.value && !to.data.id)) {
@@ -277,6 +293,7 @@ class SearchArea extends Component {
         from.data.value,
         sameFloor,
         next.data.id,
+        searchOptions,
       );
       logMode = LOG_MODE.NEAREST;
     } else if (to.data.type === INPUT_TYPE.NEAREST) {
@@ -288,6 +305,7 @@ class SearchArea extends Component {
         to.data.value,
         sameFloor,
         prev.data.id,
+        searchOptions,
       );
       logMode = LOG_MODE.NEAREST;
     } else {
@@ -296,6 +314,7 @@ class SearchArea extends Component {
         getSearchPlaceFormat(from),
         getSearchPlaceFormat(to),
         this.getViaPlaces(),
+        searchOptions,
       );
     }
 
@@ -306,17 +325,11 @@ class SearchArea extends Component {
     });
   };
 
-  getViaPlaces() {
-    return (this.props.via || [])
-      .filter(place => inputHasContent(place))
-      .map(place => getSearchPlaceFormat(place));
-  }
-
   render() {
     const {
       floorStore,
       searchMapItemStore,
-      searchOptionsStore,
+      searchOptions,
       displayAdvancedSearch,
       SearchView,
       from,
@@ -327,7 +340,7 @@ class SearchArea extends Component {
       <SearchView
         floorStore={floorStore}
         searchMapItemStore={searchMapItemStore}
-        searchOptionsStore={searchOptionsStore}
+        searchOptions={searchOptions}
         searchInputOrders={this.state.searchInputOrders}
         from={from}
         to={to}
@@ -350,7 +363,7 @@ class SearchArea extends Component {
 export default connect(
   state => ({
     searchMapItemStore: state.searchMapItem,
-    searchOptionsStore: state.searchOptions,
+    userActivitiesStore: state.userActivities,
     searchNearestStore: state.searchNearest,
     floorStore: state.floors,
   }),
@@ -358,20 +371,20 @@ export default connect(
     searchMapItemHandler: keyword => {
       dispatch(searchMapItemAction(keyword));
     },
-    searchShortestPathHandler: (from, to, via) => {
-      dispatch(searchShortestPathAction(from, to, via));
+    searchShortestPathHandler: (from, to, via, searchOptions) => {
+      dispatch(searchShortestPathAction(from, to, via, searchOptions));
     },
     clearSearchShortestPathResultHandler: () => {
       dispatch(clearSearchShortestPathResultAction());
     },
-    searchNearestHandler: (floor, name, nearestType, sameFloor, id) => {
-      dispatch(searchNearestAction(floor, name, nearestType, sameFloor, id));
+    searchNearestHandler: (floor, name, nearestType, sameFloor, id, searchOptions) => {
+      dispatch(searchNearestAction(floor, name, nearestType, sameFloor, id, searchOptions));
     },
     clearSearchNearestResultHandler: () => {
       dispatch(clearSearchNearestResultAction());
     },
-    setSearchOptionsHandler: payload => {
-      dispatch(setSearchOptionsAction(payload));
+    setUserActivitiesHandler: payload => {
+      dispatch(setUserActivitiesAction(payload));
     },
   }),
 )(SearchArea);
