@@ -2,15 +2,16 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import style from './AdvancedSearch.module.css';
-import { searchOptionsPropTypes, SEARCH_MODES } from '../../reducers/searchOptions';
+import { searchOptionsPropType, SEARCH_MODES } from '../Router/searchOptions';
 
-function AdvancedSearch({ searchOptionsStore, updateSearchOptions, search }) {
-  const { noStairCase, noEscalator, searchMode } = searchOptionsStore;
+function AdvancedSearch({ searchOptions, updateSearchOptions, search }) {
+  const { noStairCase, noEscalator, searchMode, stepFreeAccess } = searchOptions;
 
   const updateSetting = setting => ({ target }) => {
     const updatedSettings = {
       noStairCase,
       noEscalator,
+      stepFreeAccess,
       searchMode,
     };
 
@@ -27,22 +28,39 @@ function AdvancedSearch({ searchOptionsStore, updateSearchOptions, search }) {
       <ul className={style.list}>
         <li>
           <input
+            id="stepFreeAccessOption"
+            className={style.itemInput}
+            type="checkbox"
+            checked={stepFreeAccess}
+            onChange={updateSetting('stepFreeAccess')}
+          />
+          <label htmlFor="stepFreeAccessOption" className={style.itemText}>
+            Step free access
+          </label>
+          <div className={style.optionDesc}>Completely step free and wheelchair user friendly.</div>
+        </li>
+
+        <li>
+          <input
             id="noStairCaseOption"
             className={style.itemInput}
             type="checkbox"
-            checked={noStairCase}
+            checked={noStairCase || stepFreeAccess}
             onChange={updateSetting('noStairCase')}
+            disabled={stepFreeAccess}
           />
           <label htmlFor="noStairCaseOption" className={style.itemText}>
             Do not involve any staircase
           </label>
+          <div className={style.optionDesc}>This does not exclude steps on the same floor.</div>
         </li>
         <li>
           <input
             id="noEscalatorOption"
             className={style.itemInput}
             type="checkbox"
-            checked={noEscalator}
+            checked={noEscalator || stepFreeAccess}
+            disabled={stepFreeAccess}
             onChange={updateSetting('noEscalator')}
           />
           <label htmlFor="noEscalatorOption" className={style.itemText}>
@@ -98,7 +116,7 @@ function AdvancedSearch({ searchOptionsStore, updateSearchOptions, search }) {
 }
 
 AdvancedSearch.propTypes = {
-  searchOptionsStore: searchOptionsPropTypes.isRequired,
+  searchOptions: searchOptionsPropType.isRequired,
   updateSearchOptions: PropTypes.func.isRequired,
   search: PropTypes.func.isRequired,
 };

@@ -2,11 +2,12 @@ import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import AdvancedSearch from './AdvancedSearch';
-import { SEARCH_MODES } from '../../reducers/searchOptions';
+import { SEARCH_MODES } from '../Router/searchOptions';
 
-const initialSearchOptionsStore = {
+const initialSearchOptions = {
   noStairCase: false,
   noEscalator: false,
+  stepFreeAccess: false,
   searchMode: '',
 };
 
@@ -14,10 +15,10 @@ describe('AdvancedSearch', () => {
   it('click on No staircase checkbox should set settings with noStairCase=true', () => {
     const updateSearchOptions = jest.fn();
     const search = jest.fn();
-    const searchOptionsStore = { ...initialSearchOptionsStore };
+    const searchOptions = { ...initialSearchOptions, sameFloor: false };
 
     const { getByLabelText } = render(
-      <AdvancedSearch {...{ searchOptionsStore, updateSearchOptions, search }} />,
+      <AdvancedSearch {...{ searchOptions, updateSearchOptions, search }} />,
     );
 
     const checkbox = getByLabelText('Do not involve any staircase');
@@ -26,7 +27,7 @@ describe('AdvancedSearch', () => {
     fireEvent.click(checkbox);
 
     expect(updateSearchOptions).toHaveBeenCalledWith({
-      ...initialSearchOptionsStore,
+      ...initialSearchOptions,
       noStairCase: true,
     });
     expect(search).toHaveBeenCalledTimes(1);
@@ -35,10 +36,10 @@ describe('AdvancedSearch', () => {
   it('click on No escalator checkbox should set settings with noEscalator=true', () => {
     const updateSearchOptions = jest.fn();
     const search = jest.fn();
-    const searchOptionsStore = { ...initialSearchOptionsStore };
+    const searchOptions = { ...initialSearchOptions, sameFloor: false };
 
     const { getByLabelText } = render(
-      <AdvancedSearch {...{ searchOptionsStore, updateSearchOptions, search }} />,
+      <AdvancedSearch {...{ searchOptions, updateSearchOptions, search }} />,
     );
 
     const checkbox = getByLabelText('Do not involve any escalator');
@@ -47,7 +48,7 @@ describe('AdvancedSearch', () => {
     fireEvent.click(checkbox);
 
     expect(updateSearchOptions).toHaveBeenCalledWith({
-      ...initialSearchOptionsStore,
+      ...initialSearchOptions,
       noEscalator: true,
     });
     expect(search).toHaveBeenCalledTimes(1);
@@ -61,10 +62,10 @@ describe('AdvancedSearch', () => {
     it(`click on ${label} radio button should update settings searchMode=${searchMode}`, () => {
       const updateSearchOptions = jest.fn();
       const search = jest.fn();
-      const searchOptionsStore = { ...initialSearchOptionsStore };
+      const searchOptions = { ...initialSearchOptions, sameFloor: false };
 
       const { getByLabelText } = render(
-        <AdvancedSearch {...{ searchOptionsStore, updateSearchOptions, search }} />,
+        <AdvancedSearch {...{ searchOptions, updateSearchOptions, search }} />,
       );
 
       const checkbox = getByLabelText(label);
@@ -73,7 +74,7 @@ describe('AdvancedSearch', () => {
       fireEvent.click(checkbox);
 
       expect(updateSearchOptions).toHaveBeenCalledWith({
-        ...initialSearchOptionsStore,
+        ...initialSearchOptions,
         searchMode,
       });
       expect(search).toHaveBeenCalledTimes(1);

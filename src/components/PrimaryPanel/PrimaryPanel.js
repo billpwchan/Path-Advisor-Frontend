@@ -57,11 +57,13 @@ class PrimaryPanel extends Component {
     const urlParams = pick(this.props, [
       'from',
       'to',
+      'via',
       'x',
       'y',
       'level',
       'floor',
       'search',
+      'searchOptions',
       'suggestion',
       'suggestionX',
       'suggestionY',
@@ -169,7 +171,9 @@ class PrimaryPanel extends Component {
           <SearchArea
             from={urlParams.from}
             to={urlParams.to}
+            via={urlParams.via}
             search={urlParams.search}
+            searchOptions={urlParams.searchOptions}
             displayAdvancedSearch={displayAdvancedSearch}
             linkTo={linkTo}
             SearchView={SearchPrimaryPanelView}

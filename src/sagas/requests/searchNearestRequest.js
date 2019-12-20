@@ -24,15 +24,35 @@ function searchNearestResponseWrapper(data) {
   };
 }
 
-async function searchNearestRequest(name, nearestType, sameFloor, id) {
-  const startNode = id
-    ? `startId=${encodeURIComponent(id)}`
-    : `startName=${encodeURIComponent(name)}`;
-  const response = await axios.get(
-    `${APIEndpoint()}/nearest-item?type=${encodeURIComponent(
-      nearestType,
-    )}&sameFloor=${sameFloor}&${startNode}`,
-  );
+/**
+ * @typedef searchOptions
+ * @property {boolean} [noStairCase]
+ * @property {boolean} [noEscalator]
+ * @property {boolean} [stepFreeAccess]
+ * @property {string} [searchMode]
+ */
+
+/**
+ * @param {searchOptions} searchOptions
+ */
+async function searchNearestRequest(name, nearestType, sameFloor, id, searchOptions) {
+  const { searchMode, noEscalator, noStairCase, stepFreeAccess } = searchOptions;
+
+  const params = {
+    type: nearestType,
+    sameFloor,
+    mode: searchMode,
+    noStairCase,
+    noEscalator,
+    stepFreeAccess,
+    ...(id ? { startId: id } : { startName: name }),
+  };
+
+  const qs = Object.keys(params)
+    .map(key => `${key}=${encodeURIComponent(params[key])}`)
+    .join('&');
+
+  const response = await axios.get(`${APIEndpoint()}/nearest-item?${qs}`);
 
   return {
     ...response,

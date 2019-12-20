@@ -47,12 +47,65 @@
 
 .inputTitle {
   display: inline-block;
+  width: 65px;
+}
+
+.inputVia {
+  font-size: 5px;
+  display: inline-block;
   width: 50px;
+  color: #666666;
 }
 
 .inputField {
   display: inline-block;
 }
+
+.inputViaRemove {
+  display: inline-block;
+  font-size: 17px;
+  color: #666666;
+  vertical-align: middle;
+  font-weight: bold;
+  padding: 5px;
+}
+
+.addDestinationButton {
+  display: block;
+  color: #666666;
+  padding: 3px;
+  margin-top: 5px;
+}
+
+.addIcon {
+  vertical-align: middle;
+  width: 10px;
+  margin-right: 10px;
+}
+
+.viaCircle {
+  vertical-align: middle;
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  border-radius: 99px;
+  border: 1px solid black;
+  margin-right: 10px;
+  font-size: 12px;
+  line-height: 15px;
+  text-align: center;
+}
+
+.fromCircle {
+  composes: viaCircle;
+  background-color: #FFB6C1;
+}
+
+.toCircle {
+  composes: viaCircle;
+  background-color: #32CD32;
+}
+
 
 .body {
   padding: 5px;
@@ -79,8 +132,7 @@
 }
 
 .checkBoxColumn {
-  display: inline-block;
-  vertical-align: middle;
+  margin-right: 5px;
 }
 
 .checkBoxRow {
@@ -98,13 +150,15 @@
   background-color: white;
   position: absolute;
   z-index: 2;
+  border-radius: 3px;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
-  -khtml-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  min-width: 250px;
+  width: 95%;
+  left: 0;
+  margin: 0 10px;
 }
 
 .autoCompleteList li {

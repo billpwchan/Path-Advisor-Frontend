@@ -98,11 +98,18 @@ Nearest item
 
 The "to" input field data. Same format as `from` property.
 
+
+#### via
+`via` - array
+
+An array of places the path required to visit. Represent input field data between `from` and `to` input fields. Array item has the same format as `from` property.
+
+
 <!-- [linkTo](properties/linkTo.md ':include') -->
 #### linkTo
 `linkTo` - function
 
-A function that takes a `{x, y, floor, level, from, to, search}` object for the first argument and it will reposition the map canvas to this position and fill the input field with the `from` and `to` values and do search action if `search` is set to true. All properties in the object are optional, if they are missing in the supplied object, they will be assigned with current position value. For example, you can call `linkTo` with `{level: 2}` to indicate that you don't want to change the current `x`, `y`, `floor` value but to change only the zoom level and keep the map canvas at the same position. This function will also update the URL to reflect state changes as the changes are not save to any store. This can ensure params in URL is the single source of truth for all the states and users can just save or share the url to recreate the same screen.
+A function that takes a `{x, y, floor, level, from, to, via, search}` object for the first argument and it will reposition the map canvas to this position and fill the input field with the `from`, `to` and `via` values and do search action if `search` is set to true. All properties in the object are optional, if they are missing in the supplied object, they will be assigned with current position value. For example, you can call `linkTo` with `{level: 2}` to indicate that you don't want to change the current `x`, `y`, `floor` value but to change only the zoom level and keep the map canvas at the same position. This function will also update the URL to reflect state changes as the changes are not save to any store. This can ensure params in URL is the single source of truth for all the states and users can just save or share the url to recreate the same screen.
 
 Format:
 x - number
@@ -282,7 +289,7 @@ An object storing the user search options
   noStairCase: boolean, /* Whether the shortest path should include stair case */
   noEscalator: boolean, /* Whether the shortest path should include escalator */
   searchMode: "SHORTEST_TIME"|"SHORTEST_DISTANCE"|"MIN_NO_OF_LIFTS", /* Shortest path search mode */
-  actionSource: "EXTERNAL_LINK"|"BUTTON_CLICK" /* where the search action are initiated from an external link or a button click in the app */
+  actionSource: "EXTERNAL_LINK"|"BUTTON_CLICK"|"DRAG_AND_DROP"|"CONTEXT_MENU" /* where the search action are initiated from an external link or a button click in the app */
 }
 ```
 
@@ -510,6 +517,9 @@ mapItem object:
   onClick: function|null, /* callback function to be called when the map item is clicked */
   onMouseOver: function|null, /* callback function to be called when the cursor is over the map item */
   onMouseOut: function|null, /* callback function to be called when the cursor was over the map item and now is out side the map item */
+  onMouseMove: function|null, /* callback function to be called when the cursor is over and moving on the map item */
+  onDrag: function|null, /* callback function to be called when the cursor is dragging the map item */
+  onDragEnd: function|null, /* callback function to be called when the cursor finishes dragging the map item */
   customHitX: number|null, /* The custom x coordinate on the left of the map item used in calculating hit test, will use default x coordinate if this is not specified */
   customHitY: number|null, , /* The custom y coordinate at the top of the map item used in calculating hit test, will use default y coordinate if this is not specified */
   customHitWidth: number|null, /* The custom width of the map item used in calculating hit test, will use default width of the map item if this is not specified */
@@ -537,6 +547,7 @@ mapItem object:
     strokeStyle: string, /* Color of the line in CSS format */
     cap: "butt"|"round"|"square", /* Determines how the end points of every line are drawn */
     width: number /* Width of the line */
+    hitErrorMargin: number /* Default: 6, Determines the space around the line when clicking on it considers a hit, width of the line is not used for hit test calculation */
   },
   shape: {
     coordinates: [[]], /* An array of relative coordinates [x, y] array which defines a shape, the first coordinate should always be [0,0] */
@@ -567,7 +578,7 @@ Update the dimension of the map canvas area.
 #### addMapItemClickListener
 `addMapItemClickListener(id, mapItemId, listener, isPrepend)` - function
 
-Add a click listener to a map item. Every map item can have more than one listener. They will be save into a list and will be triggered one after one. But if one of the listeners in the list return false, it will stop triggering all other listeners behind in the list.
+Add a click listener to a map item. Every map item can have more than one listener. They will be save into a list and will be triggered one after one. But if one of the listeners in the list return false, it will stop triggering all other listeners behind in the list. This function is the same as you add a listener using `setMapItems([ { ...itemDetails, onClick: listener }])` with listener id equals 'default'.
 
 Parameters:
 
@@ -585,7 +596,7 @@ When the listener is triggered, it will receive a map item object, see `setMapIt
 #### addMapItemMouseOverListener
 `addMapItemMouseOverListener(id, mapItemId, listener, isPrepend)` - function
 
-Add a mouse over listener to a map item. Every map item can have more than one listener. They will be save into a list and will be triggered one after one. But if one of the listeners in the list return false, it will stop triggering all other listeners behind in the list.
+Add a mouse over listener to a map item. Every map item can have more than one listener. They will be save into a list and will be triggered one after one. But if one of the listeners in the list return false, it will stop triggering all other listeners behind in the list. This function is the same as adding a listener using `setMapItems([ { ...itemDetails, onMouseMove: listener }])` with listener id equals 'default'.
 
 Parameters:
 
@@ -602,7 +613,23 @@ If the function return `false` then it will stop triggering any other listeners 
 #### addMapItemMouseOutListener
 `addMapItemMouseOutListener(id, mapItemId, listener, isPrepend)` - function
 
-Add a mouse out listener to a map item. Every map item can have more than one listener. They will be save into a list and will be triggered one after one. But if one of the listeners in the list return false, it will stop triggering all other listeners behind in the list.
+Add a mouse out listener to a map item. Every map item can have more than one listener. They will be save into a list and will be triggered one after one. But if one of the listeners in the list return false, it will stop triggering all other listeners behind in the list. This function is the same as adding a listener using `setMapItems([ { ...itemDetails, onMouseOut: listener }])` with listener id equals 'default'.
+
+Parameters:
+
+`id` - string - Id of the mouse out listener, with mapItemId and the event
+
+`mapItemId` - string - Id of the map item to attach listener.
+
+`listener` - function - function to be called when the event is triggered.
+If the function return `false` then it will stop triggering any other listeners in the list behind.
+
+`isPrepend` - boolean - Prepend to the map item's listener list. Useful if your listener will to stop all other listeners is the list behind.
+
+#### addMapItemMouseMoveListener
+`addMapItemMouseMoveListener(id, mapItemId, listener, isPrepend)` - function
+
+Add a mouse move listener to a map item. Every map item can have more than one listener. They will be save into a list and will be triggered one after one. But if one of the listeners in the list return false, it will stop triggering all other listeners behind in the list. This function is the same as adding a listener using `setMapItems([ { ...itemDetails, onMouseMove: listener }])` with listener id equals 'default'.
 
 Parameters:
 
@@ -614,6 +641,40 @@ Parameters:
 If the function return `false` then it will stop triggering any other listeners in the list behind.
 
 `isPrepend` - boolean - Prepend to the map item's listener list. Useful if your listener will to stop all other listeners is the list behind.
+
+#### addMapItemDragListener
+`addMapItemDragListener(id, mapItemId, listener, isPrepend)` - function
+
+Add a mouse drag listener to a map item. Every map item can have more than one listener. They will be save into a list and will be triggered one after one. But if one of the listeners in the list return false, it will stop triggering all other listeners behind in the list. This function is the same as adding a listener using `setMapItems([ { ...itemDetails, onDrag: listener }])` with listener id equals 'default'.
+
+Parameters:
+
+`id` - string - Id of the mouse out listener.
+
+`mapItemId` - string - Id of the map item to attach listener.
+
+`listener` - function - function to be called when the event is triggered.
+If the function return `false` then it will stop triggering any other listeners in the list behind.
+
+`isPrepend` - boolean - Prepend to the map item's listener list. Useful if your listener will to stop all other listeners is the list behind.
+
+
+#### addMapItemDragEndListener
+`addMapItemDragEndListener(id, mapItemId, listener, isPrepend)` - function
+
+Add a mouse drag end listener to a map item. Every map item can have more than one listener. They will be save into a list and will be triggered one after one. But if one of the listeners in the list return false, it will stop triggering all other listeners behind in the list. This function is the same as adding a listener using `setMapItems([ { ...itemDetails, onDragEnd: listener }])` with listener id equals 'default'.
+
+Parameters:
+
+`id` - string - Id of the mouse out listener.
+
+`mapItemId` - string - Id of the map item to attach listener.
+
+`listener` - function - function to be called when the event is triggered.
+If the function return `false` then it will stop triggering any other listeners in the list behind.
+
+`isPrepend` - boolean - Prepend to the map item's listener list. Useful if your listener will to stop all other listeners is the list behind.
+
 
 <!-- [removeMapItemClickListener](properties/removeMapItemClickListener.md ':include') -->
 #### removeMapItemClickListener
@@ -644,6 +705,34 @@ Remove a map item mouse out listener.
 `id` - string - Id of the listener to be removed.
 
 `mapItemId` - string - Id of the map item listener to be removed.
+
+#### removeMapItemMouseMoveListener
+`removeMapItemMouseMoveListener(id, mapItemId)` - function
+
+Remove a map item mouse move listener.
+
+`id` - string - Id of the listener to be removed.
+
+`mapItemId` - string - Id of the map item listener to be removed.
+
+#### removeMapItemDragListener
+`removeMapItemDragListener(id, mapItemId)` - function
+
+Remove a map item drag listener.
+
+`id` - string - Id of the listener to be removed.
+
+`mapItemId` - string - Id of the map item listener to be removed.
+
+#### removeMapItemDragEndListener
+`removeMapItemDragEndListener(id, mapItemId)` - function
+
+Remove a map item drag end listener.
+
+`id` - string - Id of the listener to be removed.
+
+`mapItemId` - string - Id of the map item listener to be removed.
+
 
 #### addCanvasMouseUpListener
 `addCanvasMouseUpListener(listener) - function`

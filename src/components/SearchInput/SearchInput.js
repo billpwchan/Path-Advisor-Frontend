@@ -68,24 +68,23 @@ class SearchInput extends Component {
           placeholder={placeholder}
           onFocus={onFocus}
         />
-        {shouldAutoCompleteDisplay &&
-          !loading && (
-            <ul className={autoCompleteListClassName}>
-              {suggestions.map(({ name, floor, coordinates, id }) => (
-                <li key={id}>
-                  <button
-                    type="button"
-                    onClick={() => this.onClick({ name, floor, coordinates, id })}
-                  >
-                    <span className="name">{name}</span>
-                    <span className="location">
-                      , {buildings[floors[floor].buildingId].name}, floor {floors[floor].name}
-                    </span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
+        {shouldAutoCompleteDisplay && !loading && suggestions.length > 0 && (
+          <ul className={autoCompleteListClassName}>
+            {suggestions.map(({ name, floor, coordinates, id }) => (
+              <li key={id}>
+                <button
+                  type="button"
+                  onClick={() => this.onClick({ name, floor, coordinates, id })}
+                >
+                  <span className="name">{name}</span>
+                  <span className="location">
+                    , {buildings[floors[floor].buildingId].name}, floor {floors[floor].name}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     );
   }

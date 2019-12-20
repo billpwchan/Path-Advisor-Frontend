@@ -1,8 +1,8 @@
 import '@testing-library/jest-dom/extend-expect';
-import { object } from 'prop-types';
-import { parseParams } from './Url';
+import { parseParams, build } from './Url';
 import { TYPE, EMPTY } from '../SearchArea/Input';
 import { nearestOptions } from '../SearchNearest/SearchNearest';
+import { defaultSearchOptions, SEARCH_MODES } from './searchOptions';
 
 describe('Url', () => {
   describe('parseParams', () => {
@@ -19,6 +19,8 @@ describe('Url', () => {
         suggestionY: null,
         x: undefined,
         y: undefined,
+        via: null,
+        searchOptions: defaultSearchOptions,
       });
     });
 
@@ -106,6 +108,366 @@ describe('Url', () => {
       expect(suggestion).toBe('general');
       expect(suggestionX).toBe(2);
       expect(suggestionY).toBe(3);
+    });
+
+    it('able to parse via places', () => {
+      expect(
+        parseParams({
+          viaPlaces: 'via$/',
+        }).via,
+      ).toEqual(null);
+
+      expect(
+        parseParams({
+          viaPlaces: 'via$/2345',
+        }).via,
+      ).toStrictEqual(
+        ['2345'].map(place => ({
+          data: { type: TYPE.KEYWORD, value: place },
+          name: place,
+        })),
+      );
+
+      expect(
+        parseParams({
+          viaPlaces: 'via$/2345|1234',
+        }).via,
+      ).toStrictEqual(
+        ['2345', '1234'].map(place => ({
+          data: { type: TYPE.KEYWORD, value: place },
+          name: place,
+        })),
+      );
+
+      const placeName = 'ROOM 1234';
+      const placeId = 'id';
+      const floor = '3';
+      const coordinates = [1, 2];
+
+      const completePlaceString = `${placeName};${placeId};${floor};${coordinates.join(',')}`;
+
+      expect(
+        parseParams({
+          viaPlaces: `via$/${completePlaceString}|1234`,
+        }).via,
+      ).toStrictEqual([
+        {
+          data: { type: TYPE.ID, value: placeName, id: placeId, coordinates, floor },
+          name: placeName,
+        },
+        {
+          data: { type: TYPE.KEYWORD, value: '1234' },
+          name: '1234',
+        },
+      ]);
+
+      expect(
+        parseParams({
+          viaPlaces: `via$`,
+        }).via,
+      ).toStrictEqual([EMPTY]);
+
+      expect(
+        parseParams({
+          viaPlaces: `via$/|1234`,
+        }).via,
+      ).toStrictEqual([EMPTY, { data: { type: TYPE.KEYWORD, value: '1234' }, name: '1234' }]);
+    });
+
+    it('able to parse search options', () => {
+      expect(
+        parseParams(
+          {
+            searchOptionsPath: `search-options/noEscalator,stepFreeAccess,searchMode=${SEARCH_MODES.MIN_NO_OF_LIFTS}`,
+          },
+          '',
+          'DESKTOP',
+          {},
+        ).searchOptions,
+      ).toStrictEqual({
+        sameFloor: false,
+        noStairCase: false,
+        noEscalator: true,
+        stepFreeAccess: true,
+        searchMode: SEARCH_MODES.MIN_NO_OF_LIFTS,
+      });
+
+      expect(
+        parseParams(
+          {
+            searchOptionsPath: `search-options/searchMode=something`,
+          },
+          '',
+          'DESKTOP',
+          {},
+        ).searchOptions,
+      ).toStrictEqual(defaultSearchOptions);
+
+      expect(
+        parseParams(
+          {
+            searchOptionsPath: `search-options/a,b,c,searchMode=something`,
+          },
+          '',
+          'DESKTOP',
+          {},
+        ).searchOptions,
+      ).toStrictEqual(defaultSearchOptions);
+    });
+  });
+
+  describe('build url', () => {
+    const basicPosition = {
+      floor: 'G',
+      x: '1',
+      y: '2',
+      level: '3',
+    };
+    const basicPositionUrl = '/floor/G/at/normalized/1,2,3';
+
+    it('able to build url with x, y, floor, level given', () => {
+      expect(build(basicPosition)).toEqual(basicPositionUrl);
+    });
+
+    it('able to build url with from param', () => {
+      expect(
+        build({
+          ...basicPosition,
+          from: { data: { type: TYPE.KEYWORD, value: '1234' }, name: '1234' },
+        }),
+      ).toEqual(`/from/1234/to${basicPositionUrl}`);
+
+      expect(
+        build({
+          ...basicPosition,
+          from: {
+            data: { type: TYPE.ID, value: '1234', id: 'id', coordinates: [1, 2], floor: 'G' },
+            name: 1234,
+          },
+        }),
+      ).toEqual(`/from/1234;id;G;1,2/to${basicPositionUrl}`);
+
+      expect(
+        build({
+          ...basicPosition,
+          from: {
+            data: { type: TYPE.NEAREST, value: 'lift' },
+            name: 'lift',
+          },
+        }),
+      ).toEqual(`/nearest/lift/to${basicPositionUrl}`);
+    });
+
+    it('able to build url with to param', () => {
+      expect(
+        build({
+          ...basicPosition,
+          to: { data: { type: TYPE.KEYWORD, value: '1234' }, name: '1234' },
+        }),
+      ).toEqual(`/from/to/1234${basicPositionUrl}`);
+
+      expect(
+        build({
+          ...basicPosition,
+          to: {
+            data: { type: TYPE.ID, value: '1234', id: 'id', coordinates: [1, 2], floor: 'G' },
+            name: 1234,
+          },
+        }),
+      ).toEqual(`/from/to/1234;id;G;1,2${basicPositionUrl}`);
+
+      expect(
+        build({
+          ...basicPosition,
+          to: {
+            data: { type: TYPE.NEAREST, value: 'lift' },
+            name: 'lift',
+          },
+        }),
+      ).toEqual(`/nearest/lift/from${basicPositionUrl}`);
+    });
+
+    it('able to build url with via param', () => {
+      const placeName = 'ROOM 1234';
+      const placeId = 'id';
+      const floor = '3';
+      const coordinates = [1, 2];
+
+      const completePlaceString = `${placeName};${placeId};${floor};${coordinates.join(',')}`;
+
+      expect(
+        build({
+          ...basicPosition,
+          via: null,
+        }),
+      ).toEqual(basicPositionUrl);
+
+      expect(
+        build({
+          ...basicPosition,
+          via: [],
+        }),
+      ).toEqual(basicPositionUrl);
+
+      expect(
+        build({
+          ...basicPosition,
+          via: [
+            {
+              data: { type: TYPE.KEYWORD, value: '' },
+              name: '',
+            },
+          ],
+        }),
+      ).toEqual(`/from/to/via$${basicPositionUrl}`);
+
+      expect(
+        build({
+          ...basicPosition,
+          via: [EMPTY],
+        }),
+      ).toEqual(`/from/to/via$${basicPositionUrl}`);
+
+      expect(
+        build({
+          ...basicPosition,
+          via: [
+            EMPTY,
+            {
+              data: { type: TYPE.KEYWORD, value: '1234' },
+              name: '1234',
+            },
+          ],
+        }),
+      ).toEqual(`/from/to/via$/|1234${basicPositionUrl}`);
+
+      expect(
+        build({
+          ...basicPosition,
+          via: [
+            {
+              data: { type: TYPE.KEYWORD, value: '1234' },
+              name: '1234',
+            },
+            EMPTY,
+          ],
+        }),
+      ).toEqual(`/from/to/via$/1234|${basicPositionUrl}`);
+
+      expect(
+        build({
+          ...basicPosition,
+          via: [
+            {
+              data: { type: TYPE.KEYWORD, value: '1234' },
+              name: '1234',
+            },
+          ],
+        }),
+      ).toEqual(`/from/to/via$/1234${basicPositionUrl}`);
+
+      expect(
+        build({
+          ...basicPosition,
+          via: [
+            {
+              data: { type: TYPE.ID, value: placeName, id: placeId, coordinates, floor },
+              name: placeName,
+            },
+            {
+              data: { type: TYPE.KEYWORD, value: '1234' },
+              name: '1234',
+            },
+          ],
+        }),
+      ).toEqual(`/from/to/via$/${completePlaceString}|1234${basicPositionUrl}`);
+    });
+
+    it('able to build url with search options', () => {
+      expect(
+        build({
+          ...basicPosition,
+          searchOptions: null,
+        }),
+      ).toEqual(basicPositionUrl);
+
+      expect(
+        build({
+          ...basicPosition,
+          searchOptions: {
+            sameFloor: defaultSearchOptions.sameFloor,
+            noStairCase: defaultSearchOptions.noStairCase,
+            noEscalator: defaultSearchOptions.noEscalator,
+            stepFreeAccess: defaultSearchOptions.stepFreeAccess,
+            searchMode: defaultSearchOptions.searchMode,
+          },
+        }),
+      ).toEqual(basicPositionUrl);
+
+      expect(
+        build({
+          ...basicPosition,
+          searchOptions: {},
+        }),
+      ).toEqual(basicPositionUrl);
+
+      expect(
+        build({
+          ...basicPosition,
+          searchOptions: {
+            sameFloor: false,
+            noStairCase: true,
+            noEscalator: true,
+            stepFreeAccess: false,
+            searchMode: SEARCH_MODES.MIN_NO_OF_LIFTS,
+          },
+        }),
+      ).toEqual(
+        `${basicPositionUrl}/search-options/noStairCase,noEscalator,searchMode=${SEARCH_MODES.MIN_NO_OF_LIFTS}`,
+      );
+
+      expect(
+        build({
+          ...basicPosition,
+          searchOptions: {
+            sameFloor: true,
+            noStairCase: true,
+            noEscalator: true,
+            stepFreeAccess: true,
+            searchMode: SEARCH_MODES.SHORTEST_DISTANCE,
+          },
+        }),
+      ).toEqual(
+        `${basicPositionUrl}/search-options/sameFloor,noStairCase,noEscalator,stepFreeAccess,searchMode=${SEARCH_MODES.SHORTEST_DISTANCE}`,
+      );
+
+      expect(
+        build({
+          ...basicPosition,
+          searchOptions: {
+            sameFloor: false,
+            noStairCase: false,
+            noEscalator: false,
+            stepFreeAccess: false,
+            searchMode: SEARCH_MODES.SHORTEST_DISTANCE,
+          },
+        }),
+      ).toEqual(`${basicPositionUrl}/search-options/searchMode=${SEARCH_MODES.SHORTEST_DISTANCE}`);
+
+      expect(
+        build({
+          ...basicPosition,
+          searchOptions: {
+            sameFloor: false,
+            noStairCase: false,
+            noEscalator: false,
+            stepFreeAccess: false,
+            a: true,
+            b: true,
+            searchMode: SEARCH_MODES.SHORTEST_DISTANCE,
+          },
+        }),
+      ).toEqual(`${basicPositionUrl}/search-options/searchMode=${SEARCH_MODES.SHORTEST_DISTANCE}`);
     });
   });
 });

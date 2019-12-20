@@ -1,13 +1,18 @@
 import get from 'lodash.get';
 import throttle from 'lodash.throttle';
+import without from 'lodash.without';
+import omit from 'lodash.omit';
 
 import calculateTextDimension from './calculateTextDimension';
 import stableSort from './stableSort';
 import addTouchEventHandler from './addTouchEventHandler';
 import watchPinchEvent from './watchPinchEvent';
+import * as hitTest from './hitTest';
 
 const DEFAULT_LISTENER_ID = 'default';
 const DEVICE_PIXEL_RATIO = window.devicePixelRatio || 1;
+const DEFAULT_LINE_HIT_TEST_ERROR_MARGIN = 6;
+
 /**
  * @typedef TextElement
  * @property {string} style
@@ -31,6 +36,7 @@ const DEVICE_PIXEL_RATIO = window.devicePixelRatio || 1;
  * @property {string} [strokeStyle]
  * @property {string} [cap]
  * @property {number} [width]
+ * @property {number} [hitErrorMargin]
  */
 /**
  * @typedef Shape
@@ -78,6 +84,9 @@ const DEVICE_PIXEL_RATIO = window.devicePixelRatio || 1;
  * @property {mapItemListener} [onClick]
  * @property {mapItemListener} [onMouseOver]
  * @property {mapItemListener} [onMouseOut]
+ * @property {mapItemListener} [onMouseMove]
+ * @property {mapItemListener} [onDrag]
+ * @property {mapItemListener} [onDragEnd]
  * @property {Circle} [circle]
  * @property {Rect} [rect]
  * @property {{}} [others] - additional data for plugins to attach
@@ -90,7 +99,10 @@ const DEVICE_PIXEL_RATIO = window.devicePixelRatio || 1;
  */
 function revForEach(array, callback) {
   for (let i = array.length - 1; i >= 0; i -= 1) {
-    callback(array[i], i, array);
+    const { breakIteration } = callback(array[i], i, array);
+    if (breakIteration) {
+      break;
+    }
   }
 }
 
@@ -109,23 +121,6 @@ async function createImageLoadPromise(img) {
       reject(img);
     });
   });
-}
-
-/**
- * Test a point inside a rect or not
- * @param {number} x - point coordinate x
- * @param {number} y - point coordinate y
- * @param {number} hitX - object coordinate x
- * @param {number} hitY - object coordinate y
- * @param {number} hitWidth - object width
- * @param {number} hitHeight - object height
- * @return {boolean}
- */
-function hitTest(x, y, hitX, hitY, hitWidth, hitHeight) {
-  const xInRange = x >= hitX && x <= hitX + hitWidth;
-  const yInRange = y >= hitY && y <= hitY + hitHeight;
-
-  return xInRange && yInRange;
 }
 
 function imageNotLoaded(image) {
@@ -171,8 +166,16 @@ class CanvasHandler {
 
   mapItemIds = [];
 
+  preventCanvasMouseMoveEvent = false;
+
   /** @type {Object.<string, Boolean>} - map items currently in mouse over event */
   mapItemsMouseOvering = {};
+
+  /** @type {Object.<string, Boolean>} - map items currently in mouse down event */
+  mapItemsMouseDown = {};
+
+  /** @type {Object.<string, Boolean>} - map items currently in mouse drag event */
+  mapItemsDrag = {};
 
   /** @type {number} - map coordinate x at then center of the canvas element */
   x = 0;
@@ -206,12 +209,18 @@ class CanvasHandler {
   /** @type {function[]} - pinch event end listeners */
   pinchEndListeners = [];
 
+  /** @type {function[]} - listeners to be triggered when an click event didn't hit anything */
+  clickAwayListeners = [];
+
   /** @typedef {Object.<string, Object.<string, mapItemListener>>} listenerGroup */
   /** @type {Object.<string, listenerGroup>} - map items listeners grouped by id */
   mapItemListeners = {
     click: {},
     mouseover: {},
     mouseout: {},
+    mousemove: {},
+    drag: {},
+    dragend: {},
   };
 
   /** @type {Object.<string, Object.<string, string[]>>} */
@@ -219,6 +228,9 @@ class CanvasHandler {
     click: {},
     mouseover: {},
     mouseout: {},
+    mousemove: {},
+    drag: {},
+    dragend: {},
   };
 
   width = 0;
@@ -263,7 +275,7 @@ class CanvasHandler {
     this.canvas = document.createElement('canvas');
     addTouchEventHandler(this.getCanvas());
     this.setUpCanvasListeners();
-    ['mouseup', 'mousemove'].forEach(event => this.setUpListener(event));
+    ['mousedown', 'mouseup', 'mousemove'].forEach(event => this.setUpListener(event));
   }
 
   updateDimension(width, height) {
@@ -353,8 +365,21 @@ class CanvasHandler {
    */
 
   /**
+   * @typedef Coordinate
+   * @property {number} x
+   * @property {number} y
+   */
+
+  /**
+   * @typedef CanvasItemMouseEvent
+   * @property {Coordinate} [mouse]
+   *
+   * @typedef {CanvasItem & CanvasItemMouseEvent & {stopPropagation: Function}} CanvasItemEvent
+   */
+
+  /**
    * @callback mapItemListener
-   * @param {CanvasItem} event
+   * @param {CanvasItemEvent} event
    */
 
   /**
@@ -461,6 +486,28 @@ class CanvasHandler {
   }
 
   /**
+   * add clickAway listeners
+   * @param {canvasListener} listener
+   */
+  addClickAwayListener(listener) {
+    this.clickAwayListeners.push(listener);
+  }
+
+  /**
+   * remove a user defined clickAway listeners
+   * @param {function} listener
+   * @return {boolean} True is removed otherwise false
+   */
+  removeClickAwayListener(listener) {
+    const listenerIndex = this.clickAwayListeners.indexOf(listener);
+    if (listenerIndex !== -1) {
+      this.clickAwayListeners.splice(listenerIndex, 1);
+    }
+
+    return listenerIndex !== -1;
+  }
+
+  /**
    * add map item listener
    * @param {string} event
    * @param {string} id listener id
@@ -540,9 +587,9 @@ class CanvasHandler {
 
   setUpCanvasListeners() {
     document.addEventListener('mousedown', e => {
-      const { clientX: downX, clientY: downY, target, relatedTarget } = e;
+      const { clientX: downX, clientY: downY, target, relatedTarget, button } = e;
 
-      if (target !== this.getCanvas() && relatedTarget !== this.getCanvas()) {
+      if (button !== 0 || (target !== this.getCanvas() && relatedTarget !== this.getCanvas())) {
         return;
       }
 
@@ -552,6 +599,10 @@ class CanvasHandler {
         const { clientX: currentX, clientY: currentY } = mouseMoveEvent;
         let newX = prevX + this.normalizeCoordinate(downX - currentX);
         let newY = prevY + this.normalizeCoordinate(downY - currentY);
+
+        if (this.preventCanvasMouseMoveEvent) {
+          return;
+        }
 
         this.mouseMoveListeners.forEach(listener => {
           const [clientX, clientY] = this.getCanvasXYFromMouseXY(
@@ -582,7 +633,18 @@ class CanvasHandler {
             mouseUpEvent.clientX,
             mouseUpEvent.clientY,
           );
-          listener(this.getListenerParamObject({ originalEvent: mouseUpEvent, clientX, clientY }));
+
+          const clientMapX = this.normalizeCoordinate(clientX) + this.getLeftX();
+          const clientMapY = this.normalizeCoordinate(clientY) + this.getTopY();
+          listener(
+            this.getListenerParamObject({
+              originalEvent: mouseUpEvent,
+              clientX,
+              clientY,
+              clientMapX,
+              clientMapY,
+            }),
+          );
         });
       };
 
@@ -662,41 +724,72 @@ class CanvasHandler {
     return nextLevel > maxLevel ? maxLevel : nextLevel;
   }
 
+  /**
+   * Get mouse x, y coordinates relative to the canvas area
+   * - i.e. clicking top-left point of canvas returns (0, 0)
+   * - clicking bottom-right point of canvas returns (width of canvas, height of canvas)
+   */
   getCanvasXYFromMouseXY(mouseX, mouseY) {
     const canvasCoordinate = this.canvas.getBoundingClientRect();
     return [mouseX - canvasCoordinate.left, mouseY - canvasCoordinate.top];
   }
 
   setUpListener(event) {
-    let lastClientCoordinates = null;
+    let lastClientCoordinates = [];
 
-    this.getCanvas().addEventListener('mousedown', e => {
-      const { clientX, clientY } = e;
-      lastClientCoordinates = [clientX, clientY];
-    });
+    if (event === 'mouseup') {
+      this.getCanvas().addEventListener('mousedown', e => {
+        if (e.button !== 0) {
+          return;
+        }
+
+        const { clientX, clientY } = e;
+        lastClientCoordinates = [clientX, clientY];
+      });
+    }
 
     this.getCanvas().addEventListener(
       event,
       throttle(e => {
-        const { clientX, clientY } = e;
+        const { clientX, clientY, button } = e;
+
+        if (button !== 0) {
+          return;
+        }
+
         let [x, y] = this.getCanvasXYFromMouseXY(clientX, clientY);
         x += this.getScreenLeftX();
         y += this.getScreenTopY();
 
+        const [lastClientX, lastClientY] = lastClientCoordinates;
+
         const visitedItemIds = new Set();
+        let anyItemClicked = false;
 
         // freeze floor value as it may be changed while triggering listeners
         const floor = this.floor;
+        const cursorIsSamePosition = clientX === lastClientX && clientY === lastClientY;
 
         revForEach(this.mapItemIds, id => {
           const mapItem = this.mapItems[id];
-          if (mapItem.floor !== floor) {
-            return;
+
+          if (!mapItem) {
+            return {};
+          }
+
+          const { renderedX, renderedY, scaledWidth, scaledHeight } = this.getMapItemRenderedInfo(
+            mapItem,
+          );
+          if (
+            mapItem.floor !== floor ||
+            !this.inViewport(renderedX, renderedY, scaledWidth, scaledHeight)
+          ) {
+            return {};
           }
 
           visitedItemIds.add(id);
 
-          let mapItemEvent;
+          const mapItemEvents = [];
           const {
             hitX,
             hitY,
@@ -706,52 +799,154 @@ class CanvasHandler {
             scalePosition,
             offsetX,
             offsetY,
+            shape,
+            line,
           } = mapItem;
 
-          const itemHit = hitTest(
-            x,
-            y,
-            (scalePosition ? this.scaleCoordinate(hitX) : hitX) + offsetX,
-            (scalePosition ? this.scaleCoordinate(hitY) : hitY) + offsetY,
-            scaleDimension ? this.scaleCoordinate(hitWidth) : hitWidth,
-            scaleDimension ? this.scaleCoordinate(hitHeight) : hitHeight,
-          );
+          let itemHit = false;
+          let lineIndex = null;
+
+          switch (true) {
+            case Boolean(shape):
+              itemHit = hitTest.polygon(
+                x,
+                y,
+                shape.coordinates
+                  .map(([a, b]) => [a + hitX, b + hitY])
+                  .map(([a, b]) =>
+                    scalePosition ? [this.scaleCoordinate(a), this.scaleCoordinate(b)] : [a, b],
+                  ),
+              );
+              break;
+            case Boolean(line):
+              lineIndex = hitTest.lineSection(
+                x,
+                y,
+                line.hitErrorMargin || DEFAULT_LINE_HIT_TEST_ERROR_MARGIN,
+                line.coordinates.map(([a, b]) =>
+                  scalePosition ? [this.scaleCoordinate(a), this.scaleCoordinate(b)] : [a, b],
+                ),
+              );
+              itemHit = lineIndex !== -1;
+              break;
+            default:
+              itemHit = hitTest.rect(
+                x,
+                y,
+                (scalePosition ? this.scaleCoordinate(hitX) : hitX) + offsetX,
+                (scalePosition ? this.scaleCoordinate(hitY) : hitY) + offsetY,
+                scaleDimension ? this.scaleCoordinate(hitWidth) : hitWidth,
+                scaleDimension ? this.scaleCoordinate(hitHeight) : hitHeight,
+              );
+          }
 
           switch (event) {
+            case 'mousedown': {
+              if (itemHit) {
+                this.mapItemsMouseDown[id] = true;
+              }
+              break;
+            }
+
             case 'mouseup': {
-              const [lastClientX, lastClientY] = lastClientCoordinates;
-              if (itemHit && clientX === lastClientX && clientY === lastClientY)
-                mapItemEvent = 'click';
+              this.preventCanvasMouseMoveEvent = false;
+              delete this.mapItemsMouseDown[id];
+
+              if (this.mapItemsDrag[id]) {
+                mapItemEvents.push('dragend');
+                delete this.mapItemsDrag[id];
+              }
+
+              if (!itemHit) {
+                break;
+              }
+
+              mapItemEvents.push('mouseup');
+
+              if (itemHit && cursorIsSamePosition) {
+                mapItemEvents.push('click');
+                anyItemClicked = true;
+              }
+
               break;
             }
 
             case 'mousemove':
+              if (itemHit) {
+                mapItemEvents.push('mousemove');
+              }
+
               if (itemHit && !this.mapItemsMouseOvering[id]) {
-                mapItemEvent = 'mouseover';
+                mapItemEvents.push('mouseover');
                 this.mapItemsMouseOvering[id] = true;
-              } else if (!itemHit && this.mapItemsMouseOvering[id]) {
-                mapItemEvent = 'mouseout';
+              }
+
+              if (!itemHit && this.mapItemsMouseOvering[id]) {
+                mapItemEvents.push('mouseout');
                 delete this.mapItemsMouseOvering[id];
               }
+
+              if (this.mapItemsMouseDown[id]) {
+                this.mapItemsDrag[id] = true;
+                this.preventCanvasMouseMoveEvent = true;
+                mapItemEvents.push('drag');
+              }
+
               break;
             default:
           }
 
-          if (mapItemEvent) {
-            (get(this.mapItemListenerIds[mapItemEvent], id) || []).some(
-              listenerId =>
-                this.mapItemListeners[mapItemEvent][id][listenerId]({ ...this.mapItems[id] }) ===
-                false,
-            );
+          let breakIteration = false;
+
+          if (mapItemEvents.length) {
+            mapItemEvents.forEach(mapItemEvent => {
+              if (breakIteration) {
+                return;
+              }
+
+              (get(this.mapItemListenerIds[mapItemEvent], id) || []).some(
+                listenerId =>
+                  this.mapItemListeners[mapItemEvent][id][listenerId]({
+                    ...this.mapItems[id],
+                    mouse: {
+                      x,
+                      y,
+                      mapX: this.normalizeCoordinate(x),
+                      mapY: this.normalizeCoordinate(y),
+                    },
+                    ...(lineIndex !== null ? { lineIndex } : {}),
+                    stopPropagation: () => {
+                      breakIteration = true;
+                    },
+                  }) === false,
+              );
+            });
           }
+
+          return { breakIteration };
         });
 
+        if (!anyItemClicked && cursorIsSamePosition) {
+          this.clickAwayListeners.forEach(listener => {
+            listener();
+          });
+        }
+
+        // For map items disappeared in this render, trigger mouseout if they were in mouseover state
         Object.keys(this.mapItemsMouseOvering).forEach(mapItemId => {
           if (!visitedItemIds.has(mapItemId)) {
             (get(this.mapItemListenerIds.mouseout, mapItemId) || []).some(
               listenerId =>
                 this.mapItemListeners.mouseout[mapItemId][listenerId]({
                   ...this.mapItems[mapItemId],
+                  mouse: {
+                    x,
+                    y,
+                    mapX: this.normalizeCoordinate(x),
+                    mapY: this.normalizeCoordinate(y),
+                  },
+                  // can't stop propagation for a non-rendered item
+                  stopPropagation: () => {},
                 }) === false,
             );
             delete this.mapItemsMouseOvering[mapItemId];
@@ -898,16 +1093,38 @@ class CanvasHandler {
   /**
    * @param {CanvasItem[]} mapItems
    */
-  async setMapItems(mapItems) {
+  async setMapItems(mapItems, { merge = true, partial = true } = {}) {
     if (!Array.isArray(mapItems)) {
       throw new Error(
         'setMapItems only accept an array of map items, if you have only one map item, please wrap it into an array',
       );
     }
 
+    if (!merge) {
+      this.mapItemIds = [];
+      this.mapItems = {};
+      this.mapItemListeners = {
+        click: {},
+        mouseover: {},
+        mouseout: {},
+        mousemove: {},
+        drag: {},
+        dragend: {},
+      };
+      this.mapItemListenerIds = {
+        click: {},
+        mouseover: {},
+        mouseout: {},
+        mousemove: {},
+        drag: {},
+        dragend: {},
+      };
+    }
+
     const asyncMapItems = [];
     // use this set default value from existing map item, and therefore support updating a map item with partial information
-    const getDefault = (id, prop, defaultValue) => get(this.mapItems[id], prop, defaultValue);
+    const getDefault = (id, prop, defaultValue) =>
+      partial ? get(this.mapItems[id], prop, defaultValue) : defaultValue;
 
     mapItems.forEach(
       ({
@@ -933,6 +1150,9 @@ class CanvasHandler {
         onClick = getDefault(id, 'onClick', null),
         onMouseOver = getDefault(id, 'onMouseOver', null),
         onMouseOut = getDefault(id, 'onMouseOut', null),
+        onMouseMove = getDefault(id, 'onMouseMove', null),
+        onDrag = getDefault(id, 'onDrag', null),
+        onDragEnd = getDefault(id, 'onDragEnd', null),
         customHitX = getDefault(id, 'customHitX', null),
         customHitY = getDefault(id, 'customHitY', null),
         customHitWidth = getDefault(id, 'customHitWidth', null),
@@ -944,6 +1164,10 @@ class CanvasHandler {
           throw new Error('id is required for canvas item');
         } else if (!this.mapItems[id]) {
           this.mapItemIds.push(id);
+        }
+
+        if (!floor) {
+          throw new Error('floor is required for canvas item');
         }
 
         const mapItem = {
@@ -990,6 +1214,18 @@ class CanvasHandler {
 
         if (onMouseOut) {
           this.addMapItemListener('mouseout', DEFAULT_LISTENER_ID, id, onMouseOut);
+        }
+
+        if (onMouseMove) {
+          this.addMapItemListener('mousemove', DEFAULT_LISTENER_ID, id, onMouseMove);
+        }
+
+        if (onDrag) {
+          this.addMapItemListener('drag', DEFAULT_LISTENER_ID, id, onDrag);
+        }
+
+        if (onDragEnd) {
+          this.addMapItemListener('dragend', DEFAULT_LISTENER_ID, id, onDragEnd);
         }
 
         switch (true) {
@@ -1111,18 +1347,39 @@ class CanvasHandler {
    * @returns {boolean} true if map item found and deleted, false otherwise
    */
   removeMapItem(mapItemId) {
-    const index = this.mapItemIds.indexOf(mapItemId);
-
-    if (index === -1) {
+    if (!this.mapItems[mapItemId]) {
       return false;
     }
 
-    this.mapItemIds.splice(index, 1);
-    delete this.mapItems[mapItemId];
-
-    this.render();
+    this.removeMapItems([mapItemId]);
 
     return true;
+  }
+
+  /**
+   * @param {array} mapItemIds
+   */
+  removeMapItems(mapItemIds) {
+    if (!Array.isArray(mapItemIds)) {
+      throw new Error('removeMapItems only accept an array of map item ids.');
+    }
+
+    this.mapItemIds = without(this.mapItemIds, ...mapItemIds);
+    this.mapItems = omit(this.mapItems, mapItemIds);
+    this.mapItemListeners.click = omit(this.mapItemListeners.click, mapItemIds);
+    this.mapItemListeners.mouseover = omit(this.mapItemListeners.mouseover, mapItemIds);
+    this.mapItemListeners.mouseout = omit(this.mapItemListeners.mouseout, mapItemIds);
+    this.mapItemListeners.mousemove = omit(this.mapItemListeners.mousemove, mapItemIds);
+    this.mapItemListeners.drag = omit(this.mapItemListeners.drag, mapItemIds);
+    this.mapItemListeners.dragend = omit(this.mapItemListeners.dragend, mapItemIds);
+    this.mapItemListenerIds.click = omit(this.mapItemListenerIds.click, mapItemIds);
+    this.mapItemListenerIds.mouseover = omit(this.mapItemListenerIds.mouseover, mapItemIds);
+    this.mapItemListenerIds.mouseout = omit(this.mapItemListenerIds.mouseout, mapItemIds);
+    this.mapItemListenerIds.mousemove = omit(this.mapItemListenerIds.mousemove, mapItemIds);
+    this.mapItemListenerIds.drag = omit(this.mapItemListenerIds.drag, mapItemIds);
+    this.mapItemListenerIds.dragend = omit(this.mapItemListenerIds.dragend, mapItemIds);
+
+    this.render();
   }
 
   inViewport(leftX, topY, width, height) {
@@ -1145,7 +1402,57 @@ class CanvasHandler {
     return xInRange && yInRange;
   }
 
+  getMapItemRenderedInfo(mapItem) {
+    const {
+      x,
+      y,
+      offsetX,
+      offsetY,
+      scalePosition,
+      scaleDimension,
+      width,
+      height,
+      center,
+    } = mapItem;
+
+    let renderedX = scalePosition ? this.scaleCoordinate(x) : x;
+    let renderedY = scalePosition ? this.scaleCoordinate(y) : y;
+    const scaledWidth = scaleDimension ? this.scaleCoordinate(width) : width;
+    const scaledHeight = scaleDimension ? this.scaleCoordinate(height) : height;
+
+    if (offsetX) {
+      renderedX += offsetX;
+    }
+
+    if (offsetY) {
+      renderedY += offsetY;
+    }
+
+    if (center) {
+      renderedX -= scaledWidth / 2;
+      renderedY -= scaledHeight / 2;
+    }
+
+    const centeredX = x - scaledWidth / 2;
+    const centeredY = y - scaledHeight / 2;
+
+    return { renderedX, renderedY, scaledWidth, scaledHeight, centeredX, centeredY };
+  }
+
   render = () => {
+    if (!this.renderRequest) {
+      setTimeout(() => {
+        // eslint-disable-next-line no-underscore-dangle
+        this._render();
+        this.renderRequest = false;
+      });
+    }
+
+    this.renderRequest = true;
+  };
+
+  // eslint-disable-next-line no-underscore-dangle
+  _render() {
     const ctx = this.canvas.getContext('2d');
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -1161,8 +1468,6 @@ class CanvasHandler {
         const {
           x,
           y,
-          offsetX,
-          offsetY,
           floor,
           image,
           textElement,
@@ -1185,26 +1490,14 @@ class CanvasHandler {
           ctx.globalAlpha = opacity;
         }
 
-        let renderedX = scalePosition ? this.scaleCoordinate(x) : x;
-        let renderedY = scalePosition ? this.scaleCoordinate(y) : y;
-        const scaledWidth = scaleDimension ? this.scaleCoordinate(width) : width;
-        const scaledHeight = scaleDimension ? this.scaleCoordinate(height) : height;
-
-        if (offsetX) {
-          renderedX += offsetX;
-        }
-
-        if (offsetY) {
-          renderedY += offsetY;
-        }
-
-        if (center) {
-          renderedX -= scaledWidth / 2;
-          renderedY -= scaledHeight / 2;
-        }
-
-        const centeredX = x - scaledWidth / 2;
-        const centeredY = y - scaledHeight / 2;
+        const {
+          renderedX,
+          renderedY,
+          scaledWidth,
+          scaledHeight,
+          centeredX,
+          centeredY,
+        } = this.getMapItemRenderedInfo(mapItem);
 
         setCanvasItemHitArea(
           mapItem,
@@ -1351,7 +1644,7 @@ class CanvasHandler {
         }
       });
     });
-  };
+  }
 
   /**
    * @return {HTMLCanvasElement}
@@ -1378,12 +1671,23 @@ class CanvasHandler {
       this.addMapItemListener('mouseover', id, mapItemId, listener, isPrepend),
     addMapItemMouseOutListener: (id, mapItemId, listener, isPrepend) =>
       this.addMapItemListener('mouseout', id, mapItemId, listener, isPrepend),
+    addMapItemMouseMoveListener: (id, mapItemId, listener, isPrepend) =>
+      this.addMapItemListener('mousemove', id, mapItemId, listener, isPrepend),
+    addMapItemDragListener: (id, mapItemId, listener, isPrepend) =>
+      this.addMapItemListener('drag', id, mapItemId, listener, isPrepend),
+    addMapItemDragEndListener: (id, mapItemId, listener, isPrepend) =>
+      this.addMapItemListener('dragend', id, mapItemId, listener, isPrepend),
     removeMapItemClickListener: (id, mapItemId) =>
       this.removeMapItemListener('click', id, mapItemId),
     removeMapItemMouseOverListener: (id, mapItemId) =>
       this.removeMapItemListener('mouseover', id, mapItemId),
     removeMapItemMouseOutListener: (id, mapItemId) =>
       this.removeMapItemListener('mouseout', id, mapItemId),
+    removeMapItemMouseMoveListener: (id, mapItemId) =>
+      this.removeMapItemListener('mousemove', id, mapItemId),
+    removeMapItemDragListener: (id, mapItemId) => this.removeMapItemListener('drag', id, mapItemId),
+    removeMapItemDragEndListener: (id, mapItemId) =>
+      this.removeMapItemListener('dragend', id, mapItemId),
     // canvas root element listener
     addCanvasMouseUpListener: listener => this.addMouseUpListener(listener),
     addCanvasMouseMoveListener: listener => this.addMouseMoveListener(listener),

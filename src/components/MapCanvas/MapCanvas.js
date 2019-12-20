@@ -50,8 +50,6 @@ class MapCanvas extends Component {
   componentDidMount() {
     const { linkTo, getMapItemsHandler } = this.props;
 
-    window.canvasHandler = this.canvasHandler;
-
     this.canvasHandler.addMouseUpListener(({ x, y, floor, level }) => {
       // update position param if changed due to mouse event
       const isPositionReady = [x, y, level, floor].every(v => !isNil(v));
@@ -255,7 +253,19 @@ class MapCanvas extends Component {
 
     const { width, height } = this.state;
 
-    const urlParams = pick(this.props, ['from', 'to', 'x', 'y', 'level', 'floor']);
+    const urlParams = pick(this.props, [
+      'from',
+      'to',
+      'via',
+      'x',
+      'y',
+      'level',
+      'floor',
+      'search',
+      'suggestion',
+      'suggestionX',
+      'suggestionY',
+    ]);
 
     const isDimensionReady = width && height;
 

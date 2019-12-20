@@ -2,22 +2,28 @@ import classnames from 'classnames';
 import React from 'react';
 import PropTypes from 'prop-types';
 import SearchInput from '../SearchInput/SearchInput';
-import SearchNearest from '../SearchNearest/SearchNearest';
+import SearchNearest, { nearestOptions } from '../SearchNearest/SearchNearest';
 import AdvancedSearch from '../AdvancedSearch/AdvancedSearch';
 import style from './SearchPrimaryPanelView.module.css';
 import switchImage from './switch.png';
-import { searchOptionsPropTypes } from '../../reducers/searchOptions';
+import { searchOptionsPropType } from '../Router/searchOptions';
 import { searchMapItemPropTypes } from '../../reducers/searchMapItem';
 import { floorsPropType } from '../../reducers/floors';
 import { placePropType } from '../Router/Url';
+import {
+  isEqual as inputIsEqual,
+  isNearestQuery as inputIsNearestQuery,
+} from '../SearchArea/Input';
 
 class SearchPrimaryPanelView extends React.Component {
   static propTypes = {
     floorStore: floorsPropType.isRequired,
     searchMapItemStore: searchMapItemPropTypes.isRequired,
-    searchOptionsStore: searchOptionsPropTypes.isRequired,
+    searchOptions: searchOptionsPropType.isRequired,
     onKeywordChange: PropTypes.func.isRequired,
     onAutoCompleteItemClick: PropTypes.func.isRequired,
+    onAddViaPlace: PropTypes.func.isRequired,
+    onRemoveViaPlace: PropTypes.func.isRequired,
     onNearestItemClick: PropTypes.func.isRequired,
     switchInputOrder: PropTypes.func.isRequired,
     updateSameFloor: PropTypes.func.isRequired,
@@ -27,6 +33,7 @@ class SearchPrimaryPanelView extends React.Component {
     searchInputOrders: PropTypes.arrayOf(PropTypes.string).isRequired,
     from: placePropType,
     to: placePropType,
+    via: PropTypes.arrayOf(placePropType),
   };
 
   state = {
@@ -36,7 +43,7 @@ class SearchPrimaryPanelView extends React.Component {
     },
   };
 
-  setAutoCompleteDisplay = direction => value => {
+  setAutoCompleteDisplayHandler = direction => value => {
     this.setState(prevState => ({
       shouldAutoCompleteDisplay: {
         ...prevState.shouldAutoCompleteDisplay,
@@ -45,11 +52,57 @@ class SearchPrimaryPanelView extends React.Component {
     }));
   };
 
+  getViaInput(index, place) {
+    const {
+      floorStore,
+      onRemoveViaPlace,
+      onAutoCompleteItemClick,
+      searchMapItemStore,
+      onKeywordChange,
+    } = this.props;
+
+    const { shouldAutoCompleteDisplay } = this.state;
+
+    return (
+      <div key={index} className={style.searchRow}>
+        <div className={style.inputTitle}>
+          <span className={style.viaCircle}>{String.fromCharCode(65 + index)}</span>
+        </div>
+        <div className={style.inputField}>
+          <SearchInput
+            inputClassName={style.input}
+            autoCompleteListClassName={style.autoCompleteList}
+            suggestions={searchMapItemStore.suggestions}
+            onKeywordChange={onKeywordChange('via', index)}
+            loading={searchMapItemStore.loading}
+            onAutoCompleteItemClick={onAutoCompleteItemClick('via', index)}
+            value={place ? place.name : ''}
+            floorStore={floorStore}
+            shouldAutoCompleteDisplay={shouldAutoCompleteDisplay[`${'via_'}${index}`]}
+            setAutoCompleteDisplay={this.setAutoCompleteDisplayHandler(`${'via_'}${index}`)}
+          />
+        </div>
+        <button type="button" className={style.inputViaRemove} onClick={onRemoveViaPlace(index)}>
+          <span role="img" aria-label="remove">
+            ×
+          </span>
+        </button>
+      </div>
+    );
+  }
+
+  shouldSameFloorInputDisplay() {
+    const { from, to } = this.props;
+    return [from, to].some(
+      place => inputIsNearestQuery(place) && !inputIsEqual(place, nearestOptions.lift),
+    );
+  }
+
   render() {
     const {
       floorStore,
       searchMapItemStore,
-      searchOptionsStore,
+      searchOptions,
       onKeywordChange,
       onAutoCompleteItemClick,
       onNearestItemClick,
@@ -60,10 +113,12 @@ class SearchPrimaryPanelView extends React.Component {
       updateSearchOptions,
       from,
       to,
+      via,
       searchInputOrders,
+      onAddViaPlace,
     } = this.props;
 
-    const { sameFloor } = searchOptionsStore;
+    const { sameFloor } = searchOptions;
 
     const { shouldAutoCompleteDisplay } = this.state;
     const searchInputs = {
@@ -78,7 +133,7 @@ class SearchPrimaryPanelView extends React.Component {
           value={direction === 'from' ? from.name : to.name}
           floorStore={floorStore}
           shouldAutoCompleteDisplay={shouldAutoCompleteDisplay[direction]}
-          setAutoCompleteDisplay={this.setAutoCompleteDisplay(direction)}
+          setAutoCompleteDisplay={this.setAutoCompleteDisplayHandler(direction)}
         />
       ),
       SearchNearest: direction => (
@@ -97,7 +152,7 @@ class SearchPrimaryPanelView extends React.Component {
             placeholder="Room number/ name"
             floorStore={floorStore}
             shouldAutoCompleteDisplay={shouldAutoCompleteDisplay[direction]}
-            setAutoCompleteDisplay={this.setAutoCompleteDisplay(direction)}
+            setAutoCompleteDisplay={this.setAutoCompleteDisplayHandler(direction)}
           />
         </SearchNearest>
       ),
@@ -110,11 +165,17 @@ class SearchPrimaryPanelView extends React.Component {
           <div className={style.content}>
             <div className={style.searchColumn}>
               <div className={style.searchRow}>
-                <div className={style.inputTitle}>From</div>
+                <div className={style.inputTitle}>
+                  <span className={style.fromCircle} />
+                  From
+                </div>
                 <div className={style.inputField}>{searchInputs[searchInputOrders[0]]('from')}</div>
               </div>
+              {Array.isArray(via) && via.map((place, index) => this.getViaInput(index, place))}
               <div className={style.searchRow}>
-                <div className={style.inputTitle}>To</div>
+                <div className={style.inputTitle}>
+                  <span className={style.toCircle} /> To
+                </div>
                 <div className={style.inputField}> {searchInputs[searchInputOrders[1]]('to')} </div>
               </div>
             </div>
@@ -127,15 +188,24 @@ class SearchPrimaryPanelView extends React.Component {
               <img src={switchImage} alt="switch" />
             </button>
 
-            <div className={style.checkBoxRow}>
-              <input
-                className={style.checkBoxColumn}
-                type="checkbox"
-                onChange={updateSameFloor}
-                checked={sameFloor}
-              />
-              <div className={style.checkBoxColumn}>On the same floor</div>
-            </div>
+            {this.shouldSameFloorInputDisplay() ? (
+              <div className={style.checkBoxRow}>
+                <label>
+                  <input
+                    className={style.checkBoxColumn}
+                    type="checkbox"
+                    onChange={updateSameFloor}
+                    checked={sameFloor}
+                  />
+                  On the same floor
+                </label>
+              </div>
+            ) : null}
+
+            <button type="button" className={style.addDestinationButton} onClick={onAddViaPlace}>
+              <img className={style.addIcon} src="/images/icons/plus.svg" alt="Add" />
+              Add destination
+            </button>
 
             <div className={style.searchButtonContainer}>
               <input type="button" className={style.searchButton} value="GO" onClick={search} />
@@ -144,7 +214,7 @@ class SearchPrimaryPanelView extends React.Component {
         </div>
         {displayAdvancedSearch && (
           <AdvancedSearch
-            searchOptionsStore={searchOptionsStore}
+            searchOptions={searchOptions}
             updateSearchOptions={updateSearchOptions}
             search={search}
           />

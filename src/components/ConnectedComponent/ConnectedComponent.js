@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { openOverlayAction } from '../../reducers/overlay';
 import { updateLegendDisplayAction } from '../../reducers/legends';
+import { getNearestMapItemAction } from '../../reducers/nearestMapItem';
+import { setUserActivitiesAction } from '../../reducers/userActivities';
 
 const paramStateMap = {
   legendStore: 'legends',
@@ -9,13 +11,14 @@ const paramStateMap = {
   floorStore: 'floors',
   searchNearestStore: 'searchNearest',
   searchShortestPathStore: 'searchShortestPath',
-  searchOptionsStore: 'searchOptions',
   appSettingStore: 'appSettings',
   overlayStore: 'overlay',
   searchMapItemStore: 'searchMapItem',
+  nearestMapItemStore: 'nearestMapItem',
+  userActivitiesStore: 'userActivities',
 };
 
-const urlParams = ['place', 'from', 'to', 'x', 'y', 'level', 'floor'];
+const urlParams = ['place', 'from', 'to', 'via', 'x', 'y', 'level', 'floor', 'searchOptions'];
 const canvasParams = [
   'canvas',
   'width',
@@ -41,6 +44,12 @@ const paramDispatchMap = {
   updateLegendDisplayHandler: dispatch => (legendType, display) => {
     dispatch(updateLegendDisplayAction(legendType, display));
   },
+  getNearestMapItemHandler: dispatch => (floor, coordinates) => {
+    dispatch(getNearestMapItemAction(floor, coordinates));
+  },
+  setUserActivitiesHandler: dispatch => payload => {
+    dispatch(setUserActivitiesAction(payload));
+  },
 };
 
 /* eslint no-param-reassign: [0] */
@@ -56,6 +65,11 @@ const ConnectedComponent = connectParams => PluginComponent => {
     );
   }
 
+  if (connectParams.includes('searchOptionsStore')) {
+    /* backward compatible for deprecated searchOptionsStore */
+    connectParams.push('searchOptions');
+  }
+
   class ProxyComponent extends Component {
     shouldComponentUpdate(nextProps) {
       return connectParams.some(
@@ -66,13 +80,27 @@ const ConnectedComponent = connectParams => PluginComponent => {
     }
 
     render() {
-      return <PluginComponent {...this.props} />;
+      const derivedProps = {};
+
+      /* backward compatible for deprecated searchOptionsStore */
+      if (connectParams.includes('searchOptionsStore')) {
+        derivedProps.searchOptionsStore = {
+          ...this.props.searchOptions,
+          ...this.props.userActivitiesStore,
+        };
+      }
+      return <PluginComponent {...this.props} {...derivedProps} />;
     }
   }
 
   return connect(
     state =>
       connectParams.reduce((connectedState, param) => {
+        /* backward compatible for deprecated searchOptionsStore */
+        if (param === 'searchOptionsStore') {
+          param = 'userActivitiesStore';
+        }
+
         if (paramStateMap[param]) {
           connectedState[param] = state[paramStateMap[param]];
         }
