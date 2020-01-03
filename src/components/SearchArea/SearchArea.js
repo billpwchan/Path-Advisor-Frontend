@@ -229,8 +229,17 @@ class SearchArea extends Component {
     });
   };
 
-  updateSearchOptions = newSearchOptions => {
+  updateSearchOptions = (newSearchOptions, search = null) => {
+    if (search) {
+      const { setUserActivitiesHandler } = this.props;
+
+      setUserActivitiesHandler({
+        actionSource: ACTION_SOURCE.BUTTON_CLICK,
+      });
+    }
+
     this.props.linkTo(currentUrlParams => ({
+      ...(search === null ? {} : { search }),
       searchOptions: {
         ...currentUrlParams.searchOptions,
         ...newSearchOptions,

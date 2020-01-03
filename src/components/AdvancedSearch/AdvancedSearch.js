@@ -4,7 +4,7 @@ import classnames from 'classnames';
 import style from './AdvancedSearch.module.css';
 import { searchOptionsPropType, SEARCH_MODES } from '../Router/searchOptions';
 
-function AdvancedSearch({ searchOptions, updateSearchOptions, search }) {
+function AdvancedSearch({ searchOptions, updateSearchOptions }) {
   const { noStairCase, noEscalator, searchMode, stepFreeAccess } = searchOptions;
 
   const updateSetting = setting => ({ target }) => {
@@ -17,9 +17,7 @@ function AdvancedSearch({ searchOptions, updateSearchOptions, search }) {
 
     updatedSettings[setting] = target.type === 'checkbox' ? target.checked : target.value;
 
-    updateSearchOptions(updatedSettings);
-
-    search();
+    updateSearchOptions(updatedSettings, true);
   };
 
   return (
@@ -118,7 +116,6 @@ function AdvancedSearch({ searchOptions, updateSearchOptions, search }) {
 AdvancedSearch.propTypes = {
   searchOptions: searchOptionsPropType.isRequired,
   updateSearchOptions: PropTypes.func.isRequired,
-  search: PropTypes.func.isRequired,
 };
 
 export default AdvancedSearch;
