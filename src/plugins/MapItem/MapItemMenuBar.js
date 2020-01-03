@@ -42,7 +42,7 @@ class MenuBar extends Component {
     return (
       <div className={style.body}>
         <button type="button" onClick={this.showMenu}>
-          Display
+          Legend
         </button>
         {isMenuShown ? (
           <ul ref={this.menuRef} className={style.menu}>
