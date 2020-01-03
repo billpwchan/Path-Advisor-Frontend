@@ -215,6 +215,7 @@ class ShortestResultPrimaryPanel extends Component {
 }
 
 const id = 'shortestResult';
+const core = true;
 const PrimaryPanelPlugin = {
   connect: [
     'appSettingStore',
@@ -232,4 +233,4 @@ const PrimaryPanelPlugin = {
   Component: ShortestResultPrimaryPanel,
 };
 
-export { id, PrimaryPanelPlugin, MapCanvasPlugin };
+export { id, core, PrimaryPanelPlugin, MapCanvasPlugin };

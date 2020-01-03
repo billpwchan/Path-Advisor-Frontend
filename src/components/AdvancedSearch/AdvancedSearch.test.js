@@ -26,11 +26,13 @@ describe('AdvancedSearch', () => {
 
     fireEvent.click(checkbox);
 
-    expect(updateSearchOptions).toHaveBeenCalledWith({
-      ...initialSearchOptions,
-      noStairCase: true,
-    });
-    expect(search).toHaveBeenCalledTimes(1);
+    expect(updateSearchOptions).toHaveBeenCalledWith(
+      {
+        ...initialSearchOptions,
+        noStairCase: true,
+      },
+      true,
+    );
   });
 
   it('click on No escalator checkbox should set settings with noEscalator=true', () => {
@@ -47,11 +49,13 @@ describe('AdvancedSearch', () => {
 
     fireEvent.click(checkbox);
 
-    expect(updateSearchOptions).toHaveBeenCalledWith({
-      ...initialSearchOptions,
-      noEscalator: true,
-    });
-    expect(search).toHaveBeenCalledTimes(1);
+    expect(updateSearchOptions).toHaveBeenCalledWith(
+      {
+        ...initialSearchOptions,
+        noEscalator: true,
+      },
+      true,
+    );
   });
 
   [
@@ -73,11 +77,13 @@ describe('AdvancedSearch', () => {
 
       fireEvent.click(checkbox);
 
-      expect(updateSearchOptions).toHaveBeenCalledWith({
-        ...initialSearchOptions,
-        searchMode,
-      });
-      expect(search).toHaveBeenCalledTimes(1);
+      expect(updateSearchOptions).toHaveBeenCalledWith(
+        {
+          ...initialSearchOptions,
+          searchMode,
+        },
+        true,
+      );
     });
   });
 });

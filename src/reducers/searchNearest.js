@@ -64,14 +64,14 @@ export const searchNearestPropType = PropTypes.shape({
     coordinates: PropTypes.arrayOf(PropTypes.number),
     id: PropTypes.string.isRequired,
     type: PropTypes.string,
-  }).isRequired,
+  }),
   from: PropTypes.shape({
     name: PropTypes.string.isRequired,
     floor: PropTypes.string.isRequired,
     coordinates: PropTypes.arrayOf(PropTypes.number),
     id: PropTypes.string.isRequired,
     type: PropTypes.string,
-  }).isRequired,
+  }),
 });
 
 const searchNearest = (state = initialState, { type, payload }) => {

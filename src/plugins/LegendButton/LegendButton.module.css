@@ -1,6 +1,6 @@
 .button {
   position: absolute;
-  bottom: 0px;
+  bottom: 4px;
   right: 10px;
   display: block;
 }
@@ -9,6 +9,7 @@
 .buttonImage {
   width: 36px;
   height: 36px;
+  vertical-align: middle;
 }
 
 .body {

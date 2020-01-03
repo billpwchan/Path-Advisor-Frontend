@@ -9,6 +9,7 @@ import floors from './floors';
 import overlay from './overlay';
 import appSettings from './appSettings';
 import nearestMapItem from './nearestMapItem';
+import pluginSettings from './pluginSettings';
 
 export default combineReducers({
   appSettings,
@@ -21,4 +22,5 @@ export default combineReducers({
   overlay,
   userActivities,
   nearestMapItem,
+  pluginSettings,
 });

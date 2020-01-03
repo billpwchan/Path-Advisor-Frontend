@@ -47,8 +47,10 @@ class LegendButton extends Component {
 const MapCanvasPlugin = {
   Component: LegendButton,
   connect: ['legendStore'],
-  platform: ['MOBILE'],
 };
 
 const id = 'legendButton';
-export { id, MapCanvasPlugin };
+const platform = ['MOBILE'];
+const core = true;
+
+export { id, core, platform, MapCanvasPlugin };

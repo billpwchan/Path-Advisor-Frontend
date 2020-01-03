@@ -213,11 +213,7 @@ class SearchPrimaryPanelView extends React.Component {
           </div>
         </div>
         {displayAdvancedSearch && (
-          <AdvancedSearch
-            searchOptions={searchOptions}
-            updateSearchOptions={updateSearchOptions}
-            search={search}
-          />
+          <AdvancedSearch searchOptions={searchOptions} updateSearchOptions={updateSearchOptions} />
         )}
       </div>
     );

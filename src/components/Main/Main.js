@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import isNil from 'lodash.isnil';
 import PrimaryPanel from '../PrimaryPanel/PrimaryPanel';
 import TopPanel from '../TopPanel/TopPanel';
-import plugins from '../../plugins';
+import allPlugins from '../../plugins';
 import MapCanvas from '../MapCanvas/MapCanvas';
 import { parseParams, build as buildUrl } from '../Router/Url';
 import style from './Main.module.css';
@@ -16,6 +16,7 @@ import { floorsPropType } from '../../reducers/floors';
 import { legendsPropType } from '../../reducers/legends';
 import { getInitDataAction } from '../../reducers/initData';
 import { appSettingsPropType } from '../../reducers/appSettings';
+import { pluginSettingsPropType } from '../../reducers/pluginSettings';
 import FullScreenOverlay from '../FullScreenOverlay/FullScreenOverlay';
 import Suggestion from '../Suggestion/Suggestion';
 
@@ -30,6 +31,7 @@ class Main extends Component {
     appSettingStore: appSettingsPropType.isRequired,
     floorStore: floorsPropType.isRequired,
     legendStore: legendsPropType.isRequired,
+    pluginSettingsStore: pluginSettingsPropType.isRequired,
     getInitDataHandler: PropTypes.func.isRequired,
   };
 
@@ -121,7 +123,7 @@ class Main extends Component {
   }
 
   render() {
-    const { appSettingStore, legendStore, floorStore } = this.props;
+    const { appSettingStore, legendStore, floorStore, pluginSettingsStore } = this.props;
 
     if (!appSettingStore.success || !floorStore.success || !legendStore.success) {
       return null;
@@ -129,6 +131,17 @@ class Main extends Component {
 
     const isMobile = this.platform === PLATFORM.MOBILE;
     const urlParams = this.getUrlParams();
+    const plugins = allPlugins.filter(plugin => {
+      if (plugin.platform && !plugin.platform.includes(this.platform)) {
+        return false;
+      }
+
+      if (!pluginSettingsStore.data[plugin.id]) {
+        return true;
+      }
+
+      return !pluginSettingsStore.data[plugin.id].off;
+    });
 
     return (
       <>
@@ -195,10 +208,11 @@ class Main extends Component {
             </>
           )}
           <MapCanvas {...urlParams} linkTo={this.linkTo} platform={this.platform}>
-            {plugins.map(({ id, MapCanvasPlugin, MenuBarPlugin }) => ({
+            {plugins.map(({ id, MapCanvasPlugin, MenuBarPlugin, name }) => ({
               id,
               MapCanvasPlugin,
               MenuBarPlugin,
+              name,
             }))}
           </MapCanvas>
         </div>
@@ -212,6 +226,7 @@ export default connect(
     appSettingStore: state.appSettings,
     floorStore: state.floors,
     legendStore: state.legends,
+    pluginSettingsStore: state.pluginSettings,
   }),
   dispatch => ({
     getInitDataHandler: () => {

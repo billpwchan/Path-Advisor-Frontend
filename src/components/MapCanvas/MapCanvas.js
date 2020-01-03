@@ -6,6 +6,7 @@ import pick from 'lodash.pick';
 import isNil from 'lodash.isnil';
 import { connect } from 'react-redux';
 import throttle from 'lodash.throttle';
+
 import CanvasHandler from './CanvasHandler';
 import { APIEndpoint } from '../../config/config';
 import style from './MapCanvas.module.css';
@@ -14,6 +15,10 @@ import getConnectedComponent from '../ConnectedComponent/getConnectedComponent';
 import { getMapItemsAction } from '../../reducers/mapItems';
 import { PLATFORM } from '../Main/detectPlatform';
 import { TABS } from '../Suggestion/constants';
+import { floorsPropType } from '../../reducers/floors';
+import { appSettingsPropType } from '../../reducers/appSettings';
+import PluginTogglePanel from '../PluginTogglePanel/PluginTogglePanel';
+import { pluginSettingsPropType } from '../../reducers/pluginSettings';
 
 class MapCanvas extends Component {
   canvasRootRef = createRef();
@@ -24,8 +29,9 @@ class MapCanvas extends Component {
     children: PropTypes.arrayOf(PropTypes.object),
     ...urlPropTypes,
     getMapItemsHandler: PropTypes.func.isRequired,
-    floorStore: PropTypes.shape({}).isRequired,
-    appSettingsStore: PropTypes.shape({}).isRequired,
+    floorStore: floorsPropType.isRequired,
+    appSettingsStore: appSettingsPropType.isRequired,
+    pluginSettingsStore: pluginSettingsPropType.isRequired,
     linkTo: PropTypes.func.isRequired,
     platform: PropTypes.oneOf(Object.values(PLATFORM)),
   };
@@ -45,6 +51,7 @@ class MapCanvas extends Component {
     movingScreenTopY: null,
     nextLevel: null,
     previousLevel: null,
+    pluginPanelClosed: true,
   };
 
   componentDidMount() {
@@ -194,6 +201,18 @@ class MapCanvas extends Component {
     });
   };
 
+  showPluginTogglePanel = () => {
+    this.setState({
+      pluginPanelClosed: false,
+    });
+  };
+
+  hidePluginTogglePanel = () => {
+    this.setState({
+      pluginPanelClosed: true,
+    });
+  };
+
   restrictOutOfBoundary({
     newLeftX = null,
     newTopY = null,
@@ -248,10 +267,11 @@ class MapCanvas extends Component {
       floor,
       linkTo,
       floorStore: { floors, buildings },
+      pluginSettingsStore,
       platform,
     } = this.props;
 
-    const { width, height } = this.state;
+    const { width, height, pluginPanelClosed } = this.state;
 
     const urlParams = pick(this.props, [
       'from',
@@ -335,10 +355,6 @@ class MapCanvas extends Component {
                 return null;
               }
 
-              if (MapCanvasPlugin.platform && !MapCanvasPlugin.platform.includes(platform)) {
-                return null;
-              }
-
               const PluginComponent = getConnectedComponent(
                 `mapCanvas_${id}`,
                 MapCanvasPlugin.connect,
@@ -363,7 +379,23 @@ class MapCanvas extends Component {
                 />
               );
             })}
+          {pluginSettingsStore.ids.length ? (
+            <button
+              type="button"
+              className={classnames(style.layerButton, {
+                [style['layerButton--mobile']]: platform === 'MOBILE',
+              })}
+              onClick={this.showPluginTogglePanel}
+            >
+              <img src="/images/icons/settings.svg" alt="layers button" />
+            </button>
+          ) : null}
         </div>
+        <PluginTogglePanel
+          platform={platform}
+          closed={pluginPanelClosed}
+          onClose={this.hidePluginTogglePanel}
+        />
       </div>
     );
   }
@@ -372,6 +404,7 @@ class MapCanvas extends Component {
 export default connect(
   state => ({
     appSettingsStore: state.appSettings,
+    pluginSettingsStore: state.pluginSettings,
     floorStore: state.floors,
   }),
   dispatch => ({

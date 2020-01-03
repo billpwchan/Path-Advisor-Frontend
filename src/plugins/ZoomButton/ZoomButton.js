@@ -40,4 +40,6 @@ const MapCanvasPlugin = {
 };
 
 const id = 'zoomButton';
-export { id, MapCanvasPlugin };
+const core = true;
+
+export { id, core, MapCanvasPlugin };

@@ -327,8 +327,10 @@ const MapCanvasPlugin = {
 };
 
 const id = 'mapItem';
+const core = true;
 export {
   id,
+  core,
   MapCanvasPlugin,
   MapItemMenuBar as MenuBarPlugin,
   MapItemDesktopOverlayHeader as OverlayHeaderPlugin,
