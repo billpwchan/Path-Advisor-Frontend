@@ -34,3 +34,26 @@
 .canvasRoot--mobile {
   height: 100%;
 }
+
+.layerButton {
+  position: absolute;
+  bottom: 4px;
+  right: 10px;
+  display: block;
+  background: linear-gradient(rgba(0,0,0,0.85),rgba(51,51,51,0.85) );
+  border: 1px solid #333333;
+  border-radius: 5px;
+  width: 24px;
+  height: 24px;
+}
+
+.layerButton--mobile {
+  width: 36px;
+  height: 36px;
+  bottom: 44px;
+}
+
+.layerButton > img {
+  width: 60%;
+  vertical-align: middle;
+}

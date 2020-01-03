@@ -1,0 +1,40 @@
+.body {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: 200px;
+  background-color: #6a6a6a;
+  color: #ededed;
+  padding: 20px;
+  font-size: 12px;
+  overflow-y: auto;
+}
+
+.switch {
+  vertical-align: middle;
+  margin-right: 10px;
+}
+
+.title {
+  font-size: 14px;
+  margin-bottom: 14px;
+}
+
+.closeButton {
+  font-size: 30px;
+  border: 2px solid white;
+  border-radius: 99px;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  float: right;
+}
+
+.clear {
+  clear: both;
+}
+
+.pluginList > li {
+  margin-bottom: 5px;
+}
