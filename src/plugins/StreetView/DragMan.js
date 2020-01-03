@@ -1,5 +1,5 @@
+import React, { Component } from 'react';
 import dragManImage from './img/Dragman/Yellow_Figure_Right_m.png';
-import React from 'react';
 
 // This is the function component for DragMan.
 
@@ -26,24 +26,34 @@ function updateDragManPosition(e) {
   dragManObject.style.top = `${e.clientY - height / 2 + DragManTopOffset}px`;
 }
 
-function DragMan({ display, buttonClassName, parentHandleDrop }) {
-  document.onmousemove = updateDragManPosition;
-  const styles = {
-    position: 'fixed',
-    display: display,
-  };
+class DragMan extends Component {
+  componentDidMount() {
+    document.addEventListener('mousemove', updateDragManPosition);
+  }
 
-  // We need to communicate with parent when and only when DragMan is dropped.
-  return (
-    <img
-      style={styles}
-      id={DragManID}
-      className={buttonClassName}
-      src={dragManImage}
-      onMouseUp={parentHandleDrop}
-      alt="DragMan"
-    />
-  );
+  componentWillUnmount() {
+    document.removeEventListener('mousemove', updateDragManPosition);
+  }
+
+  render() {
+    const { display, buttonClassName, parentHandleDrop } = this.props;
+
+    const styles = {
+      position: 'fixed',
+      display,
+    };
+    // We need to communicate with parent when and only when DragMan is dropped.
+    return (
+      <img
+        style={styles}
+        id={DragManID}
+        className={buttonClassName}
+        src={dragManImage}
+        onMouseUp={parentHandleDrop}
+        alt="DragMan"
+      />
+    );
+  }
 }
 
 export default DragMan;
