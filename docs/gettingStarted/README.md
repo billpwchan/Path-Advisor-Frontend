@@ -17,9 +17,9 @@ Then run `npm start` in the terminal to start the project.
 You should able to access path advisor locally now at http://localhost:3000.
 
 
-## Plugin feature
+## Example Plugin feature
 
-We want to put a pin at the location after user has input a specified location in the left panel of the UI in the input field. For example, if the user has input Atrium in the input field, the map canvas area will now jump to the position of the atrium. What if we also want to put a pin on top of atrium location?
+We want to put a pin in the map after user has input a location in the input field in left UI panel. For example, if the user has input Atrium in the input field, the map canvas area will now jump to the position of the atrium. And now we want to put a pin icon on top of atrium location.
 
 ## Bootstrapping
 
@@ -70,8 +70,11 @@ const MapCanvasPlugin = {
   connect: ["from", "setMapItems", "removeMapItem"]
 };
 
-const id = "Pin";
-export { id, MapCanvasPlugin };
+const id = "pin";
+const name = "Pin";
+const defaultOff = false;
+
+export { id, name, defaultOff, MapCanvasPlugin };
 ```
 
 ## Implementing the function
@@ -157,8 +160,11 @@ const MapCanvasPlugin = {
   connect: ["from", "setMapItems", "removeMapItem"]
 };
 
-const id = "Pin";
-export { id, MapCanvasPlugin };
+const id = "pin";
+const name = "Pin";
+const defaultOff = false;
+
+export { id, name, defaultOff, MapCanvasPlugin };
 ```
 
 Don't forget to update `plugins/index.js` to include this new plugin.
