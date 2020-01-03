@@ -79,7 +79,7 @@ class MapCanvas extends Component {
 
     const { x, y, floor, level } = this.props;
 
-    this.canvasRootRef.current.appendChild(this.canvasHandler.getCanvas());
+    this.canvasRootRef.current.prepend(this.canvasHandler.getCanvas());
     this.updateCanvasDimension();
 
     window.addEventListener('resize', throttle(this.updateCanvasDimension, 500));
