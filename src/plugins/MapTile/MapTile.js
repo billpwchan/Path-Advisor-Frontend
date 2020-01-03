@@ -137,5 +137,7 @@ const MapCanvasPlugin = {
     'movingScreenTopY',
   ],
 };
-const id = 'MAP_TILE';
-export { id, MapCanvasPlugin };
+const id = 'mapTile';
+const core = true;
+
+export { id, core, MapCanvasPlugin };

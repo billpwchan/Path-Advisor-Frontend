@@ -126,7 +126,8 @@ const MapCanvasPlugin = {
     'level',
     'floor',
   ],
-  platform: ['MOBILE'],
 };
+const core = true;
+const platform = ['MOBILE'];
 
-export { id, MapCanvasPlugin };
+export { id, core, platform, MapCanvasPlugin };

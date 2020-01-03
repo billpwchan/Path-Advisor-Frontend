@@ -38,4 +38,6 @@ const MapCanvasPlugin = {
 };
 
 const id = 'pin';
-export { id, MapCanvasPlugin };
+const core = true;
+
+export { id, core, MapCanvasPlugin };

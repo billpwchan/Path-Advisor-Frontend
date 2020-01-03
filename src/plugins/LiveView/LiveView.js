@@ -83,4 +83,5 @@ const MapCanvasPlugin = {
   Component: LiveViewVideoLegend,
 };
 
-export { id, MapCanvasPlugin, OverlayContentPlugin, MobileOverlayContentPlugin };
+const core = true;
+export { id, core, MapCanvasPlugin, OverlayContentPlugin, MobileOverlayContentPlugin };

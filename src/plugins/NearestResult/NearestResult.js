@@ -58,7 +58,6 @@ export class NearestResult extends Component {
 
       case searchNearestStore.success: {
         const { from, nearest } = searchNearestStore;
-        console.log(`${nearest.name} (${this.getBuildingAndFloorText(nearest.floor)})`);
         return (
           <div className={style.body}>
             {searchNearestHead}
@@ -102,6 +101,8 @@ export class NearestResult extends Component {
 }
 
 const id = 'nearestResult';
+const core = true;
+
 const PrimaryPanelPlugin = {
   Component: NearestResult,
   connect: [
@@ -116,4 +117,4 @@ const PrimaryPanelPlugin = {
   ],
 };
 
-export { id, PrimaryPanelPlugin };
+export { id, core, PrimaryPanelPlugin };

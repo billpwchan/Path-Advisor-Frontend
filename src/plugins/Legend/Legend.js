@@ -25,5 +25,8 @@ const PrimaryPanelPlugin = {
   Component: Legend,
   connect: ['legendStore'],
 };
+
 const id = 'legend';
-export { id, PrimaryPanelPlugin };
+const core = true;
+
+export { id, core, PrimaryPanelPlugin };

@@ -139,4 +139,6 @@ const MapCanvasPlugin = {
 };
 
 const id = 'campusBuildingOverlay';
-export { id, MapCanvasPlugin };
+const core = true;
+
+export { id, core, MapCanvasPlugin };
