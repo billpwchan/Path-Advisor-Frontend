@@ -58,7 +58,7 @@ function LiveViewVideoLegend({
       x,
       y,
       floor,
-      offsetX: -40,
+      offsetX: 40,
       image: createImage(legends.liveView.image),
       onClick: () => {
         openOverlayHandler(name, photo, url, others);
