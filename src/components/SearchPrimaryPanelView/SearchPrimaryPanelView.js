@@ -153,6 +153,7 @@ class SearchPrimaryPanelView extends React.Component {
             floorStore={floorStore}
             shouldAutoCompleteDisplay={shouldAutoCompleteDisplay[direction]}
             setAutoCompleteDisplay={this.setAutoCompleteDisplayHandler(direction)}
+            autoFocus
           />
         </SearchNearest>
       ),

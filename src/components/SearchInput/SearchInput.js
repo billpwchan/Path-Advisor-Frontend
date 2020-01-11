@@ -23,6 +23,7 @@ class SearchInput extends Component {
     shouldAutoCompleteDisplay: PropTypes.bool,
     setAutoCompleteDisplay: PropTypes.func.isRequired,
     onFocus: PropTypes.func,
+    autoFocus: PropTypes.bool,
   };
 
   onInputChange = e => {
@@ -56,6 +57,7 @@ class SearchInput extends Component {
       floorStore: { floors, buildings },
       shouldAutoCompleteDisplay,
       onFocus,
+      autoFocus = false,
     } = this.props;
 
     return (
@@ -67,6 +69,7 @@ class SearchInput extends Component {
           value={value}
           placeholder={placeholder}
           onFocus={onFocus}
+          autoFocus={autoFocus}
         />
         {shouldAutoCompleteDisplay && !loading && suggestions.length > 0 && (
           <ul className={autoCompleteListClassName}>
