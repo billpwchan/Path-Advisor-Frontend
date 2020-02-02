@@ -432,10 +432,10 @@ y coordinate offset at the top of the map canvas while the user is doing drag an
 
 Similar to `movingLeftX`, but use `movingScaledX` as reference point.
 
-#### movingScreenLeftY
-`movingScreenLeftY` - number
+#### movingScreenTopY
+`movingScreenTopY` - number
 
-Similar to `movingLeftY`, but use `movingScaledY` as reference point.
+Similar to `movingTopY`, but use `movingScaledY` as reference point.
 
 #### nextLevel
 `nextLevel` - number
