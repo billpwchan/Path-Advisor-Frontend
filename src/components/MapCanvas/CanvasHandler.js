@@ -592,7 +592,6 @@ class CanvasHandler {
       if (button !== 0 || (target !== this.getCanvas() && relatedTarget !== this.getCanvas())) {
         return;
       }
-
       const { x: prevX, y: prevY } = this;
 
       const mouseMoveListener = mouseMoveEvent => {
@@ -801,6 +800,7 @@ class CanvasHandler {
             offsetY,
             shape,
             line,
+            onDrag,
           } = mapItem;
 
           let itemHit = false;
@@ -886,7 +886,7 @@ class CanvasHandler {
                 delete this.mapItemsMouseOvering[id];
               }
 
-              if (this.mapItemsMouseDown[id]) {
+              if (this.mapItemsMouseDown[id] && onDrag) {
                 this.mapItemsDrag[id] = true;
                 this.preventCanvasMouseMoveEvent = true;
                 mapItemEvents.push('drag');
@@ -1200,6 +1200,12 @@ class CanvasHandler {
           others,
           center,
           hidden,
+          onClick,
+          onMouseOver,
+          onMouseOut,
+          onMouseMove,
+          onDrag,
+          onDragEnd,
         };
 
         this.mapItems[id] = mapItem;
