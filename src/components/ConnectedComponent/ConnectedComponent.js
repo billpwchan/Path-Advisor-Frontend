@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+
+import ErrorBoundary from '../ErrorBoundary/ErrorBoundary';
 import { openOverlayAction } from '../../reducers/overlay';
 import { updateLegendDisplayAction } from '../../reducers/legends';
 import { getNearestMapItemAction } from '../../reducers/nearestMapItem';
@@ -89,7 +91,11 @@ const ConnectedComponent = connectParams => PluginComponent => {
           ...this.props.userActivitiesStore,
         };
       }
-      return <PluginComponent {...this.props} {...derivedProps} />;
+      return (
+        <ErrorBoundary>
+          <PluginComponent {...this.props} {...derivedProps} />
+        </ErrorBoundary>
+      );
     }
   }
 
