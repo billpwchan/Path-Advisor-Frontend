@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import isNil from 'lodash.isnil';
 
 import ErrorBoundary from '../ErrorBoundary/ErrorBoundary';
 import { openOverlayAction } from '../../reducers/overlay';
@@ -83,6 +84,14 @@ const ConnectedComponent = connectParams => PluginComponent => {
 
     render() {
       const derivedProps = {};
+
+      const isPositionSubscribedAndReady = !['x', 'y', 'level', 'floor'].some(
+        param => connectParams.includes(param) && isNil(this.props[param]),
+      );
+
+      if (!isPositionSubscribedAndReady) {
+        return null;
+      }
 
       /* backward compatible for deprecated searchOptionsStore */
       if (connectParams.includes('searchOptionsStore')) {
