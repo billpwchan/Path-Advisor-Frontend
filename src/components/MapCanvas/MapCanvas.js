@@ -171,7 +171,7 @@ class MapCanvas extends Component {
     });
 
     // init position param
-    this.canvasHandler.updatePosition(x, y, floor, level);
+    this.updatePosition();
   }
 
   componentDidUpdate(prevProps) {
@@ -183,7 +183,7 @@ class MapCanvas extends Component {
       floor !== prevProps.floor ||
       level !== prevProps.level
     ) {
-      this.canvasHandler.updatePosition(x, y, floor, level);
+      this.updatePosition();
     }
   }
 
@@ -212,6 +212,15 @@ class MapCanvas extends Component {
       pluginPanelClosed: true,
     });
   };
+
+  updatePosition() {
+    const { x, y, floor, level } = this.props;
+    const isPositionReady = [x, y, level, floor].every(v => !isNil(v));
+    if (!isPositionReady) {
+      return;
+    }
+    this.canvasHandler.updatePosition(x, y, floor, level);
+  }
 
   restrictOutOfBoundary({
     newLeftX = null,

@@ -2,6 +2,7 @@ import get from 'lodash.get';
 import throttle from 'lodash.throttle';
 import without from 'lodash.without';
 import omit from 'lodash.omit';
+import isNil from 'lodash.isnil';
 
 import calculateTextDimension from './calculateTextDimension';
 import stableSort from './stableSort';
@@ -308,6 +309,19 @@ class CanvasHandler {
   }
 
   updatePosition(x, y, floor = this.floor, level = this.level) {
+    if (
+      isNil(x) ||
+      Number.isNaN(x) ||
+      isNil(y) ||
+      Number.isNaN(y) ||
+      isNil(floor) ||
+      isNil(level) ||
+      Number.isNaN(level)
+    ) {
+      throw new TypeError(
+        `updatePosition got invalid parameters x=${x}, y=${y}, floor=${floor}, level=${level}`,
+      );
+    }
     if (this.x === x && this.y === y && this.floor === floor && this.level === level) {
       console.log('no op');
       return;

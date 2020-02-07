@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import isNil from 'lodash.isnil';
+
 import style from './ShortestResult.module.css';
 import Loading from '../Loading/Loading';
 import MapCanvasPlugin from './ShortestResultMapCanvas';
@@ -11,16 +11,9 @@ class ShortestResultPrimaryPanel extends Component {
       searchNearestStore,
       linkTo,
       searchOptionsStore: { actionSource },
-      x: currentX,
-      y: currentY,
-      floor: currentFloor,
-      level: currentLevel,
     } = this.props;
 
-    if (
-      actionSource !== 'BUTTON_CLICK' &&
-      [currentFloor, currentX, currentY, currentLevel].every(v => !isNil(v))
-    ) {
+    if (actionSource !== 'BUTTON_CLICK') {
       return;
     }
 
@@ -224,10 +217,6 @@ const PrimaryPanelPlugin = {
     'floorStore',
     'linkTo',
     'searchOptionsStore',
-    'x',
-    'y',
-    'level',
-    'floor',
     'via',
   ],
   Component: ShortestResultPrimaryPanel,

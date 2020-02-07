@@ -1,3 +1,5 @@
+import PropTypes from 'prop-types';
+
 export const SEARCH_SHORTEST_PATH = 'SEARCH_SHORTEST_PATH';
 export const SEARCH_SHORTEST_PATH_SUCCESS = 'SEARCH_SHORTEST_PATH_SUCCESS';
 export const SEARCH_SHORTEST_PATH_FAILURE = 'SEARCH_SHORTEST_PATH_FAILURE';
@@ -40,6 +42,22 @@ export function clearSearchShortestPathResultAction() {
     type: CLEAR_SEARCH_SHORTEST_PATH_RESULT,
   };
 }
+
+export const searchShortestPathPropType = PropTypes.shape({
+  loading: PropTypes.bool.isRequired,
+  failure: PropTypes.bool.isRequired,
+  success: PropTypes.bool.isRequired,
+  paths: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      floor: PropTypes.string.isRequired,
+      name: PropTypes.string,
+      coordinates: PropTypes.arrayOf(PropTypes.number),
+      distance: PropTypes.number.isRequired,
+      panorama: PropTypes.string,
+    }).isRequired,
+  ),
+});
 
 const initialState = {
   loading: false,
