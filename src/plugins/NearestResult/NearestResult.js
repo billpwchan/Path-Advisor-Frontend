@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import isNil from 'lodash.isnil';
 import style from './NearestResult.module.css';
 import Loading from '../Loading/Loading';
 
@@ -13,13 +12,9 @@ export class NearestResult extends Component {
       searchNearestStore: { nearest },
       searchOptionsStore: { actionSource },
       linkTo,
-      floor,
-      x,
-      y,
-      level,
     } = this.props;
 
-    if (nearest && (actionSource === 'BUTTON_CLICK' || [floor, x, y, level].some(v => isNil(v)))) {
+    if (nearest && actionSource === 'BUTTON_CLICK') {
       linkTo(
         {
           x: nearest.coordinates[0],
@@ -105,16 +100,7 @@ const core = true;
 
 const PrimaryPanelPlugin = {
   Component: NearestResult,
-  connect: [
-    'searchNearestStore',
-    'floorStore',
-    'linkTo',
-    'searchOptionsStore',
-    'x',
-    'y',
-    'level',
-    'floor',
-  ],
+  connect: ['searchNearestStore', 'floorStore', 'linkTo', 'searchOptionsStore'],
 };
 
 export { id, core, PrimaryPanelPlugin };

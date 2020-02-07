@@ -1,10 +1,15 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import isNil from 'lodash.isnil';
+
+import detectPlatform, { PLATFORM } from '../Main/detectPlatform';
+
 import { searchMapItemAction, searchMapItemPropTypes } from '../../reducers/searchMapItem';
 import {
   searchShortestPathAction,
   clearSearchShortestPathResultAction,
+  searchShortestPathPropType,
 } from '../../reducers/searchShortestPath';
 import {
   searchNearestAction,
@@ -26,6 +31,7 @@ import {
   hasContent as inputHasContent,
 } from './Input';
 import { MODE as LOG_MODE } from '../Main/logger';
+import { appSettingsPropType } from '../../reducers/appSettings';
 
 function getSearchPlaceFormat(inputPlace) {
   const {
@@ -44,6 +50,7 @@ class SearchArea extends Component {
     searchMapItemStore: searchMapItemPropTypes.isRequired,
     floorStore: floorsPropType.isRequired,
     searchNearestStore: searchNearestPropType.isRequired,
+    searchShortestPathStore: searchShortestPathPropType.isRequired,
     SearchView: PropTypes.func.isRequired,
     linkTo: PropTypes.func.isRequired,
     logger: PropTypes.func.isRequired,
@@ -53,8 +60,13 @@ class SearchArea extends Component {
     from: placePropType,
     to: placePropType,
     via: PropTypes.arrayOf(placePropType),
+    x: PropTypes.number,
+    y: PropTypes.number,
+    floor: PropTypes.string,
+    level: PropTypes.number,
     search: PropTypes.bool.isRequired,
     searchOptions: searchOptionsPropType.isRequired,
+    appSettingStore: appSettingsPropType.isRequired,
   };
 
   constructor(props) {
@@ -84,6 +96,10 @@ class SearchArea extends Component {
       via,
       searchOptions,
       searchShortestPathHandler,
+      x,
+      y,
+      level,
+      floor,
     } = this.props;
     if (
       search &&
@@ -97,11 +113,16 @@ class SearchArea extends Component {
       this.search();
     }
 
+    // auto positioning after a search if search success and no position is specified in url
+    if ([floor, x, y, level].some(v => isNil(v))) {
+      this.positionToNearestItem(prevProps);
+      this.positionToShortestPathItem(prevProps);
+    }
+
     if (searchNearestStore !== prevProps.searchNearestStore && searchNearestStore.success) {
-      // follow up shortest path search after nearest item searched
       const { nearest } = searchNearestStore;
 
-      // point to point search
+      // follow up shortest path search after nearest item searched
       searchShortestPathHandler(
         from.data.type === INPUT_TYPE.NEAREST
           ? { id: nearest.id, floor: nearest.floor }
@@ -334,6 +355,98 @@ class SearchArea extends Component {
     });
   };
 
+  positionToDefault() {
+    const {
+      appSettingStore: { defaultPosition, mobileDefaultPosition },
+      linkTo,
+    } = this.props;
+
+    if (!defaultPosition || !mobileDefaultPosition) {
+      return;
+    }
+
+    const { floor, x, y, level } =
+      detectPlatform() === PLATFORM.MOBILE ? mobileDefaultPosition : defaultPosition;
+
+    if ([floor, x, y, level].every(v => !isNil(v))) {
+      linkTo({ floor, x, y, level }, 'replace');
+    }
+  }
+
+  positionToNearestItem(prevProps) {
+    const { searchNearestStore, linkTo } = this.props;
+
+    if (searchNearestStore === prevProps.searchNearestStore) {
+      return;
+    }
+
+    switch (true) {
+      case searchNearestStore.failure:
+        // position to default position if no nearest found
+        this.positionToDefault();
+
+        break;
+      case searchNearestStore.success:
+        {
+          const { nearest } = searchNearestStore;
+          linkTo(
+            {
+              x: nearest.coordinates[0],
+              y: nearest.coordinates[1],
+              floor: nearest.floor,
+            },
+            'replace',
+          );
+        }
+        break;
+      default:
+    }
+  }
+
+  positionToShortestPathItem(prevProps) {
+    const { searchNearestStore, searchShortestPathStore, linkTo } = this.props;
+    if (searchShortestPathStore === prevProps.searchShortestPathStore) {
+      return;
+    }
+
+    // only do auto focus to start point if user is not searching for a nearest item
+    if (searchNearestStore.nearest !== null) {
+      return;
+    }
+
+    switch (true) {
+      case searchShortestPathStore.failure:
+        // position to default position if no nearest found
+        this.positionToDefault();
+        break;
+      case searchShortestPathStore.success:
+        {
+          const { paths } = searchShortestPathStore;
+          if (!paths.length) {
+            return;
+          }
+
+          const [
+            {
+              floor,
+              coordinates: [x, y],
+            },
+          ] = paths;
+
+          linkTo(
+            {
+              floor,
+              x,
+              y,
+            },
+            'replace',
+          );
+        }
+        break;
+      default:
+    }
+  }
+
   render() {
     const {
       floorStore,
@@ -374,7 +487,9 @@ export default connect(
     searchMapItemStore: state.searchMapItem,
     userActivitiesStore: state.userActivities,
     searchNearestStore: state.searchNearest,
+    searchShortestPathStore: state.searchShortestPath,
     floorStore: state.floors,
+    appSettingStore: state.appSettings,
   }),
   dispatch => ({
     searchMapItemHandler: keyword => {

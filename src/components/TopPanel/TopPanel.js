@@ -18,6 +18,10 @@ function TopPanel({ logger, linkTo, x, y, floor, level, from, to, via, search, s
         from={from}
         to={to}
         via={via}
+        x={x}
+        y={y}
+        floor={floor}
+        level={level}
         search={search}
         searchOptions={searchOptions}
         logger={logger}
