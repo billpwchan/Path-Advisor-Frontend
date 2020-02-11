@@ -45,6 +45,20 @@
   vertical-align: bottom;
 }
 
+.camera {
+  background-color: whitesmoke;
+  border: 1px solid #cccccc;
+  border-radius: 3px 3px 3px 3px;
+  cursor: pointer;
+  padding: 8px 0;
+  margin-left: 10px;
+  width: 1.2rem;
+}
+
+.camera * {
+  vertical-align: bottom;
+}
+
 .inputTitle {
   display: inline-block;
   width: 65px;

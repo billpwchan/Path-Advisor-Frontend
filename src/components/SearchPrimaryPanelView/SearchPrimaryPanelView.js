@@ -6,6 +6,7 @@ import SearchNearest, { nearestOptions } from '../SearchNearest/SearchNearest';
 import AdvancedSearch from '../AdvancedSearch/AdvancedSearch';
 import style from './SearchPrimaryPanelView.module.css';
 import switchImage from './switch.png';
+import cameraImage from './camera-solid.svg';
 import { searchOptionsPropType } from '../Router/searchOptions';
 import { searchMapItemPropTypes } from '../../reducers/searchMapItem';
 import { floorsPropType } from '../../reducers/floors';
@@ -26,6 +27,7 @@ class SearchPrimaryPanelView extends React.Component {
     onRemoveViaPlace: PropTypes.func.isRequired,
     onNearestItemClick: PropTypes.func.isRequired,
     switchInputOrder: PropTypes.func.isRequired,
+    fileUploader: PropTypes.func.isRequired,
     updateSameFloor: PropTypes.func.isRequired,
     search: PropTypes.func.isRequired,
     displayAdvancedSearch: PropTypes.bool.isRequired,
@@ -107,6 +109,7 @@ class SearchPrimaryPanelView extends React.Component {
       onAutoCompleteItemClick,
       onNearestItemClick,
       switchInputOrder,
+      fileUploader,
       updateSameFloor,
       search,
       displayAdvancedSearch,
@@ -187,6 +190,13 @@ class SearchPrimaryPanelView extends React.Component {
               onClick={switchInputOrder}
             >
               <img src={switchImage} alt="switch" />
+            </button>
+            <button
+              className={classnames(style.searchColumn, style.camera)}
+              type="button"
+              onClick={fileUploader}
+            >
+              <img src={cameraImage} alt="camera" />              
             </button>
 
             {this.shouldSameFloorInputDisplay() ? (
